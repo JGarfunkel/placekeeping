@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --prefix \"c:/Users/Jon/dev/atlas\" ping)",
+      "Bash(cd /tmp/gcv/package/build/protos && grep -n \"interface ISafeSearchAnnotation\" -A 10 protos.d.ts)",
+      "Read(//tmp/gcv/package/build/**)",
+      "Bash(cd /tmp/gcv/package/build/protos && grep -n \"interface IAnnotateImageResponse\" -A 20 protos.d.ts | head -30)",
+      "Bash(cd /tmp/gcv/package/build/src && cat index.d.ts)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('scripts',{}\\),indent=2\\)\\); print\\(json.dumps\\(d.get\\('devDependencies',{}\\),indent=2\\)\\)\")",
+      "Bash(npm install *)",
+      "Bash(npm ls *)",
+      "Bash(npx eslint *)",
+      "Bash(docker compose *)"
+    ]
+  }
+}

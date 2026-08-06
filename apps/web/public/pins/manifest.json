@@ -1,0 +1,201 @@
+{
+  "anchor": {
+    "x": 14,
+    "y": 35
+  },
+  "viewBox": "-2 -2 28 38",
+  "colors": {
+    "green": {
+      "fill": "#2f6b4f",
+      "stroke": "#234f3b"
+    },
+    "orange": {
+      "fill": "#b03a0f",
+      "stroke": "#8a2d09"
+    },
+    "navy": {
+      "fill": "#1f3a5f",
+      "stroke": "#16293f"
+    }
+  },
+  "glyphs": [
+    "garden",
+    "monument",
+    "vegetable_herb",
+    "ornamental",
+    "pollinator",
+    "wetland",
+    "woodland",
+    "grassland",
+    "mowed_lawn",
+    "herbaceous_weeds",
+    "vigorous_weeds"
+  ],
+  "samples": [
+    {
+      "file": "sample/garden--pollinator--minimal--stewarded.svg",
+      "purpose": "garden",
+      "vegetation": "pollinator",
+      "weed_level": "minimal",
+      "stewarded": true,
+      "glyph": "garden",
+      "color": "green",
+      "fill": "solid",
+      "dot": null
+    },
+    {
+      "file": "sample/garden--pollinator--light--open.svg",
+      "purpose": "garden",
+      "vegetation": "pollinator",
+      "weed_level": "light",
+      "stewarded": false,
+      "glyph": "garden",
+      "color": "green",
+      "fill": "outline",
+      "dot": "light"
+    },
+    {
+      "file": "sample/garden--ornamental--thick--open.svg",
+      "purpose": "garden",
+      "vegetation": "ornamental",
+      "weed_level": "thick",
+      "stewarded": false,
+      "glyph": "garden",
+      "color": "green",
+      "fill": "outline",
+      "dot": "thick"
+    },
+    {
+      "file": "sample/monument--none--minimal--stewarded.svg",
+      "purpose": "monument",
+      "vegetation": "none",
+      "weed_level": "minimal",
+      "stewarded": true,
+      "glyph": "monument",
+      "color": "navy",
+      "fill": "solid",
+      "dot": null
+    },
+    {
+      "file": "sample/monument--none--minimal--open.svg",
+      "purpose": "monument",
+      "vegetation": "none",
+      "weed_level": "minimal",
+      "stewarded": false,
+      "glyph": "monument",
+      "color": "navy",
+      "fill": "outline",
+      "dot": null
+    },
+    {
+      "file": "sample/monument--ornamental--thick--open.svg",
+      "purpose": "monument",
+      "vegetation": "ornamental",
+      "weed_level": "thick",
+      "stewarded": false,
+      "glyph": "monument",
+      "color": "navy",
+      "fill": "outline",
+      "dot": "thick"
+    },
+    {
+      "file": "sample/wild_area--woodland--minimal--stewarded.svg",
+      "purpose": "wild_area",
+      "vegetation": "woodland",
+      "weed_level": "minimal",
+      "stewarded": true,
+      "glyph": "woodland",
+      "color": "green",
+      "fill": "solid",
+      "dot": null
+    },
+    {
+      "file": "sample/wild_area--woodland--light--open.svg",
+      "purpose": "wild_area",
+      "vegetation": "woodland",
+      "weed_level": "light",
+      "stewarded": false,
+      "glyph": "woodland",
+      "color": "green",
+      "fill": "outline",
+      "dot": "light"
+    },
+    {
+      "file": "sample/wild_area--grassland--minimal--open.svg",
+      "purpose": "wild_area",
+      "vegetation": "grassland",
+      "weed_level": "minimal",
+      "stewarded": false,
+      "glyph": "grassland",
+      "color": "green",
+      "fill": "outline",
+      "dot": null
+    },
+    {
+      "file": "sample/wild_area--wetland--minimal--stewarded.svg",
+      "purpose": "wild_area",
+      "vegetation": "wetland",
+      "weed_level": "minimal",
+      "stewarded": true,
+      "glyph": "wetland",
+      "color": "green",
+      "fill": "solid",
+      "dot": null
+    },
+    {
+      "file": "sample/wild_area--mowed_lawn--minimal--stewarded.svg",
+      "purpose": "wild_area",
+      "vegetation": "mowed_lawn",
+      "weed_level": "minimal",
+      "stewarded": true,
+      "glyph": "mowed_lawn",
+      "color": "green",
+      "fill": "solid",
+      "dot": null
+    },
+    {
+      "file": "sample/wild_area--herbaceous_weeds--light--open.svg",
+      "purpose": "wild_area",
+      "vegetation": "herbaceous_weeds",
+      "weed_level": "light",
+      "stewarded": false,
+      "glyph": "herbaceous_weeds",
+      "color": "orange",
+      "fill": "outline",
+      "dot": "light"
+    },
+    {
+      "file": "sample/wild_area--herbaceous_weeds--light--stewarded.svg",
+      "purpose": "wild_area",
+      "vegetation": "herbaceous_weeds",
+      "weed_level": "light",
+      "stewarded": true,
+      "glyph": "herbaceous_weeds",
+      "color": "orange",
+      "fill": "solid",
+      "dot": "light"
+    },
+    {
+      "file": "sample/wild_area--vigorous_weeds--thick--open.svg",
+      "purpose": "wild_area",
+      "vegetation": "vigorous_weeds",
+      "weed_level": "thick",
+      "stewarded": false,
+      "glyph": "vigorous_weeds",
+      "color": "orange",
+      "fill": "outline",
+      "dot": "thick"
+    },
+    {
+      "file": "sample/wild_area--vigorous_weeds--thick--stewarded.svg",
+      "purpose": "wild_area",
+      "vegetation": "vigorous_weeds",
+      "weed_level": "thick",
+      "stewarded": true,
+      "glyph": "vigorous_weeds",
+      "color": "orange",
+      "fill": "solid",
+      "dot": "thick"
+    }
+  ]
+}

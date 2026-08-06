@@ -1,0 +1,41 @@
+{
+  "name": "placekeeping",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "cross-env DEBUG=1 npm run dev -w apps/web",
+    "build": "npm run build -w apps/web",
+    "lint": "eslint .",
+    "typecheck": "tsc -b --pretty",
+    "test": "vitest run",
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down",
+    "db:generate": "npm run generate -w packages/db",
+    "db:migrate": "npm run migrate -w packages/db",
+    "db:check": "npm run check -w packages/db",
+    "db:backfill-subdivisions": "npm run backfill-subdivisions -w packages/core",
+    "db:studio": "npm run studio -w packages/db",
+    "db:set-admin": "npm run set-admin -w packages/db --",
+    "db:set-level": "npm run set-level -w packages/db --",
+    "import:fetch": "npm run fetch -w packages/importer",
+    "import:load": "npm run load -w packages/importer"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "dotenv": "^17.4.2",
+    "eslint": "^8.57.1",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.10"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1092.0"
+  }
+}
