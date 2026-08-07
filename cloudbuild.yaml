@@ -60,10 +60,12 @@ steps:
       - -c
       - |
         # $$-escaped below wherever a bash-runtime variable is meant, not a
-        # Cloud Build substitution — Cloud Build scans step text for
-        # $VAR/${VAR} independent of the leading-underscore convention, so
-        # an un-escaped $NAME here would be (wrongly) treated as an unset
-        # Cloud Build substitution and fail the build before bash even runs.
+        # Cloud Build substitution — Cloud Build scans step text (including
+        # comments!) for a dollar sign followed by a name, independent of
+        # the leading-underscore convention, so an un-escaped bash variable
+        # reference here would be (wrongly) treated as an unset Cloud Build
+        # substitution and fail the build before bash even runs. That's why
+        # this very comment can't spell out the literal syntax either.
         set -euo pipefail
         SECRETS_FLAG=""
         for NAME in $(gcloud secrets list --format='value(name)'); do
