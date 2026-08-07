@@ -1,9 +1,16 @@
 # Cloud Build config for apps/web. Used by a Cloud Build trigger
 # (Configuration: "Cloud Build configuration file") — see
 # apps/web/CLOUD_RUN_DEPLOY.md for the full deploy flow and why the
-# NEXT_PUBLIC_* build args exist. Builds and pushes the image only;
-# `gcloud run deploy` is still a separate, manual step (secrets come from
-# Secret Manager via a dynamic key list that isn't practical to inline here).
+# NEXT_PUBLIC_* build args exist. Builds, pushes, then deploys to Cloud Run.
+#
+# The deploy step discovers secret names from Secret Manager itself
+# (`gcloud secrets list`) rather than from .env, since .env is gitignored
+# and never reaches the build — same NAME=NAME:latest convention the
+# manual deploy flow in CLOUD_RUN_DEPLOY.md uses, just run inside the
+# build instead of by hand. Requires the trigger's service account to
+# have roles/run.admin, roles/secretmanager.viewer (project-level), and
+# roles/iam.serviceAccountUser on the Cloud Run runtime service account —
+# see CLOUD_RUN_DEPLOY.md for the exact grant commands.
 #
 # Most _MAPS_*/_FIREBASE_* substitutions below are committed with real
 # values on purpose: NEXT_PUBLIC_* vars are inlined into the client JS
@@ -21,6 +28,7 @@
 substitutions:
   _REGION: us-east4
   _REPO: placekeeping
+  _SERVICE: placekeeping-web
   _MAPS_KEY: ""
   _MAPS_MAP_ID: "112da5005f01d08e486aec86"
   _FIREBASE_API_KEY: ""
@@ -45,6 +53,28 @@ steps:
       - -t
       - $_REGION-docker.pkg.dev/$PROJECT_ID/$_REPO/web:latest
       - .
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        # $$-escaped below wherever a bash-runtime variable is meant, not a
+        # Cloud Build substitution — Cloud Build scans step text for
+        # $VAR/${VAR} independent of the leading-underscore convention, so
+        # an un-escaped $NAME here would be (wrongly) treated as an unset
+        # Cloud Build substitution and fail the build before bash even runs.
+        set -euo pipefail
+        SECRETS_FLAG=""
+        for NAME in $(gcloud secrets list --format='value(name)'); do
+          SECRETS_FLAG="$${SECRETS_FLAG:+$$SECRETS_FLAG,}$$NAME=$$NAME:latest"
+        done
+        gcloud run deploy $_SERVICE \
+          --image=$_REGION-docker.pkg.dev/$PROJECT_ID/$_REPO/web:$COMMIT_SHA \
+          --region=$_REGION \
+          --allow-unauthenticated \
+          --env-vars-file=cloud-run.env.yaml \
+          --set-secrets="$$SECRETS_FLAG"
 
 options:
   logging: CLOUD_LOGGING_ONLY
