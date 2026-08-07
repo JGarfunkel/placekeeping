@@ -54,6 +54,14 @@ steps:
       - $_REGION-docker.pkg.dev/$PROJECT_ID/$_REPO/web:latest
       - .
 
+  # The top-level `images:` list at the bottom only pushes after every step
+  # finishes, but the deploy step below needs the image in Artifact Registry
+  # before it runs — so push explicitly here rather than relying on that.
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - $_REGION-docker.pkg.dev/$PROJECT_ID/$_REPO/web:$COMMIT_SHA
+
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
     entrypoint: bash
     args:
