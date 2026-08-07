@@ -1,6 +1,6 @@
 "use client";
 
-import type { Site, SitePurpose } from "@placekeeping/shared-types";
+import type { Site } from "@placekeeping/shared-types";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useState } from "react";
@@ -27,7 +27,7 @@ export function SiteDetailsEditor({
 }) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
-  const [purpose, setPurpose] = useState<SitePurpose | "">(site.purpose ?? "");
+  const [purpose, setPurpose] = useState(site.purpose ?? "");
   const [legalOwner, setLegalOwner] = useState(site.legalOwner ?? "");
   const [stewardshipProgram, setStewardshipProgram] = useState(
     site.stewardshipProgram ?? "",
@@ -104,7 +104,7 @@ export function SiteDetailsEditor({
             <select
               className="rounded-md border border-neutral-300 px-3 py-2"
               value={purpose}
-              onChange={(e) => setPurpose(e.target.value as SitePurpose)}
+              onChange={(e) => setPurpose(e.target.value)}
             >
               <option value="">Not set</option>
               {sitePurposeOptions.map((opt) => (

@@ -49,7 +49,7 @@ export function QuickAddSpotDialog({
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [purpose, setPurpose] = useState<SpotType>("wild_area");
+  const [purpose, setPurpose] = useState<SpotType>("garden");
   const [vegetation, setVegetation] = useState<Vegetation | "">("");
   const [weedLevel, setWeedLevel] = useState<WeedLevel>("minimal");
   const [touched, setTouched] = useState<Set<Field>>(new Set());

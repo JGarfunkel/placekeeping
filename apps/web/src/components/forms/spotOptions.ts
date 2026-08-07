@@ -1,6 +1,5 @@
 import type {
   PlaceAccess,
-  SitePurpose,
   SpotPurpose,
   Vegetation,
 } from "@placekeeping/shared-types";
@@ -31,7 +30,7 @@ export const spotPurposeOptions: { value: SpotPurpose; label: string }[] = [
   { value: "none", label: "None" },
 ];
 
-export const sitePurposeOptions: { value: SitePurpose; label: string }[] = [
+export const sitePurposeOptions: { value: string; label: string }[] = [
   { value: "community_garden", label: "Community garden" },
   { value: "civic building", label: "Civic building" },
   { value: "cemetery", label: "Cemetery" },
