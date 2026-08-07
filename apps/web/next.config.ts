@@ -15,6 +15,9 @@ for (const file of [".env", ".env.local"]) {
 }
 
 const nextConfig: NextConfig = {
+  // Cloud Run needs a self-contained server bundle rather than a full
+  // node_modules tree — see Dockerfile and CLOUD_RUN_DEPLOY.md.
+  output: "standalone",
   transpilePackages: [
     "@placekeeping/core",
     "@placekeeping/db",
