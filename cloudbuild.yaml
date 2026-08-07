@@ -1,0 +1,54 @@
+# Cloud Build config for apps/web. Used by a Cloud Build trigger
+# (Configuration: "Cloud Build configuration file") — see
+# apps/web/CLOUD_RUN_DEPLOY.md for the full deploy flow and why the
+# NEXT_PUBLIC_* build args exist. Builds and pushes the image only;
+# `gcloud run deploy` is still a separate, manual step (secrets come from
+# Secret Manager via a dynamic key list that isn't practical to inline here).
+#
+# Most _MAPS_*/_FIREBASE_* substitutions below are committed with real
+# values on purpose: NEXT_PUBLIC_* vars are inlined into the client JS
+# bundle, so they're readable by any visitor in page source regardless —
+# same reason .env's own secrets:push script skips them (see the
+# "# config options" marker in .env).
+#
+# Exception: _MAPS_KEY and _FIREBASE_API_KEY are left blank here even
+# though they're just as public at runtime — they're API-key-shaped
+# strings (Google's "AIzaSy..." format), and GitHub's secret scanning
+# flags/quarantines those on sight regardless of actual sensitivity. Set
+# both in the trigger's substitution variables instead (Console → trigger
+# → Substitution variables) rather than committing them.
+
+substitutions:
+  _REGION: us-east4
+  _REPO: placekeeping
+  _MAPS_KEY: ""
+  _MAPS_MAP_ID: "112da5005f01d08e486aec86"
+  _FIREBASE_API_KEY: ""
+  _FIREBASE_AUTH_DOMAIN: "placekeeping-51b17.firebaseapp.com"
+  _FIREBASE_PROJECT_ID: "placekeeping-51b17"
+  _FIREBASE_APP_ID: "1:621685629726:web:13a241637845c13c0edf0f"
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - Dockerfile
+      - --build-arg=NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=$_MAPS_KEY
+      - --build-arg=NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=$_MAPS_MAP_ID
+      - --build-arg=NEXT_PUBLIC_FIREBASE_API_KEY=$_FIREBASE_API_KEY
+      - --build-arg=NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=$_FIREBASE_AUTH_DOMAIN
+      - --build-arg=NEXT_PUBLIC_FIREBASE_PROJECT_ID=$_FIREBASE_PROJECT_ID
+      - --build-arg=NEXT_PUBLIC_FIREBASE_APP_ID=$_FIREBASE_APP_ID
+      - -t
+      - $_REGION-docker.pkg.dev/$PROJECT_ID/$_REPO/web:$COMMIT_SHA
+      - -t
+      - $_REGION-docker.pkg.dev/$PROJECT_ID/$_REPO/web:latest
+      - .
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+images:
+  - $_REGION-docker.pkg.dev/$PROJECT_ID/$_REPO/web:$COMMIT_SHA
+  - $_REGION-docker.pkg.dev/$PROJECT_ID/$_REPO/web:latest
