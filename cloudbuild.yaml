@@ -32,7 +32,7 @@ substitutions:
   _MAPS_KEY: ""
   _MAPS_MAP_ID: "112da5005f01d08e486aec86"
   _FIREBASE_API_KEY: "AIzaSyCkEGnYu5E1uZVQHUQ8IOlCjBnFa_S56Ms"
-  _FIREBASE_AUTH_DOMAIN: "placekeeping-pro.firebaseapp.com"
+  _FIREBASE_AUTH_DOMAIN: "placekeeping-pro.firebaseapp.app"
   _FIREBASE_PROJECT_ID: "placekeeping-pro"
   _FIREBASE_APP_ID: "1:333932433476:web:fa7eb9ea29b6be92a2ec11"
 
