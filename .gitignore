@@ -4,8 +4,9 @@ dist/
 build/
 local/
 out/
-
+.claude/
 .env
+.env.prod
 .env.local
 .env.*.local
 

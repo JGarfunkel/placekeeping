@@ -22,7 +22,9 @@
     "db:set-admin": "npm run set-admin -w packages/db --",
     "db:set-level": "npm run set-level -w packages/db --",
     "import:fetch": "npm run fetch -w packages/importer",
-    "import:load": "npm run load -w packages/importer"
+    "import:load": "npm run load -w packages/importer",
+    "secrets:push": "bash scripts/push-secrets-to-gcp.sh",
+    "build:local": "bash scripts/build-local.sh"
   },
   "devDependencies": {
     "cross-env": "^10.1.0",

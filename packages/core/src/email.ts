@@ -25,14 +25,14 @@ function getResendClient(): Resend {
   return resendClient;
 }
 
-type Email = { to: string; subject: string; html: string };
+type Email = { to: string; subject: string; html: string; replyTo?: string };
 
 /**
  * EMAIL_PROVIDER=console (the default) logs instead of sending, so signup
  * and password reset work in local dev without a Resend account -- the
  * verification/reset link lands in the server console instead of an inbox.
  */
-async function sendEmail({ to, subject, html }: Email): Promise<void> {
+async function sendEmail({ to, subject, html, replyTo }: Email): Promise<void> {
   const provider = getEmailProvider();
   if (provider === "console") {
     console.log(`[email] to=${to} subject=${JSON.stringify(subject)}\n${html}`);
@@ -45,6 +45,7 @@ async function sendEmail({ to, subject, html }: Email): Promise<void> {
       to,
       subject,
       html,
+      ...(replyTo ? { replyTo } : {}),
     }),
   );
   if (error) {
@@ -73,5 +74,24 @@ export async function sendStewardVerificationEmail(to: string, link: string): Pr
     to,
     subject: "Verify your steward contact",
     html: `<p>Confirm this address as the contact for your steward record on Atlas:</p><p><a href="${link}">${link}</a></p><p>If you didn't request this, you can ignore this email.</p>`,
+  });
+}
+
+/**
+ * Relays a message received at an inbound address (see inboundEmail.ts) to a
+ * human inbox. replyTo is set to the original sender so replying from that
+ * inbox goes straight back to them, not to us.
+ */
+export async function sendForwardedInboundEmail(message: {
+  to: string;
+  from: string;
+  subject: string;
+  bodyHtml: string;
+}): Promise<void> {
+  await sendEmail({
+    to: message.to,
+    subject: `[Placekeeping] ${message.subject}`,
+    html: `<p><b>From:</b> ${message.from}</p><hr>${message.bodyHtml}`,
+    replyTo: message.from,
   });
 }

@@ -3,6 +3,7 @@ export * from "./auth";
 export * from "./debug";
 export * from "./email";
 export * from "./firebase-admin";
+export * from "./inboundEmail";
 export * from "./spots";
 export * from "./observations";
 export * from "./parcels";
