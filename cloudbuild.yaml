@@ -31,10 +31,10 @@ substitutions:
   _SERVICE: placekeeping-web
   _MAPS_KEY: ""
   _MAPS_MAP_ID: "112da5005f01d08e486aec86"
-  _FIREBASE_API_KEY: ""
-  _FIREBASE_AUTH_DOMAIN: "placekeeping-51b17.firebaseapp.com"
-  _FIREBASE_PROJECT_ID: "placekeeping-51b17"
-  _FIREBASE_APP_ID: "1:621685629726:web:13a241637845c13c0edf0f"
+  _FIREBASE_API_KEY: "AIzaSyCkEGnYu5E1uZVQHUQ8IOlCjBnFa_S56Ms"
+  _FIREBASE_AUTH_DOMAIN: "placekeeping-pro.firebaseapp.com"
+  _FIREBASE_PROJECT_ID: "placekeeping-pro"
+  _FIREBASE_APP_ID: "1:333932433476:web:fa7eb9ea29b6be92a2ec11"
 
 steps:
   - name: gcr.io/cloud-builders/docker
