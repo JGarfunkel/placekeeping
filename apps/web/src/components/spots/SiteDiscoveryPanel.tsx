@@ -176,7 +176,7 @@ export function SiteDiscoveryPanel({ spot }: { spot: Spot }) {
     try {
       const body =
         selectedSiteId === "new"
-          ? { newSite: { name: newSiteName } }
+          ? { newSite: { name: newSiteName, purpose: null } }
           : { siteId: selectedSiteId };
       const res = await fetch(`/api/spots/${spot.spotId}/site`, {
         method: "POST",
