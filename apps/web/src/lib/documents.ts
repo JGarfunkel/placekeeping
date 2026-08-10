@@ -15,6 +15,7 @@ export const aboutDocs = {
   history: "History",
   philosophy: "Site Philosophy",
   theory: "Theory",
+  usage: "Usage",
 } as const;
 
 export type AboutDocSlug = keyof typeof aboutDocs;

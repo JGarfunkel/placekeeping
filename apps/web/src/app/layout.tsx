@@ -1,15 +1,15 @@
 import { getAppSettings, type AuthContext } from "@placekeeping/core";
 import { isDatabaseConnectionError } from "@placekeeping/db";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Source_Serif_4 } from "next/font/google";
 import Link from "next/link";
 import "leaflet/dist/leaflet.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
 import "./globals.css";
 import { DatabaseWarningBanner } from "@/components/DatabaseWarningBanner";
+import { HeaderMenu } from "@/components/nav/HeaderMenu";
 import { PauseBanner } from "@/components/PauseBanner";
-import { LogoutButton } from "@/components/forms/LogoutButton";
 import { getAuthContext } from "@/lib/session";
 
 const geistSans = Geist({
@@ -19,6 +19,11 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const sourceSerif = Source_Serif_4({
+  variable: "--font-source-serif",
   subsets: ["latin"],
 });
 
@@ -49,13 +54,13 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${sourceSerif.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         {dbUnavailable && <DatabaseWarningBanner />}
         {!dbUnavailable && writesPaused && <PauseBanner />}
-        <header className="flex items-center justify-between border-b border-neutral-200 px-6 py-3 text-sm">
+        <header className="relative flex items-center justify-between border-b border-neutral-200 px-6 py-3 text-sm">
           <Link href="/" className="flex items-center">
             {/* eslint-disable-next-line @next/next/no-img-element -- static SVG, no optimization needed */}
             <img
@@ -65,29 +70,10 @@ export default async function RootLayout({
               height={33}
             />
           </Link>
-          <Link href="/about" className="text-sm underline">
-            About
-          </Link>
-
-          {authContext ? (
-            <span className="flex items-center gap-4">
-              {authContext.isSystemAdmin && (
-                <Link href="/admin" className="underline">
-                  Admin
-                </Link>
-              )}
-              <span className="flex flex-col items-end">
-                <Link href="/me" className="underline">
-                  My profile
-                </Link>
-                <LogoutButton className="underline text-neutral-500 hover:text-neutral-900" />
-              </span>
-            </span>
-          ) : (
-            <Link href="/login" className="underline">
-              Sign in
-            </Link>
-          )}
+          <HeaderMenu
+            isAuthenticated={authContext !== null}
+            isSystemAdmin={authContext?.isSystemAdmin ?? false}
+          />
         </header>
         <div className="flex flex-1 flex-col">{children}</div>
       </body>
