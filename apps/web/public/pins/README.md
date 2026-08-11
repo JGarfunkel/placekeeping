@@ -7,24 +7,24 @@ Three fields resolve to one pin: `purpose`, `vegetation`, `weed_level` — plus 
 | channel | carries | values |
 |---|---|---|
 | glyph | what is growing — including which *kind* of weed | 11 glyphs |
-| colour | condition | green · orange · navy |
+| color | type | green · pink · grey |
 | fill | does anyone tend it | solid · outline |
 | dot | how much of it there is | none · hollow ring · solid disc · double ring |
 
-**Glyph.** `monument` always supplies its own. `garden` supplies its own only when
-`vegetation` is `none`; otherwise it falls through to the vegetation glyph, same as
-`wild_area`.
+**Glyph.** `vegetation` wins whenever it's set to anything but `none` — including on a
+monument, since what's actually growing there is more informative than a fixed obelisk.
+`monument` and `garden` each supply their own glyph only as a fallback, for when there's
+nothing growing to draw instead.
 
-**Colour.** Monument is always navy. Orange fires whenever the *glyph itself* is a weed —
-`garden` and `wild_area` can both produce that now that garden falls through to the
-vegetation glyph. A weedy garden is no longer green; it reads exactly like a weedy wild
-area, and the dot still carries how much.
+**Color.** Purpose only: green for `wild_area`, pink for `garden`, grey for `monument`.
+Condition plays no part — a weedy garden is still pink, a weedy wild area is still green;
+weediness lives entirely in the dot now.
 
 **Dot.** Not suppressed when the glyph is already a weed — the glyph says WHICH weed, the dot
-says HOW MUCH. An orange bramble pin with a light ring means brambles coming in at the edge; the
-same pin with the overtaken mark means a wall of it. `weed_level` drives it: hollow ring for
-light, solid disc for thick, a double ring for overtaken. The dot takes the same ink as the
-glyph — white on solid pins, the pin colour on outline pins.
+says HOW MUCH. A pin with a light ring means brambles coming in at the edge; the same pin with
+the overtaken mark means a wall of it. `weed_level` drives it: hollow ring for light, solid disc
+for thick, a double ring for overtaken. The dot is a fixed near-black on every pin, independent
+of the pin's own color or ink — see Colors below for why.
 
 ## Where weeds live
 
@@ -53,10 +53,10 @@ renderPin.ts        PinSpec -> SVG string. Composes body + <use> glyph + dot.
 glyph-sprite.svg    all 11 glyphs as <symbol>, currentColor
 glyph/              the same glyphs individually, for legends and filters
 sample/             15 representative pins, pre-rendered
-manifest.json       colours, glyph ids, and what each sample resolves to
+manifest.json       colors, glyph ids, and what each sample resolves to
 ```
 
-Do **not** pre-render the full matrix — 11 glyphs × 3 colours × 2 fills × 3 dot states is well
+Do **not** pre-render the full matrix — 11 glyphs × 3 colors × 2 fills × 3 dot states is well
 over a hundred files, most never used. Compose at runtime: the body is one path, the glyph is a
 `<use>`, the dot is a circle.
 
@@ -71,7 +71,7 @@ L.icon({ iconUrl: url, iconSize: [28, 38], iconAnchor: [14, 35], popupAnchor: [0
 ```
 
 The canvas is bigger than the path itself (which still spans the original 24×34 region) so the
-gold trim ring — see Colours below — has margin to sit outside the pin's own border without
+gold trim ring — see Colors below — has margin to sit outside the pin's own border without
 getting clipped by the SVG viewport. Path, glyph, and dot coordinates are all still written in
 the original 0–24 / 0–34 space; only the `<svg>` wrapper's viewBox/width/height moved.
 
@@ -81,26 +81,32 @@ the original 0–24 / 0–34 space; only the `<svg>` wrapper's viewBox/width/hei
 wedge. It needs its own placement: `scale(19/22)` with the head centre landing at y 10.2. Drop it
 into the square path and the stem disappears. `glyphTransform()` in `renderPin.ts` handles it.
 
-## Colours
+## Colors
 
 | token | fill | stroke | when |
 |---|---|---|---|
-| green | `#2f6b4f` | `#234f3b` | living land, weeds are not the story |
-| orange | `#b03a0f` | `#8a2d09` | weeds are what is growing |
-| navy | `#1f3a5f` | `#16293f` | a monument |
+| green | `#2f6b4f` | `#234f3b` | wild area |
+| pink | `#b5296b` | `#8a1f52` | garden |
+| grey | `#5c5347` | `#443d34` | monument |
 
-Orange is deliberately deep. A lighter burnt orange measured 2.75:1 against woodland-green
-basemap fill — under the 3:1 floor, and weedy sites sit on woodland constantly. `#b03a0f` clears
-3.93:1 there, gives the white glyph 6.07:1, and sits ΔE 82.7 from green (69.2 under deuteranopia).
+Grey is warm-stone, not neutral, on purpose. An earlier neutral/cool-leaning grey (tried both
+here and in the blue detour below) collapses toward green under deuteranopia — simulated ΔE
+dropped to ~8, matching the ΔE 4.8 that ruled grey out the first time this was tried. Shifting
+the grey warm moves it off that red-green confusion line: simulated ΔE holds at ~21 against
+green, white glyph ink gets 7.54:1, and it clears 5.76:1 against the muted-basemap fill.
 
-Navy over bronze or grey for the same reason: against green, bronze falls to ΔE 13.2 under
-deuteranopia and grey to 4.8. Navy holds at 32.
+Weed condition used to live in this channel too (an `orange` fired whenever the vegetation glyph
+itself was a weed) but that conflated two independent signals — a stewarded weedy site and an
+unstewarded one both went orange for different reasons. Condition now lives only in the dot,
+which is why the dot is a fixed near-black rather than taking the pin's own color: it has to
+read as a severity mark against green, pink, *and* grey alike, not blend into whichever one it's
+drawn over.
 
-There was a brief detour to blue (with monument recoloured to a stone grey to avoid colliding
+There was a brief detour to blue (with monument recolored to a stone grey to avoid colliding
 with it) to solve green blending into aerial-imagery tree canopy. That was reverted: instead the
 app's default basemap changed from aerial imagery to a muted CARTO layer (see
 `components/map/baseLayers.ts`) where green has no such problem, and every pin — regardless of
-colour — got a thin gold trim ring (`#e8b64a`, `TRIM_WIDTH` in `renderPin.ts`) drawn just outside
+color — got a thin gold trim ring (`#e8b64a`, `TRIM_WIDTH` in `renderPin.ts`) drawn just outside
 its own border. The trim is what keeps green legible on aerial imagery for anyone who switches to
 it. It's drawn on the same path as the body, one layer further out, with `stroke-linejoin="round"`
 so it doesn't spike at the pin's bottom point — see Geometry above for why the canvas grew to fit

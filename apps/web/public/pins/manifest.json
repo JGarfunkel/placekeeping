@@ -9,13 +9,13 @@
       "fill": "#2f6b4f",
       "stroke": "#234f3b"
     },
-    "orange": {
-      "fill": "#b03a0f",
-      "stroke": "#8a2d09"
+    "pink": {
+      "fill": "#b5296b",
+      "stroke": "#8a1f52"
     },
-    "navy": {
-      "fill": "#1f3a5f",
-      "stroke": "#16293f"
+    "grey": {
+      "fill": "#5c5347",
+      "stroke": "#443d34"
     }
   },
   "glyphs": [
@@ -39,7 +39,7 @@
       "weed_level": "minimal",
       "stewarded": true,
       "glyph": "pollinator",
-      "color": "green",
+      "color": "pink",
       "fill": "solid",
       "dot": null
     },
@@ -50,7 +50,7 @@
       "weed_level": "light",
       "stewarded": false,
       "glyph": "pollinator",
-      "color": "green",
+      "color": "pink",
       "fill": "outline",
       "dot": "light"
     },
@@ -61,7 +61,7 @@
       "weed_level": "thick",
       "stewarded": false,
       "glyph": "ornamental",
-      "color": "green",
+      "color": "pink",
       "fill": "outline",
       "dot": "thick"
     },
@@ -72,7 +72,7 @@
       "weed_level": "minimal",
       "stewarded": true,
       "glyph": "monument",
-      "color": "navy",
+      "color": "grey",
       "fill": "solid",
       "dot": null
     },
@@ -83,7 +83,7 @@
       "weed_level": "minimal",
       "stewarded": false,
       "glyph": "monument",
-      "color": "navy",
+      "color": "grey",
       "fill": "outline",
       "dot": null
     },
@@ -93,8 +93,8 @@
       "vegetation": "ornamental",
       "weed_level": "thick",
       "stewarded": false,
-      "glyph": "monument",
-      "color": "navy",
+      "glyph": "ornamental",
+      "color": "grey",
       "fill": "outline",
       "dot": "thick"
     },
@@ -160,7 +160,7 @@
       "weed_level": "light",
       "stewarded": false,
       "glyph": "herbaceous_weeds",
-      "color": "orange",
+      "color": "green",
       "fill": "outline",
       "dot": "light"
     },
@@ -171,7 +171,7 @@
       "weed_level": "light",
       "stewarded": true,
       "glyph": "herbaceous_weeds",
-      "color": "orange",
+      "color": "green",
       "fill": "solid",
       "dot": "light"
     },
@@ -182,7 +182,7 @@
       "weed_level": "thick",
       "stewarded": false,
       "glyph": "vigorous_weeds",
-      "color": "orange",
+      "color": "green",
       "fill": "outline",
       "dot": "thick"
     },
@@ -193,7 +193,7 @@
       "weed_level": "thick",
       "stewarded": true,
       "glyph": "vigorous_weeds",
-      "color": "orange",
+      "color": "green",
       "fill": "solid",
       "dot": "thick"
     }

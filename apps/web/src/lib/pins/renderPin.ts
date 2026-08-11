@@ -52,11 +52,12 @@ const DOT = { cx: 12, cy: 22.3 };
 // roughly 75% more ink, so it reads as an escalation rather than a fourth
 // similar mark.
 //
-// The dot is always this fixed orange, not the pin's own ink -- weed level
-// is a severity signal independent of the pin's glyph color, and a solid
-// orange pin (weedy + stewarded) would otherwise swallow an orange-on-orange
-// mark. The white halo drawn behind it is what keeps it legible there too.
-const DOT_COLOR = PIN_COLORS.orange.fill;
+// The dot is always this fixed near-black, not the pin's own ink -- weed
+// level is a severity signal independent of the pin's color, which now
+// encodes type (garden/monument/wild area) rather than condition. Black
+// reads as a severity mark against green, pink, or grey alike. The white
+// halo drawn behind it is what keeps it legible against all three too.
+const DOT_COLOR = "#17190f";
 const DOT_HALO_COLOR = "#ffffff";
 
 function renderDot(level: PinSpec["dot"]): string {
