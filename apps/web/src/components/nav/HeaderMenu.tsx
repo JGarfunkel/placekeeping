@@ -70,6 +70,9 @@ export function HeaderMenu({
         <Link href="/about/guidelines" className={itemClass} onClick={onNavigate}>
           Guidelines
         </Link>
+        <Link href="/about/origins" className={itemClass} onClick={onNavigate}>
+          Origins
+        </Link>
       </>
     );
   }

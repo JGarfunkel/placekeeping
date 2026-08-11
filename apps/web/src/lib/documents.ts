@@ -12,7 +12,7 @@ export async function readDocumentHtml(slug: string): Promise<string> {
 // src/content/{slug}.html to publish a new one.
 export const aboutDocs = {
   guidelines: "Guidelines",
-  history: "History",
+  origins: "Origins",
   philosophy: "Site Philosophy",
   theory: "Theory",
   usage: "Usage",
