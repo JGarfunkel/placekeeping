@@ -2,7 +2,6 @@
 
 import type { SpotPurpose, Vegetation, WeedLevel } from "@placekeeping/shared-types";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { spotPurposeOptions, vegetationOptions } from "@/components/forms/spotOptions";
@@ -59,7 +58,6 @@ export function QuickAddSpotDialog({
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const [createdSpotId, setCreatedSpotId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!geocodingLib) return;
@@ -156,7 +154,7 @@ export function QuickAddSpotDialog({
         );
       }
       const { spot } = await res.json();
-      setCreatedSpotId(spot.spotId);
+      router.push(`/spots/${spot.spotId}`);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -174,204 +172,183 @@ export function QuickAddSpotDialog({
         className="max-h-[85vh] w-full max-w-sm overflow-y-auto rounded-md bg-white p-4 shadow-lg"
         onClick={(e) => e.stopPropagation()}
       >
-        {createdSpotId ? (
-          <div className="flex flex-col gap-4">
-            <p className="text-sm font-medium">Spot added.</p>
-            <div className="flex gap-2">
-              <Link
-                href={`/spots/${createdSpotId}/edit`}
-                className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white"
-              >
-                Add more details
-              </Link>
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium"
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <p className="text-sm font-medium">Add a spot here</p>
-            <p className="text-xs text-neutral-500">
-              {addressLoading
-                ? "Looking up address…"
-                : (address ?? "Address not found")}
-              <br />
-              {latitude.toFixed(5)}, {longitude.toFixed(5)}
-            </p>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <p className="text-sm font-medium">Add a spot here</p>
+          <p className="text-xs text-neutral-500">
+            {addressLoading
+              ? "Looking up address…"
+              : (address ?? "Address not found")}
+            <br />
+            {latitude.toFixed(5)}, {longitude.toFixed(5)}
+          </p>
 
-            <label className="flex flex-col gap-1 text-sm">
-              Name
-              <input
-                required
-                autoFocus
-                className="rounded-md border border-neutral-300 px-3 py-2"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </label>
+          <label className="flex flex-col gap-1 text-sm">
+            Name
+            <input
+              required
+              autoFocus
+              className="rounded-md border border-neutral-300 px-3 py-2"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </label>
 
-            <label className="flex flex-col gap-1 text-sm">
-              Description
-              <textarea
-                className="rounded-md border border-neutral-300 px-3 py-2"
-                rows={3}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </label>
+          <label className="flex flex-col gap-1 text-sm">
+            Description
+            <textarea
+              className="rounded-md border border-neutral-300 px-3 py-2"
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </label>
 
-            <fieldset className="flex flex-col gap-1 text-sm">
-              <legend>Type</legend>
-              <div className="flex gap-3">
-                {spotTypeOptions.map((opt) => (
-                  <label key={opt.value} className="flex items-center gap-1.5">
-                    <input
-                      type="radio"
-                      name="purpose"
-                      checked={purpose === opt.value}
-                      onChange={() => setPurpose(opt.value)}
-                    />
-                    {opt.label}
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-
-            <div className="flex flex-col gap-1 text-sm">
-              Steward
-              <StewardAssociationPicker
-                selected={selectedSteward}
-                onSelect={setSelectedSteward}
-              />
-            </div>
-
-            <label className="flex flex-col gap-1 text-sm">
-              Vegetation
-              <select
-                className="rounded-md border border-neutral-300 px-3 py-2"
-                value={vegetation}
-                onChange={(e) =>
-                  applyEdit((s) =>
-                    onVegetationChange(s, e.target.value as Vegetation | ""),
-                  )
-                }
-              >
-                <option value="">Unspecified</option>
-                {vegetationOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <div className="flex flex-col gap-1 text-sm">
-              Weed level
-              <input
-                type="range"
-                min={0}
-                max={3}
-                step={1}
-                value={weedSlider}
-                onChange={(e) =>
-                  applyEdit((s) =>
-                    onWeedLevelChange(s, WEED_LEVELS[Number(e.target.value)].value),
-                  )
-                }
-              />
-              <div className="flex justify-between text-xs text-neutral-500">
-                {weedSliderLabels.map((label) => (
-                  <span key={label}>{label}</span>
-                ))}
-              </div>
-              {overtakenPrompt(editState) && (
-                <div className="flex flex-col gap-1.5 text-xs text-amber-600">
-                  <p>{overtakenPrompt(editState)}</p>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        applyEdit((s) => onVegetationChange(s, "herbaceous_weeds"))
-                      }
-                      className="rounded-md border border-amber-300 px-2 py-1 font-medium hover:bg-amber-50"
-                    >
-                      Herbaceous weeds
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        applyEdit((s) => onVegetationChange(s, "vigorous_weeds"))
-                      }
-                      className="rounded-md border border-amber-300 px-2 py-1 font-medium hover:bg-amber-50"
-                    >
-                      Vigorous weeds
-                    </button>
-                  </div>
-                </div>
-              )}
-              {weedLevelWarning(editState) && (
-                <p className="text-xs text-amber-600">{weedLevelWarning(editState)}</p>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-2 text-sm">
-              Cover photo
-              {coverPhotoUrl ? (
-                <div className="relative h-32 w-full">
-                  <img
-                    src={coverPhotoUrl}
-                    alt="Cover photo preview"
-                    className="h-32 w-full rounded-md border border-neutral-200 object-cover"
+          <fieldset className="flex flex-col gap-1 text-sm">
+            <legend>Type</legend>
+            <div className="flex gap-3">
+              {spotTypeOptions.map((opt) => (
+                <label key={opt.value} className="flex items-center gap-1.5">
+                  <input
+                    type="radio"
+                    name="purpose"
+                    checked={purpose === opt.value}
+                    onChange={() => setPurpose(opt.value)}
                   />
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <div className="flex flex-col gap-1 text-sm">
+            Steward
+            <StewardAssociationPicker
+              selected={selectedSteward}
+              onSelect={setSelectedSteward}
+            />
+          </div>
+
+          <label className="flex flex-col gap-1 text-sm">
+            Vegetation
+            <select
+              className="rounded-md border border-neutral-300 px-3 py-2"
+              value={vegetation}
+              onChange={(e) =>
+                applyEdit((s) =>
+                  onVegetationChange(s, e.target.value as Vegetation | ""),
+                )
+              }
+            >
+              <option value="">Unspecified</option>
+              {vegetationOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div className="flex flex-col gap-1 text-sm">
+            Weed level
+            <input
+              type="range"
+              min={0}
+              max={3}
+              step={1}
+              value={weedSlider}
+              onChange={(e) =>
+                applyEdit((s) =>
+                  onWeedLevelChange(s, WEED_LEVELS[Number(e.target.value)].value),
+                )
+              }
+            />
+            <div className="flex justify-between text-xs text-neutral-500">
+              {weedSliderLabels.map((label) => (
+                <span key={label}>{label}</span>
+              ))}
+            </div>
+            {overtakenPrompt(editState) && (
+              <div className="flex flex-col gap-1.5 text-xs text-amber-600">
+                <p>{overtakenPrompt(editState)}</p>
+                <div className="flex gap-2">
                   <button
                     type="button"
-                    onClick={() => setCoverPhotoUrl("")}
-                    aria-label="Remove cover photo"
-                    className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-neutral-900 text-xs leading-none text-white hover:bg-neutral-700"
+                    onClick={() =>
+                      applyEdit((s) => onVegetationChange(s, "herbaceous_weeds"))
+                    }
+                    className="rounded-md border border-amber-300 px-2 py-1 font-medium hover:bg-amber-50"
                   >
-                    ✕
+                    Herbaceous weeds
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      applyEdit((s) => onVegetationChange(s, "vigorous_weeds"))
+                    }
+                    className="rounded-md border border-amber-300 px-2 py-1 font-medium hover:bg-amber-50"
+                  >
+                    Vigorous weeds
                   </button>
                 </div>
-              ) : (
-                <label className="flex h-32 w-full cursor-pointer items-center justify-center rounded-md border border-dashed border-neutral-300 text-xs text-neutral-500 hover:bg-neutral-50">
-                  {uploadingPhoto ? "Uploading…" : "Add a photo"}
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    className="hidden"
-                    disabled={uploadingPhoto}
-                    onChange={handlePhotoSelected}
-                  />
-                </label>
-              )}
-              {photoError && <p className="text-xs text-red-600">{photoError}</p>}
-            </div>
+              </div>
+            )}
+            {weedLevelWarning(editState) && (
+              <p className="text-xs text-amber-600">{weedLevelWarning(editState)}</p>
+            )}
+          </div>
 
-            {error && <p className="text-sm text-red-600">{error}</p>}
+          <div className="flex flex-col gap-2 text-sm">
+            Cover photo
+            {coverPhotoUrl ? (
+              <div className="relative h-32 w-full">
+                <img
+                  src={coverPhotoUrl}
+                  alt="Cover photo preview"
+                  className="h-32 w-full rounded-md border border-neutral-200 object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => setCoverPhotoUrl("")}
+                  aria-label="Remove cover photo"
+                  className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-neutral-900 text-xs leading-none text-white hover:bg-neutral-700"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <label className="flex h-32 w-full cursor-pointer items-center justify-center rounded-md border border-dashed border-neutral-300 text-xs text-neutral-500 hover:bg-neutral-50">
+                {uploadingPhoto ? "Uploading…" : "Add a photo"}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  disabled={uploadingPhoto}
+                  onChange={handlePhotoSelected}
+                />
+              </label>
+            )}
+            {photoError && <p className="text-xs text-red-600">{photoError}</p>}
+          </div>
 
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                disabled={pending || uploadingPhoto}
-                className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-              >
-                {pending ? "Adding…" : "Add spot"}
-              </button>
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        )}
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              disabled={pending || uploadingPhoto}
+              className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            >
+              {pending ? "Adding…" : "Add spot"}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

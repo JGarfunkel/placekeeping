@@ -1,17 +1,12 @@
 "use client";
 
-import type { Spot, WeedLevel } from "@placekeeping/shared-types";
+import type { Spot } from "@placekeeping/shared-types";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { FormSection } from "@/components/forms/FormSection";
-import { weedLevelOptions } from "@/components/forms/spotOptions";
 import { StewardshipFields } from "@/components/forms/StewardshipFields";
-
-const weedLevelLabels: Record<string, string> = Object.fromEntries(
-  weedLevelOptions.map((opt) => [opt.value, opt.label]),
-);
 
 // slug is optional: a steward just picked in the edit form (via
 // StewardAssociationPicker, whose StewardOption shape has no slug) won't
@@ -53,7 +48,6 @@ export function StewardshipSection({
   const [educationalNotes, setEducationalNotes] = useState(
     spot.educationalNotes ?? "",
   );
-  const [weedLevel, setWeedLevel] = useState<WeedLevel>(spot.weedLevel);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,7 +58,6 @@ export function StewardshipSection({
     setPlans(spot.plans ?? "");
     setEducationalComponent(spot.educationalComponent);
     setEducationalNotes(spot.educationalNotes ?? "");
-    setWeedLevel(spot.weedLevel);
     setError(null);
     setIsEditing(true);
   }
@@ -88,7 +81,6 @@ export function StewardshipSection({
           plans: plans || undefined,
           educationalComponent,
           educationalNotes: educationalNotes || undefined,
-          weedLevel,
         }),
       });
 
@@ -153,21 +145,6 @@ export function StewardshipSection({
             onEducationalNotesChange={setEducationalNotes}
           />
 
-          <label className="flex flex-col gap-1 text-sm">
-            Weed level
-            <select
-              className="rounded-md border border-neutral-300 px-3 py-2"
-              value={weedLevel}
-              onChange={(e) => setWeedLevel(e.target.value as WeedLevel)}
-            >
-              {weedLevelOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
           {error && <p className="text-sm text-red-600">{error}</p>}
 
           <div className="flex gap-2">
@@ -219,10 +196,6 @@ export function StewardshipSection({
                   ? (spot.educationalNotes ?? "Yes")
                   : null
               }
-            />
-            <Field
-              label="Weed level"
-              value={weedLevelLabels[spot.weedLevel]}
             />
           </dl>
 

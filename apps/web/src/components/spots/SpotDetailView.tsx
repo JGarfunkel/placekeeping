@@ -16,6 +16,8 @@ import { DeleteSpotButton } from "./DeleteSpotButton";
 import { FillGeoDetailsButton } from "./FillGeoDetailsButton";
 import { SiteColumn } from "./SiteColumn";
 import { SpotColumns } from "./SpotColumns";
+import { SpotDetailsSection } from "./SpotDetailsSection";
+import { SpotTitleEditor } from "./SpotTitleEditor";
 import { StewardshipSection } from "./StewardshipSection";
 
 const vegetationLabels: Record<string, string> = Object.fromEntries(
@@ -209,7 +211,11 @@ export async function SpotDetailView({
       main={
         <>
           <div>
-            <h1 className="text-2xl font-semibold">{spot.name}</h1>
+            <SpotTitleEditor
+              spotId={spot.spotId}
+              name={spot.name}
+              canEdit={canManageParcel}
+            />
             <p className="text-sm text-neutral-500">
               {joinWithCommas([
                 addressPrefix,
@@ -294,6 +300,8 @@ export async function SpotDetailView({
                 : null
             }
           />
+
+          <SpotDetailsSection spot={spot} canEdit={canManageParcel} />
         </>
       }
       observations={
