@@ -439,7 +439,7 @@ export async function createSpot(
   if (input.coverPhotoUrl) {
     await createObservation(
       row.spotId,
-      { photoUrls: [input.coverPhotoUrl] },
+      { photoUrls: [input.coverPhotoUrl], observedAt: input.coverPhotoObservedAt },
       creatorUserId,
     );
   }
@@ -451,7 +451,10 @@ export async function updateSpot(
   spotId: number,
   input: UpdateSpotInput,
 ): Promise<Spot | null> {
-  const { latitude, longitude, sizeSqft, ...rest } = input;
+  // coverPhotoObservedAt only ever backdates the one-time observation
+  // createSpot logs alongside a new cover photo -- not a spots column, so it
+  // must not reach the update() call below.
+  const { latitude, longitude, sizeSqft, coverPhotoObservedAt: _coverPhotoObservedAt, ...rest } = input;
   debugLog("[spots] updateSpot", spotId, input);
 
   // Fetched unconditionally (not just when slug-relevant fields change) --

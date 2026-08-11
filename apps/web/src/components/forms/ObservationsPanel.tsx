@@ -19,8 +19,10 @@ import { EditObservationDialog } from "./EditObservationDialog";
 function canEditObservation(
   obs: Observation,
   currentUserId: string | null,
+  isSystemAdmin: boolean,
 ): boolean {
   if (!currentUserId || obs.observerId !== currentUserId) return false;
+  if (isSystemAdmin) return true;
   const ageMs = Date.now() - new Date(obs.createdAt).getTime();
   return ageMs >= 0 && ageMs < OBSERVATION_EDIT_WINDOW_MS;
 }
@@ -182,6 +184,7 @@ export function ObservationsPanel({
   observerName,
   currentUserId,
   currentStewardId,
+  isSystemAdmin = false,
 }: {
   spotId: number;
   spotName: string;
@@ -191,6 +194,7 @@ export function ObservationsPanel({
   observerName: string | null;
   currentUserId: string | null;
   currentStewardId: string | null;
+  isSystemAdmin?: boolean;
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingObservation, setEditingObservation] = useState<Observation | null>(
@@ -227,7 +231,7 @@ export function ObservationsPanel({
               </div>
               <div className="flex items-center gap-2">
                 {obs.observerName && <span>{obs.observerName}</span>}
-                {canEditObservation(obs, currentUserId) && (
+                {canEditObservation(obs, currentUserId, isSystemAdmin) && (
                   <button
                     type="button"
                     onClick={() => setEditingObservation(obs)}
@@ -241,7 +245,7 @@ export function ObservationsPanel({
               </div>
             </div>
             {obs.notes && <p className="mt-1 text-sm">{obs.notes}</p>}
-            {canEditObservation(obs, currentUserId) && (
+            {canEditObservation(obs, currentUserId, isSystemAdmin) && (
               <StewardshipActions
                 spotId={spotId}
                 obs={obs}

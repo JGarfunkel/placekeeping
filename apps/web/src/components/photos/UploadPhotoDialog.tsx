@@ -14,7 +14,7 @@ type Step =
   | { kind: "select" }
   | { kind: "nearby"; url: string; observedAt: string | null; lat: number; lng: number }
   | { kind: "manual"; url: string; observedAt: string | null }
-  | { kind: "create-gps"; url: string; lat: number; lng: number };
+  | { kind: "create-gps"; url: string; observedAt: string | null; lat: number; lng: number };
 
 export function UploadPhotoDialog({
   observerName,
@@ -100,6 +100,7 @@ export function UploadPhotoDialog({
         latitude={step.lat}
         longitude={step.lng}
         initialCoverPhotoUrl={step.url}
+        initialCoverPhotoObservedAt={step.observedAt}
         onClose={onClose}
       />
     );
@@ -170,7 +171,13 @@ export function UploadPhotoDialog({
             lng={step.lng}
             onSelect={(spotId) => attachToSpot(spotId, step.url, step.observedAt)}
             onCreateNew={() =>
-              setStep({ kind: "create-gps", url: step.url, lat: step.lat, lng: step.lng })
+              setStep({
+                kind: "create-gps",
+                url: step.url,
+                observedAt: step.observedAt,
+                lat: step.lat,
+                lng: step.lng,
+              })
             }
             onCancel={onClose}
           />
@@ -178,7 +185,9 @@ export function UploadPhotoDialog({
           <ManualSpotStep
             onSelect={(spotId) => attachToSpot(spotId, step.url, step.observedAt)}
             onCreateNew={() => {
-              router.push(`/spots/new?coverPhotoUrl=${encodeURIComponent(step.url)}`);
+              const params = new URLSearchParams({ coverPhotoUrl: step.url });
+              if (step.observedAt) params.set("coverPhotoObservedAt", step.observedAt);
+              router.push(`/spots/new?${params.toString()}`);
               onClose();
             }}
             onCancel={onClose}

@@ -109,6 +109,14 @@ export const createSpotSchema = z.object({
   plans: z.string().optional(),
   website: z.string().url().optional(),
   coverPhotoUrl: z.string().url().optional(),
+  // EXIF capture date of coverPhotoUrl, read client-side at upload time (see
+  // POST /api/photos) -- used to backdate the initial observation createSpot
+  // logs for this photo instead of defaulting it to today. Ignored unless
+  // coverPhotoUrl is also set.
+  coverPhotoObservedAt: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Expected a YYYY-MM-DD date")
+    .optional(),
   photoAlbumUrl: z.string().url().optional(),
   inaturalistUrl: z.string().url().optional(),
 });

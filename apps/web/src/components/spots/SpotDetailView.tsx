@@ -314,6 +314,7 @@ export async function SpotDetailView({
           observerName={observerName}
           currentUserId={authContext?.userId ?? null}
           currentStewardId={authContext?.stewardId ?? null}
+          isSystemAdmin={authContext?.isSystemAdmin ?? false}
         />
       }
     />

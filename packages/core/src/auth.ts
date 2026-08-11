@@ -115,10 +115,11 @@ export function canManageSpot(
   );
 }
 
-// Only the observation's own submitter may edit it, and only within
-// OBSERVATION_EDIT_WINDOW_MS of logging it -- unlike canManageSpot/
-// canManageSite, there's no admin override: nobody else's account should be
-// able to silently alter what a user recorded seeing.
+// Only the observation's own submitter may edit it -- unlike canManageSpot/
+// canManageSite, there's no ownership override: nobody else's account should
+// be able to silently alter what a user recorded seeing, admin or not. The
+// OBSERVATION_EDIT_WINDOW_MS cutoff, though, is waived for system admins
+// editing their own observations.
 export function canEditObservation(
   authContext: AuthContext,
   observation: { observerId: string | null; createdAt: string },
@@ -127,6 +128,7 @@ export function canEditObservation(
   if (!observation.observerId || authContext.userId !== observation.observerId) {
     return false;
   }
+  if (authContext.isSystemAdmin) return true;
   const ageMs = Date.now() - new Date(observation.createdAt).getTime();
   return ageMs >= 0 && ageMs < OBSERVATION_EDIT_WINDOW_MS;
 }

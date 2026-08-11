@@ -28,11 +28,13 @@ export function SpotForm({
   observationPhotos = [],
   currentSteward = null,
   initialCoverPhotoUrl,
+  initialCoverPhotoObservedAt,
 }: {
   existing?: Spot;
   observationPhotos?: { url: string; observedAt: string }[];
   currentSteward?: StewardRef | null;
   initialCoverPhotoUrl?: string;
+  initialCoverPhotoObservedAt?: string;
 }) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -42,6 +44,7 @@ export function SpotForm({
       observationPhotos={observationPhotos}
       currentSteward={currentSteward}
       initialCoverPhotoUrl={initialCoverPhotoUrl}
+      initialCoverPhotoObservedAt={initialCoverPhotoObservedAt}
     />
   );
   return apiKey ? <APIProvider apiKey={apiKey}>{form}</APIProvider> : form;
@@ -52,11 +55,13 @@ function SpotFormFields({
   observationPhotos,
   currentSteward,
   initialCoverPhotoUrl,
+  initialCoverPhotoObservedAt,
 }: {
   existing?: Spot;
   observationPhotos: { url: string; observedAt: string }[];
   currentSteward: StewardRef | null;
   initialCoverPhotoUrl?: string;
+  initialCoverPhotoObservedAt?: string;
 }) {
   const router = useRouter();
   const geocodingLib = useMapsLibrary("geocoding");
@@ -124,14 +129,22 @@ function SpotFormFields({
   const [coverPhotoUrl, setCoverPhotoUrl] = useState(
     existing?.coverPhotoUrl ?? initialCoverPhotoUrl ?? "",
   );
+  // Only meaningful for a brand-new spot (see the coverPhotoObservedAt send
+  // below) -- backdates the observation createSpot logs for this photo to
+  // its EXIF capture date instead of today. Cleared whenever the cover photo
+  // itself changes, since a freshly picked photo's date is no longer known.
+  const [coverPhotoObservedAt, setCoverPhotoObservedAt] = useState(
+    existing ? undefined : initialCoverPhotoObservedAt,
+  );
   const [coverPhotoLoadError, setCoverPhotoLoadError] = useState(false);
   const [coverPhotoPickerOpen, setCoverPhotoPickerOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [geocoding, setGeocoding] = useState(false);
 
-  function selectCoverPhoto(url: string) {
+  function selectCoverPhoto(url: string, observedAt?: string) {
     setCoverPhotoUrl(url);
+    setCoverPhotoObservedAt(observedAt);
     setCoverPhotoLoadError(false);
     setCoverPhotoPickerOpen(false);
   }
@@ -204,6 +217,7 @@ function SpotFormFields({
         plans: plans || undefined,
         website: website || undefined,
         coverPhotoUrl: coverPhotoUrl || undefined,
+        coverPhotoObservedAt: coverPhotoUrl ? coverPhotoObservedAt : undefined,
         photoAlbumUrl: photoAlbumUrl || undefined,
         inaturalistUrl: inaturalistUrl || undefined,
       };
@@ -305,7 +319,7 @@ function SpotFormFields({
                     <button
                       key={photo.url}
                       type="button"
-                      onClick={() => selectCoverPhoto(photo.url)}
+                      onClick={() => selectCoverPhoto(photo.url, photo.observedAt)}
                       className="rounded-md ring-offset-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
                     >
                       <img

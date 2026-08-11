@@ -32,12 +32,14 @@ export function QuickAddSpotDialog({
   longitude,
   siteId,
   initialCoverPhotoUrl,
+  initialCoverPhotoObservedAt,
   onClose,
 }: {
   latitude: number;
   longitude: number;
   siteId?: number;
   initialCoverPhotoUrl?: string;
+  initialCoverPhotoObservedAt?: string | null;
   onClose: () => void;
 }) {
   const router = useRouter();
@@ -53,6 +55,9 @@ export function QuickAddSpotDialog({
   const [weedLevel, setWeedLevel] = useState<WeedLevel>("minimal");
   const [touched, setTouched] = useState<Set<Field>>(new Set());
   const [coverPhotoUrl, setCoverPhotoUrl] = useState(initialCoverPhotoUrl ?? "");
+  const [coverPhotoObservedAt, setCoverPhotoObservedAt] = useState(
+    initialCoverPhotoObservedAt ?? null,
+  );
   const [selectedSteward, setSelectedSteward] = useState<StewardRef | null>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
@@ -107,6 +112,7 @@ export function QuickAddSpotDialog({
         );
       }
       setCoverPhotoUrl(body.url);
+      setCoverPhotoObservedAt(body.observedAt ?? null);
     } catch (err) {
       setPhotoError(err instanceof Error ? err.message : "Failed to upload photo");
     } finally {
@@ -143,6 +149,7 @@ export function QuickAddSpotDialog({
           vegetation: vegetation || undefined,
           weedLevel,
           coverPhotoUrl: coverPhotoUrl || undefined,
+          coverPhotoObservedAt: coverPhotoUrl ? (coverPhotoObservedAt ?? undefined) : undefined,
           stewardId: selectedSteward?.stewardId ?? undefined,
           siteId,
         }),
@@ -308,7 +315,10 @@ export function QuickAddSpotDialog({
                 />
                 <button
                   type="button"
-                  onClick={() => setCoverPhotoUrl("")}
+                  onClick={() => {
+                    setCoverPhotoUrl("");
+                    setCoverPhotoObservedAt(null);
+                  }}
                   aria-label="Remove cover photo"
                   className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-neutral-900 text-xs leading-none text-white hover:bg-neutral-700"
                 >
