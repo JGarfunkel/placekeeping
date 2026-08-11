@@ -158,8 +158,8 @@ export const TERRITORY_LEVEL_LABELS: Record<TerritoryLevel, string> = {
 // rather than a pgEnum since new local-government types (e.g. NJ's borough/
 // township/district) surface as more countries/states are added, and a
 // pgEnum would need a migration for each one. Not exhaustive -- see
-// MunicipalityType in @placekeeping/core/territory for the narrower set
-// (city/town/village/county/zip) actually resolvable via GIS today.
+// MunicipalityType in ./states/types for the narrower set actually
+// resolvable via a state's civilBoundaries GIS source today.
 export const territoryTypeValues = [
   "country",
   "state",

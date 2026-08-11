@@ -1,16 +1,16 @@
 "use client";
 
-import type {
-  ParcelCandidate,
-  ParcelLookupResult,
-  ParcelOwnerInfo,
-  SiteCandidate,
-  Spot,
+import {
+  describePropertyClass,
+  type ParcelCandidate,
+  type ParcelLookupResult,
+  type ParcelOwnerInfo,
+  type SiteCandidate,
+  type Spot,
 } from "@placekeeping/shared-types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MapView } from "@/components/map/MapView";
-import { describePropertyClass } from "@/lib/nyPropertyClasses";
 import {
   ParcelPicker,
   parcelPolygonsForCandidates,

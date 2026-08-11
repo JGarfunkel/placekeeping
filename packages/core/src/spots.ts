@@ -1,6 +1,9 @@
 import { db, spots, users } from "@placekeeping/db";
 import {
+  DEFAULT_STATE_CODE,
   deriveAccessibility,
+  getStateConfig,
+  statesForPoint,
   type CreateSpotInput,
   type NearbySpotsQuery,
   type Spot,
@@ -370,9 +373,18 @@ export async function createSpot(
   // the resolved parcel rather than a separate geocode lookup, but only to
   // fill in what the caller didn't already supply -- an explicit client
   // value (e.g. from Google reverse-geocoding, where available) still wins.
-  // The parcel service is NY-only, so a resolved parcel implies state "NY".
+  // A resolved parcel implies the point falls in a configured state's
+  // parcel-service coverage; pick it up from the pin's own coordinates
+  // (same bounding-box lookup fetchNearbyParcels uses) rather than assuming
+  // a fixed state, falling back to the default configured state's name for
+  // an edge case outside every configured bounding box.
   const resolvedAddress = input.address ?? containingParcel?.address ?? undefined;
-  const resolvedState = input.state ?? (containingParcel ? "NY" : undefined);
+  const resolvedState =
+    input.state ??
+    (containingParcel
+      ? (statesForPoint(input.latitude, input.longitude)[0]?.name ??
+        getStateConfig(DEFAULT_STATE_CODE)?.name)
+      : undefined);
   const resolvedMunicipality =
     input.municipality ?? containingParcel?.muniName ?? undefined;
   const resolvedCounty = input.county ?? containingParcel?.countyName ?? undefined;

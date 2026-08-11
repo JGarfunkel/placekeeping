@@ -1,7 +1,44 @@
+import type { ParcelClassAllowlistEntry, StateConfig } from "./types";
+
+// NY ORPTS property-class series -> Show Owner auto-reveal, per
+// local/spot-resolution.md §5. `series` is the first digit of the 3-digit
+// PROP_CLASS code. State-owned land (parcel.nysName present) bypasses this
+// table entirely -- see isInstitutionalClass in packages/core/src/parcels.ts.
+const classAllowlist: ParcelClassAllowlistEntry[] = [
+  { series: "1", label: "Agricultural", autoReveal: false },
+  { series: "2", label: "Residential", autoReveal: false },
+  { series: "3", label: "Vacant land", autoReveal: false },
+  {
+    series: "4",
+    label: "Commercial",
+    autoReveal: false,
+    note: "doc marks this 'optional' rather than yes/no -- defaulted closed; flip to true if the product decision lands that way",
+  },
+  {
+    series: "5",
+    label: "Recreation",
+    autoReveal: false,
+    note: "no by default -- private clubs mixed in",
+  },
+  {
+    series: "6",
+    label: "Community services (schools, churches, municipal)",
+    autoReveal: true,
+  },
+  { series: "7", label: "Industrial", autoReveal: true },
+  { series: "8", label: "Public services / utilities", autoReveal: true },
+  {
+    series: "9",
+    label: "Wild / forest / conservation",
+    autoReveal: false,
+    note: "no by default -- private woodlots are common and often individually owned",
+  },
+];
+
 // NY State property classification codes (PROP_CLASS), per the Office of
 // Real Property Tax Services manual:
 // https://www.tax.ny.gov/research/property/assess/manuals/prclas.htm
-export const nyPropertyClassDescriptions: Record<string, string> = {
+const classDescriptions: Record<string, string> = {
   // 100 – Agricultural
   "105": "Agricultural vacant land (productive)",
   "110": "Livestock and products",
@@ -300,7 +337,7 @@ export const nyPropertyClassDescriptions: Record<string, string> = {
 // Fallback labels for the hundreds-series header, used when a code isn't
 // individually listed above (the manual leaves some numbers in each range
 // unassigned/reserved for local use).
-const nyPropertyClassSeriesLabels: Record<string, string> = {
+const classSeriesLabels: Record<string, string> = {
   "1": "Agricultural",
   "2": "Residential",
   "3": "Vacant land",
@@ -312,27 +349,63 @@ const nyPropertyClassSeriesLabels: Record<string, string> = {
   "9": "Wild, forested, conservation lands and public parks",
 };
 
-// Looks up the human-readable description for a NY PROP_CLASS code, e.g.
-// "210" -> "One family year-round residence". Falls back to the hundreds
-// series label (e.g. "Residential") for codes not individually listed.
-export function describePropertyClass(
-  propClass: string | null | undefined,
-): string | null {
-  if (!propClass) return null;
-  const code = propClass.trim();
-  if (!code) return null;
-  const exact = nyPropertyClassDescriptions[code];
-  if (exact) return exact;
-  return nyPropertyClassSeriesLabels[code.charAt(0)] ?? null;
-}
+// NY's civil-boundaries service publishes county/city/town/village as 4
+// separate layers (not one flat layer with a type attribute, unlike NJ/MA)
+// -- each municipality entry below is a fixed type, and population fields
+// go back to 1990 (no 1980 column, unlike NJ).
+const NY_POPULATION_FIELDS = ["POP2020", "POP2010", "POP2000", "POP1990"];
 
-// Combines the raw code with its description for compact display, e.g.
-// "210 – One family year-round residence". Falls back to just the code
-// when no description is found.
-export function formatPropertyClass(
-  propClass: string | null | undefined,
-): string | null {
-  if (!propClass) return null;
-  const description = describePropertyClass(propClass);
-  return description ? `${propClass} – ${description}` : propClass;
-}
+export const NY_STATE_CONFIG: StateConfig = {
+  code: "ny",
+  name: "New York",
+  // Generous envelope around NY's actual extent (40.4-45.1N, -79.9--71.8W),
+  // used only to pick candidate states for a lat/lng -- not a precise border.
+  boundingBox: { minLat: 40.3, maxLat: 45.2, minLng: -80.0, maxLng: -71.7 },
+  civilBoundaries: {
+    url: "https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Civil_Boundaries/FeatureServer",
+    county: { layerId: 2, nameField: "NAME" },
+    municipalities: [
+      {
+        layerId: 4,
+        nameField: "NAME",
+        countyField: "COUNTY",
+        populationFields: NY_POPULATION_FIELDS,
+        type: "city",
+      },
+      {
+        layerId: 5,
+        nameField: "NAME",
+        countyField: "COUNTY",
+        populationFields: NY_POPULATION_FIELDS,
+        type: "town",
+      },
+      {
+        layerId: 7,
+        nameField: "NAME",
+        countyField: "COUNTY",
+        populationFields: NY_POPULATION_FIELDS,
+        type: "village",
+      },
+    ],
+  },
+  parcels: {
+    queryUrl:
+      "https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Tax_Parcels_Public/FeatureServer/1/query",
+    fields: {
+      externalId: "SWIS_SBL_ID",
+      swis: "SWIS",
+      printKey: "PRINT_KEY",
+      address: "PARCEL_ADDR",
+      propertyClass: "PROP_CLASS",
+      acres: "CALC_ACRES",
+      county: "COUNTY_NAME",
+      municipality: "MUNI_NAME",
+      stateOwnedLabel: "NYS_NAME",
+      vintageYearField: "ROLL_YR",
+      spatialYr: "SPATIAL_YR",
+    },
+    classAllowlist,
+    classDescriptions,
+    classSeriesLabels,
+  },
+};

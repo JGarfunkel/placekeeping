@@ -45,11 +45,11 @@ export const GET = withApiErrorHandling(
     if (!parcel) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
-    if (!isInstitutionalClass(parcel.propClass, parcel.nysName)) {
+    if (!isInstitutionalClass(parcel.propClass, parcel.nysName, spot.state)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const owner = await getParcelOwnerInfo(spot.parcelSbl);
+    const owner = await getParcelOwnerInfo(spot.parcelSbl, spot.state);
     if (!owner) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }

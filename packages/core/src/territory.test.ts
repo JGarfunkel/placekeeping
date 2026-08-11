@@ -3,8 +3,11 @@ import {
   type ArcGisFeature,
   type Candidate,
   categoryKey,
+  civilBoundaryLayers,
   combineZipFeatures,
   pickWinner,
+  populationOf,
+  resolveMuniType,
   shouldIncludePostalCandidate,
   stripQualifier,
   sumCounts,
@@ -14,7 +17,6 @@ import {
 function candidate(overrides: Partial<Candidate> & Pick<Candidate, "type" | "name">): Candidate {
   return {
     county: null,
-    town: null,
     population: null,
     geometry: { coordinates: [] },
     ...overrides,
@@ -98,7 +100,6 @@ describe("pickWinner", () => {
       type: "village",
       name: "Ossining",
       county: "Westchester",
-      town: "Ossining",
       population: 25000,
     });
     const town = candidate({
@@ -168,6 +169,102 @@ describe("pickWinner", () => {
     const village = candidate({ type: "village", name: "Example", county: "A", population: 300 });
     const result = pickWinner([city, town, village], null);
     expect(result && "ambiguous" in result && result.ambiguous).toBe(true);
+  });
+
+  it("picks the larger by population for two same-named boroughs in different counties (NJ)", () => {
+    // NJ has no city/town/village nesting the way NY does -- same-type
+    // population tiebreak is the branch that actually fires for it.
+    const a = candidate({ type: "borough", name: "Example", county: "A", population: 4000 });
+    const b = candidate({ type: "borough", name: "Example", county: "B", population: 9000 });
+    expect(pickWinner([a, b], null)).toEqual(b);
+  });
+
+  it("honors an explicit township qualifier (NJ)", () => {
+    const borough = candidate({ type: "borough", name: "Example", county: "A" });
+    const township = candidate({ type: "township", name: "Example", county: "A" });
+    expect(pickWinner([borough, township], "township")).toEqual(township);
+  });
+});
+
+describe("resolveMuniType", () => {
+  it("returns a fixed type unchanged (NY's per-type layers)", () => {
+    expect(resolveMuniType("town", { NAME: "Bedford" })).toBe("town");
+  });
+
+  it("maps a raw field value through valueMap (NJ's flat MUN_TYPE layer)", () => {
+    const type = { field: "MUN_TYPE", valueMap: { Borough: "borough" as const } };
+    expect(resolveMuniType(type, { MUN_TYPE: "Borough" })).toBe("borough");
+  });
+
+  it("maps multiple raw values to the same MunicipalityType (MA's TC -> city)", () => {
+    const type = { field: "TYPE", valueMap: { C: "city" as const, TC: "city" as const } };
+    expect(resolveMuniType(type, { TYPE: "TC" })).toBe("city");
+  });
+
+  it("returns null for an unmapped raw value instead of guessing", () => {
+    const type = { field: "MUN_TYPE", valueMap: { Borough: "borough" as const } };
+    expect(resolveMuniType(type, { MUN_TYPE: "Plantation" })).toBeNull();
+  });
+
+  it("returns null when the type field itself is missing", () => {
+    const type = { field: "MUN_TYPE", valueMap: { Borough: "borough" as const } };
+    expect(resolveMuniType(type, {})).toBeNull();
+  });
+});
+
+describe("populationOf", () => {
+  it("returns null when no population fields are configured", () => {
+    expect(populationOf({ POP2020: 5000 }, undefined)).toBeNull();
+  });
+
+  it("tries fields in order and returns the first present", () => {
+    expect(populationOf({ POP2010: 3000, POP1990: 2000 }, ["POP2020", "POP2010", "POP1990"])).toBe(
+      3000,
+    );
+  });
+
+  it("returns null when none of the configured fields are present", () => {
+    expect(populationOf({}, ["POP2020", "POP2010"])).toBeNull();
+  });
+});
+
+describe("civilBoundaryLayers", () => {
+  it("appends a county pseudo-layer, tagged type 'county', when configured (NY)", () => {
+    const layers = civilBoundaryLayers({
+      url: "https://example.test",
+      county: { layerId: 2, nameField: "NAME" },
+      municipalities: [{ layerId: 4, nameField: "NAME", type: "city" }],
+    });
+    expect(layers).toEqual([
+      { layerId: 4, nameField: "NAME", type: "city" },
+      { layerId: 2, nameField: "NAME", type: "county" },
+    ]);
+  });
+
+  it("omits the county layer entirely when unset, without erroring", () => {
+    const layers = civilBoundaryLayers({
+      url: "https://example.test",
+      municipalities: [{ layerId: 1, nameField: "TOWN", type: "town" }],
+    });
+    expect(layers).toEqual([{ layerId: 1, nameField: "TOWN", type: "town" }]);
+  });
+
+  it("carries a county layer's own url override through (MA's counties live on a separate service)", () => {
+    const layers = civilBoundaryLayers({
+      url: "https://example.test/municipalities",
+      county: {
+        url: "https://example.test/counties",
+        layerId: 1,
+        nameField: "COUNTY",
+      },
+      municipalities: [{ layerId: 1, nameField: "TOWN", type: "town" }],
+    });
+    expect(layers).toContainEqual({
+      url: "https://example.test/counties",
+      layerId: 1,
+      nameField: "COUNTY",
+      type: "county",
+    });
   });
 });
 

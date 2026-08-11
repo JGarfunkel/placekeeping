@@ -3,55 +3,93 @@ import type {
   MultiPolygonGeometry,
   Parcel,
   ParcelCandidate,
+  ParcelFieldMap,
   ParcelLookupResult,
   ParcelOwnerInfo,
   Site,
   Spot,
+  StateConfig,
 } from "@placekeeping/shared-types";
+import { DEFAULT_STATE_CODE, getStateConfig, statesForPoint } from "@placekeeping/shared-types";
 import { and, desc, eq, ne, sql } from "drizzle-orm";
-import allowlistConfig from "./parcelClassAllowlist.json";
 import { logRemoteCall } from "./remoteLog";
 import { toSiteDto } from "./sites";
 
-const ARCGIS_QUERY_URL =
-  "https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Tax_Parcels_Public/FeatureServer/1/query";
+// The configured state's tax-parcel service endpoint, falling back to
+// DEFAULT_STATE_CODE's when the given/found state has no parcels config
+// (or no state is known yet) -- keeps every parcel-service call working
+// exactly as before for NY while being state-driven for a future state.
+function parcelServiceConfig(stateCode?: string | null): StateConfig["parcels"] {
+  return (
+    (stateCode ? getStateConfig(stateCode)?.parcels : undefined) ??
+    getStateConfig(DEFAULT_STATE_CODE)?.parcels
+  );
+}
 
-// Explicit allowlist, not a "minus owner" subtraction from the full field
-// set -- auditable in the code, per local/parcel-discovery.md's stated
-// preference. Never add PRIMARY_OWNER/ADD_OWNER or any assessment field here.
-const OWNER_FREE_OUT_FIELDS = [
-  "SWIS_SBL_ID",
-  "SWIS",
-  "SBL",
-  "PRINT_KEY",
-  // The parcel's own site address -- public record, not an owner/mailing
-  // field (that's MAIL_ADDR, deliberately never requested). See
-  // local/parcel-discovery.md.
-  "PARCEL_ADDR",
-  "PROP_CLASS",
-  "CALC_ACRES",
-  "COUNTY_NAME",
-  "MUNI_NAME",
-  "NYS_NAME",
-  "ROLL_YR",
-  "SPATIAL_YR",
-].join(",");
-
+// Owner-only NY field names (PRIMARY_OWNER/ADD_OWNER/OWNER_TYPE) -- these
+// stay hardcoded/NY-specific since fetchParcelOwner is only ever reached
+// for a state whose isInstitutionalClass can return true, which requires a
+// classAllowlist. NJ/MA have none yet (see their state config files), so
+// this path is unreachable for them until that's built.
 const OWNER_ONLY_OUT_FIELDS = "PRIMARY_OWNER,ADD_OWNER,OWNER_TYPE";
 
-interface ArcGisParcelProperties {
-  SWIS_SBL_ID: string;
-  SWIS: string | null;
-  SBL: string | null;
-  PRINT_KEY: string | null;
-  PARCEL_ADDR: string | null;
-  PROP_CLASS: string | null;
-  CALC_ACRES: number | null;
-  COUNTY_NAME: string | null;
-  MUNI_NAME: string | null;
-  NYS_NAME: string | null;
-  ROLL_YR: number | null;
-  SPATIAL_YR: number | null;
+// Builds the outFields list from a state's field map -- every ArcGIS field
+// name mentioned anywhere in the map (deduplicated), nothing else. This is
+// the request-time half of the owner-data guarantee: an owner/assessment
+// field that isn't named in the map is never requested from the service at
+// all (see toParcelDto below for the read-time half, which is the actual
+// guarantee -- this is just a smaller-payload nicety on top of it).
+export function outFieldsFor(fields: ParcelFieldMap): string {
+  const names = [
+    fields.externalId,
+    fields.county,
+    fields.municipality,
+    fields.address,
+    fields.propertyClass,
+    fields.acres,
+    fields.swis,
+    fields.spatialYr,
+    fields.printKey,
+    fields.stateOwnedLabel,
+    fields.vintageYearField,
+    fields.vintageDateField,
+  ].filter((field): field is string => field !== undefined);
+  return Array.from(new Set(names)).join(",");
+}
+
+function readString(properties: Record<string, unknown>, field: string | undefined): string | null {
+  if (!field) return null;
+  const value = properties[field];
+  if (value === null || value === undefined) return null;
+  return typeof value === "string" ? value : String(value);
+}
+
+function readNumber(properties: Record<string, unknown>, field: string | undefined): number | null {
+  if (!field) return null;
+  const value = properties[field];
+  return typeof value === "number" ? value : null;
+}
+
+// A parcel's "vintage year" -- NY/MA have a genuine int field for this
+// (ROLL_YR/FY); NJ only has an update date, so a year gets derived from it.
+// Always returns a real number, never null: this becomes part of the DB's
+// natural key (see cacheParcel), and a state that always inserted a null
+// here would silently accumulate duplicate rows on every re-fetch instead
+// of updating in place, since Postgres unique indexes treat NULL as never
+// equal to another NULL.
+function vintageYear(fields: ParcelFieldMap, properties: Record<string, unknown>): number {
+  if (fields.vintageYearField) {
+    const value = properties[fields.vintageYearField];
+    if (typeof value === "number") return value;
+  }
+  if (fields.vintageDateField) {
+    const raw = properties[fields.vintageDateField];
+    if (typeof raw === "string" || typeof raw === "number") {
+      const year = new Date(raw).getFullYear();
+      if (!Number.isNaN(year)) return year;
+    }
+  }
+  return new Date().getFullYear();
 }
 
 export interface FetchedParcel extends Parcel {
@@ -62,6 +100,11 @@ export interface FetchedParcel extends Parcel {
   // but NearbyParcel/ParcelCandidate (below) does carry it, for the
   // candidate-picker map.
   geometry: MultiPolygonGeometry;
+  // Which configured state's parcel service this came from -- there's no
+  // state column on the `parcels` table, so cacheParcel folds this into the
+  // `source` value instead (see cacheParcel below). Internal bookkeeping
+  // only; stripped back out in toParcelCandidate before the wire response.
+  stateCode: string;
 }
 
 // The ArcGIS service returns GeoJSON type "Polygon" for any single-part
@@ -186,20 +229,25 @@ export async function resolveSiteForParcel(
   return row ? toSiteDto(row) : null;
 }
 
-function toParcelDto(p: ArcGisParcelProperties): Parcel {
+// The read-time half of the owner-data guarantee (see outFieldsFor above):
+// only fields named in `fields` are ever read out of the raw ArcGIS
+// properties bag, regardless of what else the response contains -- an
+// owner/assessment field that isn't named in a state's ParcelFieldMap
+// simply never reaches this DTO, cacheParcel, the DB, or a client.
+export function toParcelDto(fields: ParcelFieldMap, properties: Record<string, unknown>): Parcel {
   return {
-    swisSblId: p.SWIS_SBL_ID,
-    swis: p.SWIS,
-    printKey: p.PRINT_KEY,
-    address: p.PARCEL_ADDR,
-    countyName: p.COUNTY_NAME,
-    muniName: p.MUNI_NAME,
+    swisSblId: readString(properties, fields.externalId) ?? "",
+    swis: readString(properties, fields.swis),
+    printKey: readString(properties, fields.printKey),
+    address: readString(properties, fields.address),
+    countyName: readString(properties, fields.county),
+    muniName: readString(properties, fields.municipality),
     cityTownName: null,
-    propClass: p.PROP_CLASS,
-    calcAcres: p.CALC_ACRES,
-    nysName: p.NYS_NAME,
-    rollYr: p.ROLL_YR,
-    spatialYr: p.SPATIAL_YR,
+    propClass: readString(properties, fields.propertyClass),
+    calcAcres: readNumber(properties, fields.acres),
+    nysName: readString(properties, fields.stateOwnedLabel),
+    rollYr: vintageYear(fields, properties),
+    spatialYr: readNumber(properties, fields.spatialYr),
     // Freshly fetched, not yet read back from the cache -- callers that
     // need the authoritative value (e.g. the Find Parcel route) re-read via
     // getCachedParcel after cacheParcel() instead of trusting this.
@@ -240,12 +288,55 @@ export interface NearbyParcel extends FetchedParcel {
   containsPin: boolean;
 }
 
-// NearbyParcel and ParcelCandidate happen to carry the same fields today --
-// this indirection exists so the route layer has one clearly-named
-// conversion point rather than passing the internal fetch/cache type
-// straight through as the API response shape.
+// NearbyParcel and ParcelCandidate happen to carry the same fields today,
+// minus the internal-only stateCode -- this indirection exists so the route
+// layer has one clearly-named conversion point rather than passing the
+// internal fetch/cache type straight through as the API response shape.
 export function toParcelCandidate(p: NearbyParcel): ParcelCandidate {
-  return p;
+  const { stateCode: _stateCode, ...candidate } = p;
+  return candidate;
+}
+
+async function fetchNearbyParcelsForState(
+  stateCode: string,
+  parcelConfig: NonNullable<StateConfig["parcels"]>,
+  lat: number,
+  lng: number,
+): Promise<NearbyParcel[]> {
+  const url = new URL(parcelConfig.queryUrl);
+  url.searchParams.set("geometry", `${lng},${lat}`);
+  url.searchParams.set("geometryType", "esriGeometryPoint");
+  url.searchParams.set("inSR", "4326");
+  url.searchParams.set("distance", String(NEARBY_RADIUS_METERS));
+  url.searchParams.set("units", "esriSRUnit_Meter");
+  url.searchParams.set("spatialRel", "esriSpatialRelIntersects");
+  url.searchParams.set("outFields", outFieldsFor(parcelConfig.fields));
+  url.searchParams.set("returnGeometry", "true");
+  url.searchParams.set("outSR", "4326");
+  url.searchParams.set("resultRecordCount", String(NEARBY_LIMIT));
+  url.searchParams.set("f", "geojson");
+
+  const response = await logRemoteCall("arcgis", `nearby-parcels:${stateCode}`, () => fetch(url));
+  if (!response.ok) {
+    throw new Error(`ArcGIS parcel query failed (${stateCode}): ${response.status}`);
+  }
+  const body = (await response.json()) as {
+    features: Array<{
+      type: "Feature";
+      geometry: { type: string; coordinates: unknown };
+      properties: Record<string, unknown>;
+    }>;
+  };
+
+  return body.features.map((feature) => {
+    const geometry = toMultiPolygonGeometry(feature.geometry);
+    return {
+      ...toParcelDto(parcelConfig.fields, feature.properties),
+      geometry,
+      stateCode,
+      containsPin: parcelContainsPoint(geometry, lat, lng),
+    };
+  });
 }
 
 // Live, owner-free buffered query against the state's ArcGIS service --
@@ -253,53 +344,28 @@ export function toParcelCandidate(p: NearbyParcel): ParcelCandidate {
 // point-intersect hit, so a mis-set pin (e.g. sitting in a public road) has
 // a chance of surfacing the actually-correct neighboring parcel as a choice
 // instead of silently linking to whatever the point happened to land on.
-// Returns [] on an empty result set (water / ROW / an uncovered county) --
-// that's a normal outcome, not an error; see local/spot-resolution.md §4.
-// Results are pre-sorted contains-pin-first, then smallest-acreage-first --
-// the two signals that would have caught the site #2 bug (a 300+ acre
-// street ROW parcel that didn't even cover the pin).
+// Returns [] on an empty result set (water / ROW / an uncovered county, or a
+// point outside every configured state's bounding box) -- that's a normal
+// outcome, not an error; see local/spot-resolution.md §4. Results are
+// pre-sorted contains-pin-first, then smallest-acreage-first -- the two
+// signals that would have caught the site #2 bug (a 300+ acre street ROW
+// parcel that didn't even cover the pin).
 export async function fetchNearbyParcels(
   lat: number,
   lng: number,
 ): Promise<NearbyParcel[]> {
-  const url = new URL(ARCGIS_QUERY_URL);
-  url.searchParams.set("geometry", `${lng},${lat}`);
-  url.searchParams.set("geometryType", "esriGeometryPoint");
-  url.searchParams.set("inSR", "4326");
-  url.searchParams.set("distance", String(NEARBY_RADIUS_METERS));
-  url.searchParams.set("units", "esriSRUnit_Meter");
-  url.searchParams.set("spatialRel", "esriSpatialRelIntersects");
-  url.searchParams.set("outFields", OWNER_FREE_OUT_FIELDS);
-  url.searchParams.set("returnGeometry", "true");
-  url.searchParams.set("outSR", "4326");
-  url.searchParams.set("resultRecordCount", String(NEARBY_LIMIT));
-  url.searchParams.set("f", "geojson");
+  const candidateStates = statesForPoint(lat, lng).filter((state) => state.parcels);
 
-  const response = await logRemoteCall("arcgis", "nearby-parcels", () => fetch(url));
-  if (!response.ok) {
-    throw new Error(`ArcGIS parcel query failed: ${response.status}`);
-  }
-  const body = (await response.json()) as {
-    features: Array<{
-      type: "Feature";
-      geometry: { type: string; coordinates: unknown };
-      properties: ArcGisParcelProperties;
-    }>;
-  };
+  const results = await Promise.all(
+    candidateStates.map((state) =>
+      fetchNearbyParcelsForState(state.code, state.parcels!, lat, lng),
+    ),
+  );
 
-  return body.features
-    .map((feature) => {
-      const geometry = toMultiPolygonGeometry(feature.geometry);
-      return {
-        ...toParcelDto(feature.properties),
-        geometry,
-        containsPin: parcelContainsPoint(geometry, lat, lng),
-      };
-    })
-    .sort((a, b) => {
-      if (a.containsPin !== b.containsPin) return a.containsPin ? -1 : 1;
-      return (a.calcAcres ?? Infinity) - (b.calcAcres ?? Infinity);
-    });
+  return results.flat().sort((a, b) => {
+    if (a.containsPin !== b.containsPin) return a.containsPin ? -1 : 1;
+    return (a.calcAcres ?? Infinity) - (b.calcAcres ?? Infinity);
+  });
 }
 
 // Single shared read for GET /parcel/lookup and the tail of POST
@@ -312,7 +378,7 @@ export async function getParcelLookupResult(spot: Spot): Promise<ParcelLookupRes
       return {
         status: "resolved",
         parcel,
-        isInstitutionalClass: isInstitutionalClass(parcel.propClass, parcel.nysName),
+        isInstitutionalClass: isInstitutionalClass(parcel.propClass, parcel.nysName, spot.state),
         site: await resolveSiteForParcel(parcel.swisSblId),
       };
     }
@@ -326,12 +392,20 @@ export async function getParcelLookupResult(spot: Spot): Promise<ParcelLookupRes
 // Only ever called from the gated owner-reveal path (see
 // isInstitutionalClass / the /parcel/owner route) -- never from the
 // discovery/select parcel-lookup path. Transient: the result is never
-// cached.
+// cached. stateCode should be the owning spot's `state` -- falls back to
+// DEFAULT_STATE_CODE's service when unset (legacy spots predating the
+// `state` field).
 export async function fetchParcelOwner(
   swisSblId: string,
+  stateCode?: string | null,
 ): Promise<{ primaryOwner: string | null; addOwner: string | null } | null> {
-  const url = new URL(ARCGIS_QUERY_URL);
-  url.searchParams.set("where", `SWIS_SBL_ID='${swisSblId.replace(/'/g, "''")}'`);
+  const config = parcelServiceConfig(stateCode);
+  if (!config) return null;
+  const url = new URL(config.queryUrl);
+  url.searchParams.set(
+    "where",
+    `${config.fields.externalId}='${swisSblId.replace(/'/g, "''")}'`,
+  );
   url.searchParams.set("outFields", OWNER_ONLY_OUT_FIELDS);
   url.searchParams.set("returnGeometry", "false");
   url.searchParams.set("f", "json");
@@ -352,13 +426,14 @@ export async function fetchParcelOwner(
   };
 }
 
-// Upserts on the (swisSblId, rollYr) natural key. The parcels table stays
-// owner-free permanently -- this only ever receives FetchedParcel, which has
-// no owner field to begin with.
+// Upserts on the (stateCode, swisSblId, rollYr) natural key. The parcels
+// table stays owner-free permanently -- this only ever receives
+// FetchedParcel, which has no owner field to begin with.
 export async function cacheParcel(parcel: FetchedParcel): Promise<void> {
   await db
     .insert(parcels)
     .values({
+      stateCode: parcel.stateCode,
       swisSblId: parcel.swisSblId,
       swis: parcel.swis,
       printKey: parcel.printKey,
@@ -372,10 +447,14 @@ export async function cacheParcel(parcel: FetchedParcel): Promise<void> {
       rollYr: parcel.rollYr,
       spatialYr: parcel.spatialYr,
       geom: sql`ST_SetSRID(ST_Multi(ST_GeomFromGeoJSON(${JSON.stringify(parcel.geometry)})), 4326)`,
+      // Mirrors the state-tagged `source` values territory.ts writes for
+      // subdivisions (e.g. "nys-civil-boundaries:${type}").
+      source: `${parcel.stateCode}-parcels`,
     })
     .onConflictDoUpdate({
-      target: [parcels.swisSblId, parcels.rollYr],
+      target: [parcels.stateCode, parcels.swisSblId, parcels.rollYr],
       set: {
+        source: `${parcel.stateCode}-parcels`,
         fetchedAt: new Date(),
       },
     });
@@ -383,14 +462,19 @@ export async function cacheParcel(parcel: FetchedParcel): Promise<void> {
 
 // State land bypasses the class table entirely: NYS_NAME is a pre-assigned
 // public agency label, not an owner query, so it's always safe to reveal.
+// stateCode should be the owning spot's `state` -- falls back to
+// DEFAULT_STATE_CODE's allowlist when unset (legacy spots predating the
+// `state` field).
 export function isInstitutionalClass(
   propClass: string | null,
   nysName: string | null,
+  stateCode?: string | null,
 ): boolean {
   if (nysName) return true;
   if (!propClass) return false;
   const series = propClass.charAt(0);
-  const entry = allowlistConfig.series.find((s) => s.series === series);
+  const allowlist = parcelServiceConfig(stateCode)?.classAllowlist ?? [];
+  const entry = allowlist.find((s) => s.series === series);
   return entry?.autoReveal ?? false;
 }
 
@@ -439,8 +523,9 @@ export function looksLikeEntity(ownerName: string | null): boolean {
 // strings; neither is ever persisted.
 export async function getParcelOwnerInfo(
   swisSblId: string,
+  stateCode?: string | null,
 ): Promise<ParcelOwnerInfo | null> {
-  const owner = await fetchParcelOwner(swisSblId);
+  const owner = await fetchParcelOwner(swisSblId, stateCode);
   if (!owner) return null;
   await markOwnerRevealed(swisSblId);
   const suggestedSiteName = looksLikeEntity(owner.primaryOwner)

@@ -4,6 +4,7 @@ export * from "./spot";
 export * from "./site";
 export * from "./parcel";
 export * from "./observation";
+export * from "./states";
 export * from "./steward";
 export * from "./stewardMember";
 export * from "./user";

@@ -1,5 +1,10 @@
 import type { SiteParcelGeometry } from "@placekeeping/core";
-import type { ParcelCandidate, Site, SpotSummary } from "@placekeeping/shared-types";
+import {
+  describePropertyClass,
+  type ParcelCandidate,
+  type Site,
+  type SpotSummary,
+} from "@placekeeping/shared-types";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { MapView, type ParcelPolygon } from "@/components/map/MapView";
@@ -8,7 +13,6 @@ import {
   type ParcelSelection,
 } from "@/components/spots/ParcelPicker";
 import { multiPolygonToPolygonPaths } from "@/lib/geo/parcelGeometry";
-import { describePropertyClass } from "@/lib/nyPropertyClasses";
 import { SiteDetailsEditor } from "./SiteDetailsEditor";
 
 // Prefers the friendly /spots/us/<state>/<locality>/<slug> URL (see

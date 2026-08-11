@@ -298,6 +298,15 @@ export const parcels = pgTable(
   "parcels",
   {
     id: bigserial("id", { mode: "number" }).primaryKey(),
+    // Which configured state's parcel service resolved this row -- lets
+    // (swisSblId, rollYr) collide safely across states, and fixes a
+    // correctness gap for any state without a natural roll-year field:
+    // Postgres unique indexes treat NULL as never-equal, so a state that
+    // always inserted a null rollYr would silently accumulate duplicate
+    // rows on every re-fetch instead of updating in place. See
+    // packages/core/src/parcels.ts's vintageYear, which guarantees rollYr
+    // is always a real number now.
+    stateCode: text("state_code").notNull().default("ny"),
     swisSblId: text("swis_sbl_id").notNull(),
     swis: text("swis"),
     printKey: text("print_key"),
@@ -328,7 +337,8 @@ export const parcels = pgTable(
   },
   (table) => [
     index("parcels_geom_gix").using("gist", table.geom),
-    uniqueIndex("parcels_swis_sbl_roll_yr_idx").on(
+    uniqueIndex("parcels_state_swis_sbl_roll_yr_idx").on(
+      table.stateCode,
       table.swisSblId,
       table.rollYr,
     ),

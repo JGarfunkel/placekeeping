@@ -64,14 +64,14 @@ export const GET = withApiErrorHandling(
 
     const targetParcel = await getCachedParcel(spot.parcelSbl);
     const institutional = targetParcel
-      ? isInstitutionalClass(targetParcel.propClass, targetParcel.nysName)
+      ? isInstitutionalClass(targetParcel.propClass, targetParcel.nysName, spot.state)
       : false;
 
     // Owner-match strengthens a candidate's presentation for institutional
     // classes only -- it never auto-joins anything (§6.3: residential /
     // opt-in is always an explicit pick).
     const targetOwner = institutional
-      ? normalizeOwner((await fetchParcelOwner(spot.parcelSbl))?.primaryOwner ?? null)
+      ? normalizeOwner((await fetchParcelOwner(spot.parcelSbl, spot.state))?.primaryOwner ?? null)
       : null;
 
     const candidates = await Promise.all(
@@ -80,7 +80,7 @@ export const GET = withApiErrorHandling(
           return { site: match.site };
         }
         const neighborOwner = normalizeOwner(
-          (await fetchParcelOwner(match.neighborSwisSblId))?.primaryOwner ?? null,
+          (await fetchParcelOwner(match.neighborSwisSblId, spot.state))?.primaryOwner ?? null,
         );
         return {
           site: match.site,

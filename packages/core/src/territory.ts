@@ -1,23 +1,21 @@
 import { db, subdivisions } from "@placekeeping/db";
-import type { TerritoryLevel, TerritoryType } from "@placekeeping/shared-types";
+import type {
+  CivilBoundariesConfig,
+  MunicipalityLayerConfig,
+  MunicipalityType,
+  TerritoryLevel,
+  TerritoryType,
+} from "@placekeeping/shared-types";
+import { getStateConfig } from "@placekeeping/shared-types";
 import { and, eq, ilike, inArray, like, sql } from "drizzle-orm";
 import { debugLog } from "./debug";
 import { logRemoteCall } from "./remoteLog";
 
-// Live boundary/attribute data for NY municipal-level territory resolution,
-// confirmed against the service directly while planning this (see
-// apps/web/user-stories.md, "Spot page - routing"). Same ArcGIS
+// Municipal-level (county/city/town/village) territory resolution only
+// works for states with a `civilBoundaries` entry in the per-state config
+// (packages/shared-types/src/states) -- today, only NY. Any other state
+// falls through to the nationwide ZIP fallback below. Same ArcGIS
 // FeatureServer/query pattern already used for tax parcels in parcels.ts.
-// NY-specific: county/city/town/village resolution only works for sc="ny".
-const CIVIL_BOUNDARIES_URL =
-  "https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Civil_Boundaries/FeatureServer";
-
-const LAYER = {
-  counties: 2,
-  cities: 4,
-  towns: 5,
-  villages: 7,
-} as const;
 
 // Nationwide state boundaries (all 50 states + DC/territories), confirmed
 // live while adding CT support -- STUSAB is the 2-letter postal code (our
@@ -37,7 +35,10 @@ const US_STATES_URL =
 const ZIP_BOUNDARIES_URL =
   "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Boundaries_2023/FeatureServer/3";
 
-export type MunicipalityType = "city" | "town" | "village" | "county" | "zip";
+// Re-exported for existing consumers (backfillSubdivisions.ts, tests) --
+// the type itself now lives in shared-types since CivilBoundariesConfig
+// needs it too, and shared-types can't depend back on core.
+export type { MunicipalityType };
 
 export interface TerritoryResolution {
   level: TerritoryLevel;
@@ -214,10 +215,11 @@ async function queryArcGis<TProps>(
 }
 
 async function queryLayer<TProps>(
+  rootUrl: string,
   layerId: number,
   where: string,
 ): Promise<ArcGisFeature<TProps>[]> {
-  return queryArcGis<TProps>(`${CIVIL_BOUNDARIES_URL}/${layerId}`, where);
+  return queryArcGis<TProps>(`${rootUrl}/${layerId}`, where);
 }
 
 // ---- Country level -------------------------------------------------------
@@ -285,7 +287,15 @@ export async function resolveState(
 
 // ---- Municipality level -----------------------------------------------------
 
-const QUALIFIER_TYPES: MunicipalityType[] = ["city", "town", "village", "county", "zip"];
+const QUALIFIER_TYPES: MunicipalityType[] = [
+  "city",
+  "town",
+  "village",
+  "borough",
+  "township",
+  "county",
+  "zip",
+];
 
 export function stripQualifier(mc: string): { name: string; qualifier: MunicipalityType | null } {
   const lower = mc.toLowerCase();
@@ -298,66 +308,105 @@ export function stripQualifier(mc: string): { name: string; qualifier: Municipal
   return { name: mc, qualifier: null };
 }
 
-interface MuniProps {
-  NAME: string;
-  COUNTY?: string | null;
-  TOWN?: string | null;
-  POP1990: number | null;
-  POP2000: number | null;
-  POP2010: number | null;
-  POP2020: number | null;
-}
+type MuniFeatureProps = Record<string, unknown>;
 
 export interface Candidate {
   type: MunicipalityType;
   name: string;
   county: string | null;
-  town: string | null;
   population: number | null;
   geometry: { coordinates: unknown };
 }
 
-function populationOf(props: MuniProps): number | null {
-  return props.POP2020 ?? props.POP2010 ?? props.POP2000 ?? props.POP1990 ?? null;
+// Tries each configured population field (newest-first) in turn -- states
+// publish different sets of census-year columns (NY/NJ have decade columns
+// back to 1980/1990, MA has them back to 1960), so this just walks
+// whichever list a given layer config supplies.
+export function populationOf(
+  properties: Record<string, unknown>,
+  fields: string[] | undefined,
+): number | null {
+  if (!fields) return null;
+  for (const field of fields) {
+    const value = properties[field];
+    if (typeof value === "number") return value;
+  }
+  return null;
+}
+
+// Resolves a raw feature's municipality type from a layer's `type` config
+// -- either a fixed type (the whole layer is one type, NY's cities/towns/
+// villages) or a field+valueMap (one layer mixes types via an attribute,
+// NJ/MA's single municipalities layer). Returns null for an unmapped raw
+// value rather than guessing, so an unrecognized type is dropped as a
+// candidate instead of silently mis-tagged.
+export function resolveMuniType(
+  type: MunicipalityLayerConfig["type"],
+  properties: Record<string, unknown>,
+): MunicipalityType | null {
+  if (typeof type === "string") return type;
+  const raw = properties[type.field];
+  return typeof raw === "string" ? (type.valueMap[raw] ?? null) : null;
+}
+
+// Counties fold into the same query batch as a pseudo municipality-layer
+// entry (fixed type "county") when the state has a county layer -- NY's
+// municipalities list never includes counties itself (see ny.ts), so this
+// is the only place counties enter the candidate set. A state with no
+// county layer (e.g. MA) just contributes nothing here -- county-level
+// lookup for it stays unavailable rather than erroring.
+export function civilBoundaryLayers(
+  civilBoundaries: CivilBoundariesConfig,
+): MunicipalityLayerConfig[] {
+  return [
+    ...civilBoundaries.municipalities,
+    ...(civilBoundaries.county
+      ? [{ ...civilBoundaries.county, type: "county" as const }]
+      : []),
+  ];
 }
 
 function escapeForArcGis(value: string): string {
   return value.replace(/'/g, "''");
 }
 
-async function findCandidates(name: string): Promise<Candidate[]> {
+async function findCandidates(
+  name: string,
+  civilBoundaries: CivilBoundariesConfig,
+): Promise<Candidate[]> {
   // The <mc> segment's dashes may represent a literal dash or a space in
   // the real name -- try both spellings.
   const nameVariants = Array.from(new Set([name, name.replace(/-/g, " ")]));
 
+  const layers = civilBoundaryLayers(civilBoundaries);
+
   const byKey = new Map<string, Candidate>();
   for (const variant of nameVariants) {
-    const where = `UPPER(NAME)=UPPER('${escapeForArcGis(variant)}')`;
-    const [cities, towns, villages, counties] = await Promise.all([
-      queryLayer<MuniProps>(LAYER.cities, where),
-      queryLayer<MuniProps>(LAYER.towns, where),
-      queryLayer<MuniProps>(LAYER.villages, where),
-      queryLayer<MuniProps>(LAYER.counties, where),
-    ]);
-    const tagged: [MunicipalityType, ArcGisFeature<MuniProps>[]][] = [
-      ["city", cities],
-      ["town", towns],
-      ["village", villages],
-      ["county", counties],
-    ];
-    for (const [type, features] of tagged) {
-      for (const feature of features) {
+    const results = await Promise.all(
+      layers.map((layer) =>
+        queryLayer<MuniFeatureProps>(
+          layer.url ?? civilBoundaries.url,
+          layer.layerId,
+          `UPPER(${layer.nameField})=UPPER('${escapeForArcGis(variant)}')`,
+        ),
+      ),
+    );
+    layers.forEach((layer, i) => {
+      for (const feature of results[i]) {
+        const type = resolveMuniType(layer.type, feature.properties);
+        if (!type) continue;
         const candidate: Candidate = {
           type,
-          name: feature.properties.NAME,
-          county: feature.properties.COUNTY ?? null,
-          town: feature.properties.TOWN ?? null,
-          population: populationOf(feature.properties),
+          name: String(feature.properties[layer.nameField]),
+          county: layer.countyField
+            ? ((feature.properties[layer.countyField] as string | null | undefined) ?? null)
+            : null,
+          population: populationOf(feature.properties, layer.populationFields),
           geometry: feature.geometry,
         };
         byKey.set(`${type}:${candidate.name}:${candidate.county}`, candidate);
       }
-    }
+    });
   }
   return Array.from(byKey.values());
 }
@@ -469,7 +518,6 @@ export function combineZipFeatures(
     type: "zip",
     name: features[0].properties.PO_NAME,
     county: null,
-    town: null,
     population: totalPopulation || null,
     // Feeding boundsFromGeometry a synthetic coordinates array holding
     // every matched ZIP's own coordinates -- its recursive walk just looks
@@ -515,13 +563,14 @@ export async function resolveMunicipality(
 
   const { name, qualifier } = stripQualifier(mc);
 
-  // NY civil-boundary lookup (city/town/village/county) first, unless the
-  // qualifier explicitly asks for the ZIP fallback -- only NY has this
-  // data source. Any other state (or an unresolved NY name) falls through
-  // to the nationwide ZIP lookup below.
+  // Civil-boundary lookup (city/town/village/county) first, unless the
+  // qualifier explicitly asks for the ZIP fallback -- only states with a
+  // `civilBoundaries` config entry have this data source. Any other state
+  // (or an unresolved name) falls through to the nationwide ZIP lookup below.
+  const civilBoundaries = getStateConfig(stateCode)?.civilBoundaries;
   let winner: Candidate | MunicipalityAmbiguity | null = null;
-  if (stateCode === "ny" && qualifier !== "zip") {
-    const candidates = await findCandidates(name);
+  if (civilBoundaries && qualifier !== "zip") {
+    const candidates = await findCandidates(name, civilBoundaries);
     winner = pickWinner(candidates, qualifier);
   }
 
@@ -550,7 +599,7 @@ export async function resolveMunicipality(
   const source =
     winner.type === "zip"
       ? "esri-usa-zip-boundaries"
-      : `nys-civil-boundaries:${winner.type}`;
+      : `${stateCode}-civil-boundaries:${winner.type}`;
   await cacheResolution(resolution, source);
   resolutionCache.set(requestedPath, resolution);
   return resolution;

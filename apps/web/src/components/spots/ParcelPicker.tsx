@@ -1,10 +1,13 @@
 "use client";
 
-import type { ParcelCandidate, ParcelLookupResult } from "@placekeeping/shared-types";
+import {
+  formatPropertyClass,
+  type ParcelCandidate,
+  type ParcelLookupResult,
+} from "@placekeeping/shared-types";
 import { useState } from "react";
 import type { ParcelPolygon } from "@/components/map/MapView";
 import { multiPolygonToPolygonPaths } from "@/lib/geo/parcelGeometry";
-import { formatPropertyClass } from "@/lib/nyPropertyClasses";
 
 const buttonClass =
   "self-start rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium hover:bg-neutral-50 disabled:opacity-50";
