@@ -1,5 +1,6 @@
 "use client";
 
+import { PasswordInput } from "@/components/forms/PasswordInput";
 import {
   getAppleProvider,
   getFacebookProvider,
@@ -98,10 +99,9 @@ export default function LoginPage() {
 
         <label className="flex flex-col gap-1 text-sm">
           Password
-          <input
+          <PasswordInput
             required
-            type="password"
-            className="rounded-md border border-neutral-300 px-3 py-2"
+            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -135,6 +135,7 @@ export default function LoginPage() {
       >
         Continue with Google
       </button>
+      {/* TODO - enable/test Facebook/Apple integrations
       <button
         disabled={pending}
         onClick={() => signInWith(getFacebookProvider())}
@@ -148,7 +149,7 @@ export default function LoginPage() {
         className="rounded-md border border-neutral-300 px-4 py-2 font-medium hover:bg-neutral-50 disabled:opacity-50"
       >
         Continue with Apple
-      </button>
+      </button> */}
       {error && <p className="text-sm text-red-600">{error}</p>}
     </main>
   );

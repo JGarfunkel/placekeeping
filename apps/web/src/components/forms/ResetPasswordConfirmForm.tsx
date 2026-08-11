@@ -1,5 +1,6 @@
 "use client";
 
+import { PasswordInput } from "@/components/forms/PasswordInput";
 import { getFirebaseAuth } from "@/lib/firebase-client";
 import { confirmPasswordReset, verifyPasswordResetCode } from "firebase/auth";
 import Link from "next/link";
@@ -95,10 +96,9 @@ export function ResetPasswordConfirmForm() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1 text-sm">
           New password
-          <input
+          <PasswordInput
             required
-            type="password"
-            className="rounded-md border border-neutral-300 px-3 py-2"
+            autoComplete="new-password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
           />
@@ -106,20 +106,22 @@ export function ResetPasswordConfirmForm() {
 
         <label className="flex flex-col gap-1 text-sm">
           Confirm new password
-          <input
+          <PasswordInput
             required
-            type="password"
-            className="rounded-md border border-neutral-300 px-3 py-2"
+            autoComplete="new-password"
             value={confirmNewPassword}
             onChange={(e) => setConfirmNewPassword(e.target.value)}
           />
         </label>
+        {confirmNewPassword && newPassword !== confirmNewPassword && (
+          <p className="-mt-2 text-sm text-red-600">Passwords don&apos;t match.</p>
+        )}
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
         <button
           type="submit"
-          disabled={pending}
+          disabled={pending || (confirmNewPassword !== "" && newPassword !== confirmNewPassword)}
           className="rounded-md bg-neutral-900 px-4 py-2 font-medium text-white disabled:opacity-50"
         >
           {pending ? "Saving…" : "Reset password"}

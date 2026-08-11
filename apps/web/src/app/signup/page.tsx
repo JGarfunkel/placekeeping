@@ -1,5 +1,6 @@
 "use client";
 
+import { PasswordInput } from "@/components/forms/PasswordInput";
 import { getFirebaseAuth } from "@/lib/firebase-client";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import Link from "next/link";
@@ -104,10 +105,9 @@ export default function SignupPage() {
 
         <label className="flex flex-col gap-1 text-sm">
           Password
-          <input
+          <PasswordInput
             required
-            type="password"
-            className="rounded-md border border-neutral-300 px-3 py-2"
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -115,20 +115,22 @@ export default function SignupPage() {
 
         <label className="flex flex-col gap-1 text-sm">
           Confirm password
-          <input
+          <PasswordInput
             required
-            type="password"
-            className="rounded-md border border-neutral-300 px-3 py-2"
+            autoComplete="new-password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
         </label>
+        {confirmPassword && password !== confirmPassword && (
+          <p className="-mt-2 text-sm text-red-600">Passwords don&apos;t match.</p>
+        )}
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
         <button
           type="submit"
-          disabled={pending}
+          disabled={pending || (confirmPassword !== "" && password !== confirmPassword)}
           className="rounded-md bg-neutral-900 px-4 py-2 font-medium text-white disabled:opacity-50"
         >
           {pending ? "Creating account…" : "Create account"}
