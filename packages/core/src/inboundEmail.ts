@@ -55,8 +55,9 @@ async function fetchReceivedEmail(emailId: string): Promise<ReceivedEmail> {
       headers: { Authorization: `Bearer ${requireEnv("RESEND_API_KEY")}` },
     });
     if (!response.ok) {
+      const body = await response.text().catch(() => "");
       throw new Error(
-        `Resend receiving API returned ${response.status} for email ${emailId}`,
+        `Resend receiving API returned ${response.status} for email ${emailId}: ${body}`,
       );
     }
     return (await response.json()) as ReceivedEmail;
