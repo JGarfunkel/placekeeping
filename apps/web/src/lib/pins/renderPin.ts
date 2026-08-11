@@ -15,12 +15,12 @@ const TRIM_WIDTH = 1;
 
 // herbaceous_weeds is the one non-square glyph: a 15x22 box so the stem
 // reaches into the wedge. Everything else is square and centred in the head.
-const GLYPH_BOX: Record<string, { w: number; h: number; trim: number }> = {
+const GLYPH_BOX: Record<string, { w: number; h: number; trim: number; dx?: number; dy?: number }> = {
   garden:            { w: 15, h: 15, trim: 1.00 },
   monument:          { w: 30, h: 30, trim: 1.35 },  // source art has ~48% internal padding
   vegetable_herb:    { w: 15, h: 15, trim: 0.92 },
   ornamental:        { w: 15, h: 15, trim: 0.95 },
-  pollinator:        { w: 30, h: 30, trim: 0.80 },
+  pollinator:        { w: 30, h: 30, trim: 2.00, dx: 6, dy: 2 },  // source art is mostly thin negative space; needs much more trim than its bounding box suggests, and its own centring reads off-centre left without a nudge right
   wetland:           { w: 15, h: 15, trim: 0.88 },
   woodland:          { w: 15, h: 15, trim: 1.00 },
   grassland:         { w: 15, h: 15, trim: 1.00 },
@@ -42,7 +42,7 @@ function glyphTransform(id: string): string {
   }
   const s = (11 * box.trim) / box.w;
   const [cx, cy] = id === "monument" ? [12, 8] : [7, 6];
-  return `translate(${cx - box.w * s / 2} ${cy - box.w * s / 2}) scale(${s})`;
+  return `translate(${cx + (box.dx ?? 0) - box.w * s / 2} ${cy + (box.dy ?? 0) - box.h * s / 2}) scale(${s})`;
 }
 
 const DOT = { cx: 12, cy: 22.3 };

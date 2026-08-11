@@ -29,12 +29,13 @@ export function resolvePin(spot: {
 }): PinSpec {
   const glyph =
     spot.purpose === "monument" ? "monument" :
-    spot.purpose === "garden"   ? "garden"   :
-                                  spot.vegetation;
+    spot.vegetation !== "none"  ? spot.vegetation :
+    spot.purpose === "garden"   ? "garden" :
+                                   spot.vegetation;
 
   const color: PinColor =
     spot.purpose === "monument" ? "navy"   :
-    WEED_VEGETATION.has(spot.vegetation) && spot.purpose === "wild_area" ? "orange" :
+    WEED_VEGETATION.has(spot.vegetation) ? "orange" :
                                        "green";
 
   const fill: PinFill = spot.stewardId ? "solid" : "outline";

@@ -11,11 +11,14 @@ Three fields resolve to one pin: `purpose`, `vegetation`, `weed_level` — plus 
 | fill | does anyone tend it | solid · outline |
 | dot | how much of it there is | none · hollow ring · solid disc · double ring |
 
-**Glyph.** `monument` and `garden` supply their own. Only `wild_area` falls through to the
-vegetation glyph.
+**Glyph.** `monument` always supplies its own. `garden` supplies its own only when
+`vegetation` is `none`; otherwise it falls through to the vegetation glyph, same as
+`wild_area`.
 
-**Colour.** Monument is always navy. Orange fires only when the *glyph itself* is a weed —
-which only `wild_area` can produce. A weedy garden stays green and takes a dot.
+**Colour.** Monument is always navy. Orange fires whenever the *glyph itself* is a weed —
+`garden` and `wild_area` can both produce that now that garden falls through to the
+vegetation glyph. A weedy garden is no longer green; it reads exactly like a weedy wild
+area, and the dot still carries how much.
 
 **Dot.** Not suppressed when the glyph is already a weed — the glyph says WHICH weed, the dot
 says HOW MUCH. An orange bramble pin with a light ring means brambles coming in at the edge; the
