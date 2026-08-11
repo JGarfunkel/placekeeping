@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+export const announcementStatusValues = ["log", "warn", "error"] as const;
+export const announcementStatusSchema = z.enum(announcementStatusValues);
+export type AnnouncementStatus = z.infer<typeof announcementStatusSchema>;
+
 export const stewardTypeValues = [
   "individual",
   "school",

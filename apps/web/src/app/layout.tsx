@@ -7,6 +7,7 @@ import "leaflet/dist/leaflet.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
 import "./globals.css";
+import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import { DatabaseWarningBanner } from "@/components/DatabaseWarningBanner";
 import { HeaderMenu } from "@/components/nav/HeaderMenu";
 import { PauseBanner } from "@/components/PauseBanner";
@@ -60,6 +61,7 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         {dbUnavailable && <DatabaseWarningBanner />}
         {!dbUnavailable && writesPaused && <PauseBanner />}
+        <AnnouncementBanner />
         <header className="relative flex items-center justify-between border-b border-neutral-200 px-6 py-3 text-sm">
           <Link href="/" className="flex items-center">
             {/* eslint-disable-next-line @next/next/no-img-element -- static SVG, no optimization needed */}

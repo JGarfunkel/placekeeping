@@ -75,6 +75,30 @@ export function isDatabaseConnectionError(error: unknown): boolean {
   return false;
 }
 
+export enum RunningState {
+  // system is running on local dev machine with local database
+  Local = "local",
+  // system is running on local dev machine with production database
+  LocalProdDb = "local-prodDB",
+  // system is running on cloud in prod
+  Prod = "prod",
+}
+
+export function checkDatabaseLocalConnection(): RunningState {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    throw new Error("DATABASE_URL is not set");
+  }
+  if (process.env.NODE_ENV === "production") {
+    return RunningState.Prod;
+  }
+
+  if (dbUrl.includes("localhost") || dbUrl.includes("127.0.0.1")) {
+    return RunningState.Local;
+  }
+  return RunningState.LocalProdDb;
+}
+
 export async function checkDatabaseConnection(): Promise<
   { ok: true } | { ok: false; error: unknown }
 > {
