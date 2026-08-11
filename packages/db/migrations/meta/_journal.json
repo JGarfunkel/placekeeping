@@ -8,6 +8,20 @@
       "when": 1786036144865,
       "tag": "0000_baseline",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786443153605,
+      "tag": "0001_observations_vegetation_weed_level",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786451309557,
+      "tag": "0002_observation_steward_snapshot",
+      "breakpoints": true
     }
   ]
 }

@@ -308,9 +308,12 @@ export async function SpotDetailView({
         <ObservationsPanel
           spotId={spot.spotId}
           spotName={spot.name}
+          spotVegetation={spot.vegetation}
+          spotWeedLevel={spot.weedLevel}
           observations={observations}
           observerName={observerName}
           currentUserId={authContext?.userId ?? null}
+          currentStewardId={authContext?.stewardId ?? null}
         />
       }
     />

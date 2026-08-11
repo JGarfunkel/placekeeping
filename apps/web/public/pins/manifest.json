@@ -38,7 +38,7 @@
       "vegetation": "pollinator",
       "weed_level": "minimal",
       "stewarded": true,
-      "glyph": "garden",
+      "glyph": "pollinator",
       "color": "green",
       "fill": "solid",
       "dot": null
@@ -49,7 +49,7 @@
       "vegetation": "pollinator",
       "weed_level": "light",
       "stewarded": false,
-      "glyph": "garden",
+      "glyph": "pollinator",
       "color": "green",
       "fill": "outline",
       "dot": "light"
@@ -60,7 +60,7 @@
       "vegetation": "ornamental",
       "weed_level": "thick",
       "stewarded": false,
-      "glyph": "garden",
+      "glyph": "ornamental",
       "color": "green",
       "fill": "outline",
       "dot": "thick"

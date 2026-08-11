@@ -11,7 +11,8 @@
     "studio": "dotenv -e ../../.env -- drizzle-kit studio",
     "check": "dotenv -e ../../.env -- tsx src/checkTablesCli.ts",
     "set-admin": "dotenv -e ../../.env -- tsx src/set-admin.ts",
-    "set-level": "dotenv -e ../../.env -- tsx src/set-level.ts"
+    "set-level": "dotenv -e ../../.env -- tsx src/set-level.ts",
+    "backfill-observation-vegetation": "dotenv -e ../../.env -- tsx src/backfillObservationVegetation.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.36.4",

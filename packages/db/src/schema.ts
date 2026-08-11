@@ -459,6 +459,13 @@ export const spots = pgTable(
     // Raw steward name as imported from a spreadsheet — intentionally not
     // resolved against `stewardId`, since it may not match any real Steward.
     stewardName: text("steward_name"),
+    // When the current stewardId took over -- null means unknown (no record
+    // of when stewardship began). Exists so observations.stewardId can be
+    // backfilled correctly: an observation logged before stewardStart
+    // predates this steward and shouldn't be attributed to them, even though
+    // the spot has them as its steward now. Not yet written on steward
+    // reassignment (see updateSpot) -- that wiring lands separately.
+    stewardStart: timestamp("steward_start", { withTimezone: true }),
     // Set once at creation from the authenticated caller and never touched
     // by updateSpot — distinct from stewardId, which can be reassigned or
     // cleared later (e.g. bulk import, steward handoff). Lets the original
@@ -499,6 +506,7 @@ export const spots = pgTable(
       .notNull()
       .defaultNow(),
     lastVerified: timestamp("last_verified", { withTimezone: true }),
+    status: text("status"),
   },
   (table) => [
     index("spots_location_gix").using("gist", table.location),
@@ -534,6 +542,21 @@ export const observations = pgTable(
       onDelete: "set null",
     }),
     notes: text("notes"),
+    // Per-observation snapshot, distinct from spots.vegetation/weedLevel
+    // (the site's current default) -- both nullable since not every
+    // observation logs them. Same plain-text convention as spots, see
+    // comment above spots.vegetation.
+    vegetation: text("vegetation"),
+    weedLevel: text("weed_level"),
+    // Snapshot of spots.stewardId as of this observation -- null both for
+    // "spot was unstewarded at the time" and "predates spots.stewardStart,
+    // can't tell." Drives the observation-card glyph's solid/outline fill,
+    // same purpose spots.stewardId serves for the map pin. Set at insert
+    // time by createObservation; see stewardStart above for how existing
+    // rows get backfilled.
+    stewardId: uuid("steward_id").references(() => stewards.stewardId, {
+      onDelete: "set null",
+    }),
     photoUrls: text("photo_urls")
       .array()
       .notNull()

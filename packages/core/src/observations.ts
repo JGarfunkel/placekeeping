@@ -3,6 +3,8 @@ import type {
   CreateObservationInput,
   Observation,
   UpdateObservationInput,
+  Vegetation,
+  WeedLevel,
 } from "@placekeeping/shared-types";
 import { desc, eq } from "drizzle-orm";
 import { checkPhotoUrls, getModerationMode } from "./photoModeration";
@@ -16,6 +18,9 @@ function toObservationDto(row: typeof observations.$inferSelect): Observation {
     observerName: row.observerName,
     observerId: row.observerId,
     notes: row.notes,
+    vegetation: row.vegetation as Vegetation | null,
+    weedLevel: row.weedLevel as WeedLevel | null,
+    stewardId: row.stewardId,
     photoUrls: row.photoUrls,
     inaturalistObsUrl: row.inaturalistObsUrl,
     createdAt: row.createdAt.toISOString(),
@@ -103,6 +108,24 @@ export async function spotHasObservations(spotId: number): Promise<boolean> {
   return !!row;
 }
 
+// "Log stewardship activity": lets the observer credit themselves as having
+// tended the spot on this one visit, even if the spot itself has no
+// official steward (or a different one) -- see local design notes on
+// observations.stewardId. Caller (the API route) has already confirmed the
+// observation is still within its edit window and that stewardId belongs to
+// the same caller.
+export async function claimObservationStewardship(
+  observationId: string,
+  stewardId: string,
+): Promise<Observation> {
+  const [row] = await db
+    .update(observations)
+    .set({ stewardId })
+    .where(eq(observations.observationId, observationId))
+    .returning();
+  return toObservationDto(row);
+}
+
 export async function createObservation(
   spotId: number,
   input: CreateObservationInput,
@@ -110,9 +133,29 @@ export async function createObservation(
   // photos on it) -- null for the seed script and any other server-side
   // caller without a logged-in user.
   userId: string | null,
+  // The caller's own stewardId, if they have one -- used only when
+  // input.claimStewardship is set, letting them log stewardship activity in
+  // the same step as creating the observation instead of a separate claim
+  // call afterward. Null/omitted for callers who aren't a steward.
+  callerStewardId: string | null = null,
 ): Promise<Observation> {
   const urlsNeedingModeration = input.photoUrls.filter((url) => !isOwnStorageUrl(url));
   await checkPhotoUrls(urlsNeedingModeration);
+
+  // Snapshot the spot's current steward onto the observation -- who was
+  // tending it "now" only means anything at the moment of the visit, and
+  // spots.stewardId can be reassigned or cleared later. See schema.ts.
+  // A caller claiming stewardship for this one visit overrides that.
+  const [spot] = await db
+    .select({ stewardId: spots.stewardId })
+    .from(spots)
+    .where(eq(spots.spotId, spotId))
+    .limit(1);
+
+  const stewardId =
+    input.claimStewardship && callerStewardId
+      ? callerStewardId
+      : (spot?.stewardId ?? null);
 
   const [row] = await db
     .insert(observations)
@@ -122,6 +165,9 @@ export async function createObservation(
       observerName: input.observerName,
       observerId: userId,
       notes: input.notes,
+      vegetation: input.vegetation ?? null,
+      weedLevel: input.weedLevel ?? null,
+      stewardId,
       photoUrls: input.photoUrls,
       inaturalistObsUrl: input.inaturalistObsUrl,
     })
@@ -176,6 +222,8 @@ export async function updateObservation(
     .set({
       observedAt: input.observedAt ?? existing.observedAt,
       notes: input.notes ?? existing.notes,
+      vegetation: input.vegetation ?? existing.vegetation,
+      weedLevel: input.weedLevel ?? existing.weedLevel,
       photoUrls: nextPhotoUrls,
       inaturalistObsUrl: input.inaturalistObsUrl ?? existing.inaturalistObsUrl,
     })

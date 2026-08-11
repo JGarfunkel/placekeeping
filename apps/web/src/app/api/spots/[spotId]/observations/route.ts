@@ -43,6 +43,7 @@ export const POST = withApiErrorHandling(
       spotId,
       parsed.data,
       authContext.userId,
+      authContext.stewardId,
     );
     return NextResponse.json({ observation }, { status: 201 });
   },

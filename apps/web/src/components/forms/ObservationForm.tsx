@@ -1,8 +1,22 @@
 "use client";
 
-import type { Observation } from "@placekeeping/shared-types";
+import type { Observation, Vegetation, WeedLevel } from "@placekeeping/shared-types";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import {
+  type EditState,
+  type Field,
+  onVegetationChange,
+  onWeedLevelChange,
+  overtakenPrompt,
+  weedLevelWarning,
+} from "@/taxonomy/vegetationWeedSync";
+import { WEED_LEVELS } from "@/taxonomy/weedLevels";
+import { vegetationOptions } from "./spotOptions";
+
+// 4 slider positions map straight to the 4 WeedLevel values -- see the same
+// convention in QuickAddSpotDialog.
+const weedSliderLabels = WEED_LEVELS.map((l) => l.label);
 
 function todayDateString(): string {
   const now = new Date();
@@ -16,6 +30,15 @@ export function ObservationForm({
   spotId,
   observerName,
   observation,
+  // The spot's own current vegetation/weedLevel -- only used to seed the
+  // fields below when this observation doesn't already have its own values
+  // (a fresh create, or a legacy row never backfilled). See schema.ts.
+  spotVegetation = null,
+  spotWeedLevel = "minimal",
+  // Only meaningful in create mode (see the "Log Stewardship Activity"
+  // toggle below) -- editing an existing observation's steward is handled
+  // separately, by ObservationsPanel's own StewardshipActions on the card.
+  currentStewardId = null,
   onSuccess,
 }: {
   spotId: number;
@@ -23,6 +46,9 @@ export function ObservationForm({
   // When set, the form edits this existing observation (PATCH) instead of
   // creating a new one (POST) -- see EditObservationDialog.
   observation?: Observation;
+  spotVegetation?: Vegetation | null;
+  spotWeedLevel?: WeedLevel;
+  currentStewardId?: string | null;
   onSuccess?: () => void;
 }) {
   const router = useRouter();
@@ -30,16 +56,56 @@ export function ObservationForm({
     observation?.observedAt ?? todayDateString(),
   );
   const [notes, setNotes] = useState(observation?.notes ?? "");
+  const [vegetation, setVegetation] = useState<Vegetation | "">(
+    observation?.vegetation ?? spotVegetation ?? "",
+  );
+  const [weedLevel, setWeedLevel] = useState<WeedLevel>(
+    observation?.weedLevel ?? spotWeedLevel ?? "minimal",
+  );
+  const [touched, setTouched] = useState<Set<Field>>(new Set());
   const [photoUrls, setPhotoUrls] = useState<string[]>(
     observation?.photoUrls ?? [],
   );
   const [inaturalistObsUrl, setInaturalistObsUrl] = useState(
     observation?.inaturalistObsUrl ?? "",
   );
+  const [claimStewardship, setClaimStewardship] = useState(false);
+  const [becomingSteward, setBecomingSteward] = useState(false);
+  const [becomeStewardError, setBecomeStewardError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const weedSlider = WEED_LEVELS.findIndex((l) => l.value === weedLevel);
+
+  function applyEdit(edit: (s: EditState) => EditState) {
+    const next = edit({ vegetation, weedLevel, touched: new Set(touched) });
+    setVegetation(next.vegetation);
+    setWeedLevel(next.weedLevel);
+    setTouched(next.touched);
+  }
+
+  const editState: EditState = { vegetation, weedLevel, touched };
+
+  async function becomeSteward() {
+    setBecomeStewardError(null);
+    setBecomingSteward(true);
+    try {
+      const res = await fetch("/api/stewards/me", { method: "POST" });
+      if (!res.ok) throw new Error("Failed to sign up as a steward");
+      // currentStewardId flows back down as a prop once this resolves --
+      // the dialog stays open and its own state (including claimStewardship
+      // below) survives the refresh.
+      router.refresh();
+    } catch (err) {
+      setBecomeStewardError(
+        err instanceof Error ? err.message : "Something went wrong",
+      );
+    } finally {
+      setBecomingSteward(false);
+    }
+  }
 
   function removePhoto(index: number) {
     setPhotoUrls((prev) => prev.filter((_, i) => i !== index));
@@ -83,6 +149,8 @@ export function ObservationForm({
         ? {
             observedAt,
             notes,
+            vegetation: vegetation || undefined,
+            weedLevel,
             photoUrls,
             inaturalistObsUrl: inaturalistObsUrl || undefined,
           }
@@ -90,8 +158,11 @@ export function ObservationForm({
             observedAt,
             observerName,
             notes: notes || undefined,
+            vegetation: vegetation || undefined,
+            weedLevel,
             photoUrls,
             inaturalistObsUrl: inaturalistObsUrl || undefined,
+            claimStewardship,
           };
       const res = await fetch(url, {
         method: observation ? "PATCH" : "POST",
@@ -129,6 +200,38 @@ export function ObservationForm({
           {observerName}
         </span>
       </div>
+
+      {!observation && (
+        <div className="flex flex-wrap items-center gap-2">
+          {!currentStewardId && (
+            <button
+              type="button"
+              onClick={becomeSteward}
+              disabled={becomingSteward}
+              className="rounded-md border border-neutral-300 px-2 py-1 text-xs font-medium text-neutral-700 hover:border-neutral-400 disabled:opacity-50"
+            >
+              {becomingSteward ? "Signing up…" : "Become a Steward"}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setClaimStewardship((prev) => !prev)}
+            disabled={!currentStewardId}
+            title={!currentStewardId ? "Become a steward first" : undefined}
+            aria-pressed={claimStewardship}
+            className={`rounded-md border px-2 py-1 text-xs font-medium disabled:opacity-50 ${
+              claimStewardship
+                ? "border-neutral-900 bg-neutral-900 text-white"
+                : "border-neutral-300 text-neutral-700 hover:border-neutral-400"
+            }`}
+          >
+            {claimStewardship ? "Logging Stewardship Activity ✓" : "Log Stewardship Activity"}
+          </button>
+          {becomeStewardError && (
+            <p className="w-full text-xs text-red-600">{becomeStewardError}</p>
+          )}
+        </div>
+      )}
 
       <div className="flex flex-col gap-1 text-sm">
         Photos
@@ -176,6 +279,67 @@ export function ObservationForm({
           required
         />
       </label>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Vegetation
+        <select
+          className="rounded-md border border-neutral-300 px-3 py-2"
+          value={vegetation}
+          onChange={(e) =>
+            applyEdit((s) => onVegetationChange(s, e.target.value as Vegetation | ""))
+          }
+        >
+          <option value="">Unspecified</option>
+          {vegetationOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <div className="flex flex-col gap-1 text-sm">
+        Weed level
+        <input
+          type="range"
+          min={0}
+          max={3}
+          step={1}
+          value={weedSlider}
+          onChange={(e) =>
+            applyEdit((s) => onWeedLevelChange(s, WEED_LEVELS[Number(e.target.value)].value))
+          }
+        />
+        <div className="flex justify-between text-xs text-neutral-500">
+          {weedSliderLabels.map((label) => (
+            <span key={label}>{label}</span>
+          ))}
+        </div>
+        {overtakenPrompt(editState) && (
+          <div className="flex flex-col gap-1.5 text-xs text-amber-600">
+            <p>{overtakenPrompt(editState)}</p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => applyEdit((s) => onVegetationChange(s, "herbaceous_weeds"))}
+                className="rounded-md border border-amber-300 px-2 py-1 font-medium hover:bg-amber-50"
+              >
+                Herbaceous weeds
+              </button>
+              <button
+                type="button"
+                onClick={() => applyEdit((s) => onVegetationChange(s, "vigorous_weeds"))}
+                className="rounded-md border border-amber-300 px-2 py-1 font-medium hover:bg-amber-50"
+              >
+                Vigorous weeds
+              </button>
+            </div>
+          </div>
+        )}
+        {weedLevelWarning(editState) && (
+          <p className="text-xs text-amber-600">{weedLevelWarning(editState)}</p>
+        )}
+      </div>
 
       <label className="flex flex-col gap-1 text-sm">
         Notes

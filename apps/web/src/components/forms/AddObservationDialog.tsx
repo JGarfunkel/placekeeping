@@ -1,16 +1,23 @@
 "use client";
 
+import type { Vegetation, WeedLevel } from "@placekeeping/shared-types";
 import { ObservationForm } from "./ObservationForm";
 
 export function AddObservationDialog({
   spotId,
   spotName,
+  spotVegetation,
+  spotWeedLevel,
   observerName,
+  currentStewardId,
   onClose,
 }: {
   spotId: number;
   spotName: string;
+  spotVegetation: Vegetation | null;
+  spotWeedLevel: WeedLevel;
   observerName: string;
+  currentStewardId: string | null;
   onClose: () => void;
 }) {
   return (
@@ -40,6 +47,9 @@ export function AddObservationDialog({
         <ObservationForm
           spotId={spotId}
           observerName={observerName}
+          spotVegetation={spotVegetation}
+          spotWeedLevel={spotWeedLevel}
+          currentStewardId={currentStewardId}
           onSuccess={onClose}
         />
       </div>
