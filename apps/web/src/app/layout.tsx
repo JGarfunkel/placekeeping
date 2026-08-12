@@ -1,6 +1,6 @@
 import { getAppSettings, type AuthContext } from "@placekeeping/core";
 import { isDatabaseConnectionError } from "@placekeeping/db";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Source_Serif_4 } from "next/font/google";
 import Link from "next/link";
 import "leaflet/dist/leaflet.css";
@@ -11,6 +11,7 @@ import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import { DatabaseWarningBanner } from "@/components/DatabaseWarningBanner";
 import { HeaderMenu } from "@/components/nav/HeaderMenu";
 import { PauseBanner } from "@/components/PauseBanner";
+import { RegisterServiceWorker } from "@/components/RegisterServiceWorker";
 import { getAuthContext } from "@/lib/session";
 
 const geistSans = Geist({
@@ -32,6 +33,15 @@ export const metadata: Metadata = {
   title: "Placekeeping — Community Stewardship Atlas",
   description:
     "Find and steward gardens, preserves, and other cared-for outdoor places near you.",
+  appleWebApp: {
+    capable: true,
+    title: "Placekeeping",
+    statusBarStyle: "default",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#2e7d43",
 };
 
 export default async function RootLayout({
@@ -62,7 +72,7 @@ export default async function RootLayout({
         {dbUnavailable && <DatabaseWarningBanner />}
         {!dbUnavailable && writesPaused && <PauseBanner />}
         <AnnouncementBanner />
-        <header className="relative flex items-center justify-between border-b border-neutral-200 px-6 py-3 text-sm">
+        <header className="relative z-[1100] flex items-center justify-between border-b border-neutral-200 bg-white px-6 py-3 text-sm">
           <Link href="/" className="flex items-center">
             {/* eslint-disable-next-line @next/next/no-img-element -- static SVG, no optimization needed */}
             <img
@@ -78,6 +88,7 @@ export default async function RootLayout({
           />
         </header>
         <div className="flex flex-1 flex-col">{children}</div>
+        <RegisterServiceWorker />
       </body>
     </html>
   );

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type ReactNode, useState } from "react";
+import { useInstallPrompt } from "@/hooks/useInstallPrompt";
 
 const itemClass = "block px-4 py-2 text-sm hover:bg-neutral-50 whitespace-nowrap";
 const logoutItemClass = `${itemClass} w-full text-left text-neutral-500`;
@@ -50,6 +51,7 @@ export function HeaderMenu({
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const router = useRouter();
+  const { canInstall, promptInstall } = useInstallPrompt();
 
   async function handleLogout() {
     await fetch("/api/auth/session", { method: "DELETE" });
@@ -98,6 +100,15 @@ export function HeaderMenu({
   return (
     <>
       <nav className="hidden items-center gap-4 md:flex">
+        {canInstall && (
+          <button
+            type="button"
+            onClick={promptInstall}
+            className="text-sm underline"
+          >
+            Install app
+          </button>
+        )}
         <Dropdown label="About" align="desktop">
           {aboutItems()}
         </Dropdown>
@@ -142,6 +153,18 @@ export function HeaderMenu({
               >
                 Sign in
               </Link>
+            )}
+            {canInstall && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileOpen(false);
+                  promptInstall();
+                }}
+                className="px-4 py-2 text-left text-sm font-medium"
+              >
+                Install app
+              </button>
             )}
           </div>
         )}

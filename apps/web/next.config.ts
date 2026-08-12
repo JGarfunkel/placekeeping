@@ -33,6 +33,21 @@ const nextConfig: NextConfig = {
     // route manifest that's actually correct.
     turbopackFileSystemCacheForDev: false,
   },
+  async headers() {
+    return [
+      {
+        // Force revalidation so an updated service worker is picked up
+        // promptly instead of a stale one lingering under default caching.
+        source: "/sw.js",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-cache, no-store, must-revalidate",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
