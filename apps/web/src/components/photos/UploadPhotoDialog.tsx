@@ -190,6 +190,9 @@ export function UploadPhotoDialog({
               router.push(`/spots/new?${params.toString()}`);
               onClose();
             }}
+            onLocated={(lat, lng) =>
+              setStep({ kind: "nearby", url: step.url, observedAt: step.observedAt, lat, lng })
+            }
             onCancel={onClose}
           />
         )}
@@ -307,10 +310,12 @@ function NearbySpotsStep({
 function ManualSpotStep({
   onSelect,
   onCreateNew,
+  onLocated,
   onCancel,
 }: {
   onSelect: (spotId: number) => Promise<void>;
   onCreateNew: () => void;
+  onLocated: (lat: number, lng: number) => void;
   onCancel: () => void;
 }) {
   const [query, setQuery] = useState("");
@@ -318,6 +323,26 @@ function ManualSpotStep({
   const [searching, setSearching] = useState(false);
   const [pendingSpotId, setPendingSpotId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [locating, setLocating] = useState(false);
+
+  function useMyLocation() {
+    if (!navigator.geolocation) {
+      setError("Location isn't available in this browser.");
+      return;
+    }
+    setError(null);
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocating(false);
+        onLocated(position.coords.latitude, position.coords.longitude);
+      },
+      () => {
+        setLocating(false);
+        setError("Couldn't get your current location.");
+      },
+    );
+  }
 
   useEffect(() => {
     const trimmed = query.trim();
@@ -361,8 +386,17 @@ function ManualSpotStep({
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm font-medium">
-        This photo doesn&apos;t have location info — search for a spot instead.
+        This photo doesn&apos;t have location info — search for a spot, or use your
+        current location if you&apos;re there now.
       </p>
+      <button
+        type="button"
+        onClick={useMyLocation}
+        disabled={locating}
+        className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium hover:bg-neutral-50 disabled:opacity-50"
+      >
+        {locating ? "Locating…" : "Use my current location"}
+      </button>
       <input
         autoFocus
         className="rounded-md border border-neutral-300 px-3 py-2 text-sm"

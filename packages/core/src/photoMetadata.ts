@@ -134,8 +134,8 @@ export async function getPhotoLocationFromBytes(
     const result = await Promise.race([exifr.gps(bytes), timeout]);
     if (
       !result ||
-      typeof result.latitude !== "number" ||
-      typeof result.longitude !== "number"
+      !Number.isFinite(result.latitude) ||
+      !Number.isFinite(result.longitude)
     ) {
       debugLog("[photo-metadata] no usable GPS tags in EXIF data (bytes)");
       return null;
