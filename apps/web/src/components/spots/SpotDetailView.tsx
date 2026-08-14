@@ -1,5 +1,6 @@
 import {
   canManageSite,
+  canManageSpot,
   countyPathSegment,
   getStewardByStewardId,
   getUserByUserId,
@@ -138,8 +139,10 @@ export async function SpotDetailView({
         .find((p) => p.photoId === highlightPhotoId) ?? null)
     : null;
 
+  // Individual-ownership only (the caller's personal steward) -- for the
+  // "(you)" label in StewardshipSection. Group stewardship goes through
+  // canManageParcel/canManageSpot below instead.
   const isOwner = !!authContext?.stewardId && authContext.stewardId === spot.stewardId;
-  const isCreator = authContext?.userId === spot.createdByUserId;
   // The logged-in caller's own public handle, shown as the attribution on
   // any observation they log from this page -- see users.username in
   // schema.ts (never the private `name` here, since this is visible to
@@ -157,15 +160,14 @@ export async function SpotDetailView({
     : null;
   const { linkedSite, parcelGeometries, memberSpots } =
     await getSiteColumnData(spot);
-  const canManageParcel =
-    isOwner || isCreator || authContext?.isSystemAdmin === true;
+  const canManageParcel = !!authContext && canManageSpot(authContext, spot);
   const canEditSite =
     !!authContext && !!linkedSite && canManageSite(authContext, linkedSite);
   const hasObservations = observations.length > 0;
   const canDeleteSpot =
     canManageParcel && (!hasObservations || authContext?.isSystemAdmin === true);
 
-  const showAddress = isOwner || spot.addressVisibility === "public";
+  const showAddress = canManageParcel || spot.addressVisibility === "public";
 
   // Territory/scoreboard links -- mirrors the path shapes in
   // territoryPathsForSpot (packages/core/src/territory.ts): state and
@@ -275,7 +277,7 @@ export async function SpotDetailView({
                 <DeleteSpotButton spotId={spot.spotId} spotName={spot.name} />
               )}
             </div>
-            {isOwner && (
+            {canManageParcel && (
               <Link
                 href={`/spots/${spot.spotId}/edit`}
                 className="mt-2 inline-block text-sm font-medium underline"
