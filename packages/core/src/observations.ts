@@ -9,6 +9,7 @@ import type {
 import { desc, eq } from "drizzle-orm";
 import { checkPhotoUrls, getModerationMode } from "./photoModeration";
 import { isOwnStorageUrl, ownStorageKey } from "./photoStorage";
+import { listPhotosForObservations } from "./photos";
 
 function toObservationDto(row: typeof observations.$inferSelect): Observation {
   return {
@@ -46,7 +47,15 @@ export async function listObservationsForSpot(
     .from(observations)
     .where(eq(observations.spotId, spotId))
     .orderBy(desc(observations.observedAt));
-  return rows.map(toObservationDto);
+  const dtos = rows.map(toObservationDto);
+
+  const photosByObservation = await listPhotosForObservations(
+    dtos.map((o) => o.observationId),
+  );
+  return dtos.map((o) => ({
+    ...o,
+    photos: photosByObservation.get(o.observationId) ?? [],
+  }));
 }
 
 // For the profile page's observation history -- joins in the spot name

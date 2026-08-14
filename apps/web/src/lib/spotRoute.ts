@@ -9,10 +9,29 @@ export type SpotRoute =
   | { kind: "spotId"; id: number }
   | { kind: "spotEdit"; id: number }
   | { kind: "newObservation"; id: number }
+  | { kind: "spotObservation"; id: number; observationId: string }
+  | { kind: "spotPhoto"; id: number; observationId: string; photoId: string }
   | { kind: "country"; cc: string }
   | { kind: "state"; cc: string; sc: string }
   | { kind: "municipality"; cc: string; sc: string; mc: string }
   | { kind: "slug"; cc: string; sc: string; mc: string; slug: string }
+  | {
+      kind: "slugObservation";
+      cc: string;
+      sc: string;
+      mc: string;
+      slug: string;
+      observationId: string;
+    }
+  | {
+      kind: "slugPhoto";
+      cc: string;
+      sc: string;
+      mc: string;
+      slug: string;
+      observationId: string;
+      photoId: string;
+    }
   | { kind: "notFound" };
 
 const NOT_FOUND: SpotRoute = { kind: "notFound" };
@@ -24,7 +43,7 @@ export function classifySpotPath(segments: string[]): SpotRoute {
 }
 
 function classifySpotPathImpl(segments: string[]): SpotRoute {
-  const [a, b, c, d] = segments;
+  const [a, b, c, d, e, f] = segments;
   if (a === undefined) return NOT_FOUND;
 
   if (/^\d+$/.test(a)) {
@@ -35,6 +54,15 @@ function classifySpotPathImpl(segments: string[]): SpotRoute {
     if (segments.length === 3 && b === "observations" && c === "new") {
       return { kind: "newObservation", id };
     }
+    // Fallback permalink shape for a spot with no slug yet (see spotPath.ts)
+    // -- same /observations/<id>[/<photoId>] tail as the slug tree, just
+    // rooted at the numeric spotId instead.
+    if (segments.length === 3 && b === "observations" && c !== undefined) {
+      return { kind: "spotObservation", id, observationId: c };
+    }
+    if (segments.length === 4 && b === "observations" && c !== undefined && d !== undefined) {
+      return { kind: "spotPhoto", id, observationId: c, photoId: d };
+    }
     return NOT_FOUND;
   }
 
@@ -44,6 +72,20 @@ function classifySpotPathImpl(segments: string[]): SpotRoute {
     if (segments.length === 2) return { kind: "state", cc, sc: b };
     if (segments.length === 3) return { kind: "municipality", cc, sc: b, mc: c };
     if (segments.length === 4) return { kind: "slug", cc, sc: b, mc: c, slug: d };
+    if (segments.length === 5) {
+      return { kind: "slugObservation", cc, sc: b, mc: c, slug: d, observationId: e };
+    }
+    if (segments.length === 6) {
+      return {
+        kind: "slugPhoto",
+        cc,
+        sc: b,
+        mc: c,
+        slug: d,
+        observationId: e,
+        photoId: f,
+      };
+    }
     return NOT_FOUND;
   }
 

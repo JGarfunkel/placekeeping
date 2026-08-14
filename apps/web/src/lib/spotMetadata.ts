@@ -1,6 +1,8 @@
 import type { Spot } from "@placekeeping/shared-types";
 import type { Metadata } from "next";
 import { spotPurposeOptions, vegetationOptions } from "@/components/forms/spotOptions";
+import { buildOpenGraphMetadata, type OgContent } from "@/lib/ogMetadata";
+import { spotPath } from "@/lib/spotPath";
 
 const purposeLabels: Record<string, string> = Object.fromEntries(
   spotPurposeOptions.map((opt) => [opt.value, opt.label]),
@@ -38,16 +40,17 @@ function assembleDescription(spot: Spot): string {
     .join(" ");
 }
 
-export function buildSpotMetadata(spot: Spot): Metadata {
-  const description = spot.description || assembleDescription(spot);
-
+// Reused by both buildSpotMetadata (page <head> tags) and the embed widget's
+// JSON API (app/api/embed/card/route.ts).
+export function buildSpotOgContent(spot: Spot): OgContent {
   return {
     title: spot.name,
-    description,
-    openGraph: {
-      title: spot.name,
-      description,
-      images: spot.coverPhotoUrl ? [spot.coverPhotoUrl] : undefined,
-    },
+    description: spot.description || assembleDescription(spot),
+    imageUrl: spot.coverPhotoUrl,
+    path: spotPath(spot),
   };
+}
+
+export function buildSpotMetadata(spot: Spot): Metadata {
+  return buildOpenGraphMetadata(buildSpotOgContent(spot));
 }

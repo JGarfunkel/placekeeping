@@ -1,6 +1,7 @@
 import { resolveState } from "@placekeeping/core";
 import type { TerritoryResolution } from "@placekeeping/core";
 import type { Metadata } from "next";
+import { buildOpenGraphMetadata } from "@/lib/ogMetadata";
 
 // Only "us" is resolvable today (see resolveCountry in territory.ts) -- this
 // mirrors that restriction rather than pretending to support more.
@@ -28,5 +29,6 @@ export async function buildTerritoryMetadata(
     parts = [country];
   }
 
-  return { title: `Placekeeping - ${parts.join(", ")}` };
+  const title = `Placekeeping - ${parts.join(", ")}`;
+  return buildOpenGraphMetadata({ title, path: `/spots/${resolution.path}` });
 }

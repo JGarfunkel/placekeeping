@@ -1,6 +1,17 @@
 import { z } from "zod";
 import { vegetationSchema, weedLevelSchema } from "./enums";
 
+// One row per photo attached to an observation (packages/db/src/schema.ts's
+// `photos` table) -- the addressable id behind an observation/photo
+// permalink, unlike the plain URLs in observationSchema.photoUrls below.
+export const photoSchema = z.object({
+  photoId: z.string().uuid(),
+  observationId: z.string().uuid(),
+  url: z.string().url(),
+  createdAt: z.string().datetime(),
+});
+export type Photo = z.infer<typeof photoSchema>;
+
 export const observationSchema = z.object({
   observationId: z.string().uuid(),
   spotId: z.number().int().positive(),
@@ -19,6 +30,10 @@ export const observationSchema = z.object({
   // time" or "predates spots.stewardStart, can't tell" -- see schema.ts.
   stewardId: z.string().uuid().nullable(),
   photoUrls: z.array(z.string().url()),
+  // Populated only by listObservationsForSpot (a join against the `photos`
+  // table) -- gives each photo a stable id for permalinks. Undefined for
+  // Observation values built elsewhere (create/update responses etc.).
+  photos: z.array(photoSchema).optional(),
   inaturalistObsUrl: z.string().url().nullable(),
   createdAt: z.string().datetime(),
 });

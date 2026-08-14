@@ -395,6 +395,7 @@ export async function createSpot(
     municipality: resolvedMunicipality,
     postalCity: input.postalCity,
     useMunicipalityForSlug,
+    slug: input.slug,
   });
 
   const [row] = await db
@@ -465,8 +466,17 @@ export async function updateSpot(
 ): Promise<Spot | null> {
   // coverPhotoObservedAt only ever backdates the one-time observation
   // createSpot logs alongside a new cover photo -- not a spots column, so it
-  // must not reach the update() call below.
-  const { latitude, longitude, sizeSqft, coverPhotoObservedAt: _coverPhotoObservedAt, ...rest } = input;
+  // must not reach the update() call below. `slug` is pulled out too since it
+  // must always go through computeSpotSlug's slugify+collision-suffix logic
+  // below rather than being written raw.
+  const {
+    latitude,
+    longitude,
+    sizeSqft,
+    coverPhotoObservedAt: _coverPhotoObservedAt,
+    slug: _rawSlug,
+    ...rest
+  } = input;
   debugLog("[spots] updateSpot", spotId, input);
 
   // Fetched unconditionally (not just when slug-relevant fields change) --
@@ -495,7 +505,8 @@ export async function updateSpot(
     input.state !== undefined ||
     input.municipality !== undefined ||
     input.postalCity !== undefined ||
-    input.useMunicipalityForSlug !== undefined;
+    input.useMunicipalityForSlug !== undefined ||
+    input.slug !== undefined;
 
   let slugFields:
     | { slugState: string | null; slugLocality: string | null; slug: string | null }
@@ -509,6 +520,7 @@ export async function updateSpot(
         postalCity: input.postalCity ?? current.postalCity,
         useMunicipalityForSlug:
           input.useMunicipalityForSlug ?? current.useMunicipalityForSlug,
+        slug: input.slug,
       },
       spotId,
     );

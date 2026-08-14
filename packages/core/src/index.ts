@@ -11,6 +11,7 @@ export * from "./photoMetadata";
 export * from "./photoModeration";
 export * from "./photoResize";
 export * from "./photoStorage";
+export * from "./photos";
 export * from "./remoteLog";
 export * from "./sites";
 export * from "./slug";

@@ -1,7 +1,7 @@
 import sharp from "sharp";
 
-/** Longer-edge cap for stored photos. ~75% smaller than typical phone JPEGs at negligible visible quality loss for web display. */
-const MAX_DIMENSION_PX = 1350;
+/** Longer-edge cap for stored photos. ~75% smaller than typical phone JPEGs at negligible visible quality loss for web display, and close to the 1200px width convention for og:image. */
+const MAX_DIMENSION_PX = 1200;
 
 const CONTENT_TYPE_TO_SHARP_FORMAT: Record<string, keyof sharp.FormatEnum> = {
   "image/jpeg": "jpeg",

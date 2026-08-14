@@ -83,6 +83,8 @@ function SpotFormFields({
   const [useMunicipalityForSlug, setUseMunicipalityForSlug] = useState(
     existing?.useMunicipalityForSlug ?? false,
   );
+  const [slug, setSlug] = useState(existing?.slug ?? "");
+  const [addressEditOpen, setAddressEditOpen] = useState(!existing);
   const [sizeSqft, setSizeSqft] = useState(
     existing?.sizeSqft != null ? String(existing.sizeSqft) : "",
   );
@@ -154,6 +156,7 @@ function SpotFormFields({
     const lng = Number(longitude);
     if (!geocodingLib || Number.isNaN(lat) || Number.isNaN(lng)) return;
     setGeocoding(true);
+    setAddressEditOpen(true);
     try {
       const response = await new geocodingLib.Geocoder().geocode({
         location: { lat, lng },
@@ -204,6 +207,7 @@ function SpotFormFields({
         county: county || undefined,
         addressVisibility,
         useMunicipalityForSlug,
+        slug: slug.trim() || undefined,
         sizeSqft: sizeSqft ? Number(sizeSqft) : undefined,
         vegetation: vegetation || undefined,
         weedLevel,
@@ -342,87 +346,144 @@ function SpotFormFields({
       </div>
 
       <FormSection title="Location">
-        <label className="flex flex-col gap-1 text-sm">
-          Address / cross streets
-          <input
-            className="rounded-md border border-neutral-300 px-3 py-2"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-          />
-        </label>
-
-        <label className="flex flex-col gap-1 text-sm">
-          Show address to
-          <select
-            className="rounded-md border border-neutral-300 px-3 py-2"
-            value={addressVisibility}
-            onChange={(e) =>
-              setAddressVisibility(e.target.value as typeof addressVisibility)
-            }
+        <div className="flex items-start justify-between gap-2">
+          <div className="text-sm">
+            <div className="text-neutral-700">
+              {[address, postalCity, state].filter(Boolean).join(", ") || (
+                <span className="text-neutral-400">No address set</span>
+              )}
+            </div>
+            {municipality && municipality !== postalCity && (
+              <div className="text-xs text-neutral-500">
+                Municipality: {municipality}
+              </div>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => setAddressEditOpen((open) => !open)}
+            aria-label={addressEditOpen ? "Close address editor" : "Edit address"}
+            className="shrink-0 rounded-md p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
           >
-            <option value="public">Everyone</option>
-            <option value="municipality">Municipality only</option>
-            <option value="hidden">Nobody</option>
-          </select>
-          <span className="text-xs text-neutral-500">
-            For a residential spot you&apos;d rather not pinpoint publicly.
-            Municipality/county are always shown separately — this only
-            governs the street address text. There&apos;s no separate
-            municipal-official account yet, so &quot;Municipality only&quot;
-            currently behaves the same as &quot;Nobody&quot; for public
-            viewers.
-          </span>
-        </label>
-
-        <div className="flex gap-3">
-          <label className="flex flex-1 flex-col gap-1 text-sm">
-            State
-            <input
-              className="rounded-md border border-neutral-300 px-3 py-2"
-              value={state}
-              onChange={(e) => setState(e.target.value)}
-            />
-          </label>
-          <label className="flex flex-1 flex-col gap-1 text-sm">
-            Postal city
-            <input
-              className="rounded-md border border-neutral-300 px-3 py-2"
-              value={postalCity}
-              onChange={(e) => setPostalCity(e.target.value)}
-            />
-            <span className="text-xs text-neutral-500">
-              The mailing/ZIP city — may differ from the governing town.
-            </span>
-          </label>
-          <label className="flex flex-1 flex-col gap-1 text-sm">
-            Municipality
-            <input
-              className="rounded-md border border-neutral-300 px-3 py-2"
-              value={municipality}
-              onChange={(e) => setMunicipality(e.target.value)}
-            />
-            <span className="text-xs text-neutral-500">
-              The governing town/city/village jurisdiction.
-            </span>
-          </label>
-          <label className="flex flex-1 flex-col gap-1 text-sm">
-            County
-            <input
-              className="rounded-md border border-neutral-300 px-3 py-2"
-              value={county}
-              onChange={(e) => setCounty(e.target.value)}
-            />
-          </label>
+            ✎
+          </button>
         </div>
 
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={useMunicipalityForSlug}
-            onChange={(e) => setUseMunicipalityForSlug(e.target.checked)}
-          />
-          Use municipality (instead of postal city) in this spot&apos;s URL
-        </label>
+        {addressEditOpen && (
+          <div className="flex flex-col gap-3 rounded-md border border-neutral-200 bg-neutral-50 p-3">
+            <label className="flex flex-col gap-1 text-sm">
+              Street address
+              <input
+                className="rounded-md border border-neutral-300 px-3 py-2"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+            </label>
+
+            <label className="flex flex-col gap-1 text-sm">
+              Show address to
+              <select
+                className="rounded-md border border-neutral-300 px-3 py-2"
+                value={addressVisibility}
+                onChange={(e) =>
+                  setAddressVisibility(e.target.value as typeof addressVisibility)
+                }
+              >
+                <option value="public">Everyone</option>
+                <option value="municipality">Municipality only</option>
+                <option value="hidden">Nobody</option>
+              </select>
+              <span className="text-xs text-neutral-500">
+                For a residential spot you&apos;d rather not pinpoint publicly.
+                Municipality/county are always shown separately — this only
+                governs the street address text. There&apos;s no separate
+                municipal-official account yet, so &quot;Municipality
+                only&quot; currently behaves the same as &quot;Nobody&quot;
+                for public viewers.
+              </span>
+            </label>
+
+            <div className="flex gap-3">
+              <label className="flex flex-1 flex-col gap-1 text-sm">
+                Postal city
+                <input
+                  className="rounded-md border border-neutral-300 px-3 py-2"
+                  value={postalCity}
+                  onChange={(e) => setPostalCity(e.target.value)}
+                />
+                <span className="text-xs text-neutral-500">
+                  The mailing/ZIP city — may differ from the governing town.
+                </span>
+              </label>
+              <label className="flex flex-1 flex-col gap-1 text-sm">
+                State
+                <input
+                  className="rounded-md border border-neutral-300 px-3 py-2"
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                />
+              </label>
+            </div>
+
+            <div className="flex gap-3">
+              <label className="flex flex-1 flex-col gap-1 text-sm">
+                Municipality
+                <input
+                  className="rounded-md border border-neutral-300 px-3 py-2"
+                  value={municipality}
+                  onChange={(e) => setMunicipality(e.target.value)}
+                />
+                <span className="text-xs text-neutral-500">
+                  The governing town/city/village jurisdiction.
+                </span>
+              </label>
+              <label className="flex flex-1 flex-col gap-1 text-sm">
+                County
+                <input
+                  className="rounded-md border border-neutral-300 px-3 py-2"
+                  value={county}
+                  onChange={(e) => setCounty(e.target.value)}
+                />
+              </label>
+            </div>
+
+            <fieldset className="flex flex-col gap-1 text-sm">
+              <legend className="mb-1">Locate this spot&apos;s URL by</legend>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="slugLocalityBasis"
+                  checked={!useMunicipalityForSlug}
+                  onChange={() => setUseMunicipalityForSlug(false)}
+                />
+                Postal city
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="slugLocalityBasis"
+                  checked={useMunicipalityForSlug}
+                  onChange={() => setUseMunicipalityForSlug(true)}
+                />
+                Municipality
+              </label>
+            </fieldset>
+
+            <label className="flex flex-col gap-1 text-sm">
+              URL slug
+              <input
+                className="rounded-md border border-neutral-300 px-3 py-2"
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                placeholder="Auto-generated from name"
+              />
+              <span className="text-xs text-neutral-500">
+                The last part of this spot&apos;s URL. Leave blank to
+                auto-generate from the name.
+              </span>
+            </label>
+          </div>
+        )}
 
         <div className="flex gap-3">
           <label className="flex flex-1 flex-col gap-1 text-sm">

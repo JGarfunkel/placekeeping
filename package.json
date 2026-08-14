@@ -18,6 +18,7 @@
     "db:migrate": "npm run migrate -w packages/db",
     "db:check": "npm run check -w packages/db",
     "db:backfill-subdivisions": "npm run backfill-subdivisions -w packages/core",
+    "db:backfill-observation-photos": "npm run backfill-observation-photos -w packages/core",
     "db:backfill-observation-vegetation": "npm run backfill-observation-vegetation -w packages/db",
     "db:studio": "npm run studio -w packages/db",
     "db:set-admin": "npm run set-admin -w packages/db --",

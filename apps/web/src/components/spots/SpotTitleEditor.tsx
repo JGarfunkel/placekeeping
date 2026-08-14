@@ -3,15 +3,7 @@
 import type { Spot } from "@placekeeping/shared-types";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-
-// Mirrors the canonical-URL logic in app/spots/[a]/page.tsx: a spot with a
-// full slug lives at /spots/us/<state>/<locality>/<slug>, otherwise it's
-// only reachable at /spots/<spotId>.
-function spotPath(spot: Pick<Spot, "spotId" | "slugState" | "slugLocality" | "slug">): string {
-  return spot.slugState && spot.slugLocality && spot.slug
-    ? `/spots/us/${spot.slugState}/${spot.slugLocality}/${spot.slug}`
-    : `/spots/${spot.spotId}`;
-}
+import { spotPath } from "@/lib/spotPath";
 
 export function SpotTitleEditor({
   spotId,

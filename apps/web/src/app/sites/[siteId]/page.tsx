@@ -4,12 +4,15 @@ import {
   getSiteParcelGeometries,
   listSpotsBySite,
 } from "@placekeeping/core";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import { SiteMapAndParcels } from "@/components/sites/SiteMapAndParcels";
 import { multiPolygonToPolygonPaths } from "@/lib/geo/parcelGeometry";
 import type { ParcelPolygon } from "@/components/map/MapView";
 import { SpotColumns } from "@/components/spots/SpotColumns";
 import { sitePurposeLabels } from "@/lib/siteLabels";
+import { buildSiteMetadata } from "@/lib/siteMetadata";
 import { getAuthContext } from "@/lib/session";
 
 // Falls back to roughly the geographic center of the contiguous U.S. --
@@ -24,6 +27,28 @@ const DEFAULT_CENTER = {
     : -98.5795,
 };
 
+// Shared between generateMetadata and the page body so the site + its member
+// spots only get fetched once per request (mirrors the spot slug page's
+// loadSpot cache in app/spots/[a]/[b]/[c]/[d]/page.tsx).
+const loadSite = cache(async (siteId: number) => {
+  const site = await getSiteById(siteId);
+  if (!site) return null;
+  const memberSpots = await listSpotsBySite(siteId);
+  return { site, memberSpots };
+});
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ siteId: string }>;
+}): Promise<Metadata> {
+  const { siteId: siteIdParam } = await params;
+  const siteId = Number(siteIdParam);
+  if (!Number.isInteger(siteId)) return {};
+  const loaded = await loadSite(siteId);
+  return loaded ? buildSiteMetadata(loaded.site, loaded.memberSpots) : {};
+}
+
 // Sites are only created via the spot-page cascade save
 // (local/spot-resolution.md §8) -- no create/list UI here, just view + edit.
 export default async function SiteDetailPage({
@@ -35,12 +60,12 @@ export default async function SiteDetailPage({
   const siteId = Number(siteIdParam);
   if (!Number.isInteger(siteId)) notFound();
 
-  const site = await getSiteById(siteId);
-  if (!site) notFound();
+  const loaded = await loadSite(siteId);
+  if (!loaded) notFound();
+  const { site, memberSpots } = loaded;
 
-  const [parcelGeometries, memberSpots, authContext] = await Promise.all([
+  const [parcelGeometries, authContext] = await Promise.all([
     getSiteParcelGeometries(siteId),
-    listSpotsBySite(siteId),
     getAuthContext(),
   ]);
 

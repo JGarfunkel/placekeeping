@@ -121,11 +121,23 @@ export async function SpotDetailView({
   spot,
   observations,
   authContext,
+  highlightObservationId,
+  highlightPhotoId,
 }: {
   spot: Spot;
   observations: Observation[];
   authContext: AuthContext | null;
+  // Set when rendered from an observation/photo permalink -- see
+  // app/spots/[a]/[b]/[c]/[d]/[e]/page.tsx and .../[f]/page.tsx.
+  highlightObservationId?: string;
+  highlightPhotoId?: string;
 }) {
+  const featuredPhoto = highlightPhotoId
+    ? (observations
+        .flatMap((o) => o.photos ?? [])
+        .find((p) => p.photoId === highlightPhotoId) ?? null)
+    : null;
+
   const isOwner = !!authContext?.stewardId && authContext.stewardId === spot.stewardId;
   const isCreator = authContext?.userId === spot.createdByUserId;
   // The logged-in caller's own public handle, shown as the attribution on
@@ -198,6 +210,9 @@ export async function SpotDetailView({
 
   return (
     <SpotColumns
+      forceVertical={!!highlightObservationId}
+      spotName={spot.name}
+      siteName={linkedSite?.name ?? null}
       site={
         <SiteColumn
           spot={spot}
@@ -308,6 +323,12 @@ export async function SpotDetailView({
         <ObservationsPanel
           spotId={spot.spotId}
           spotName={spot.name}
+          spotSlug={{
+            spotId: spot.spotId,
+            slugState: spot.slugState,
+            slugLocality: spot.slugLocality,
+            slug: spot.slug,
+          }}
           spotVegetation={spot.vegetation}
           spotWeedLevel={spot.weedLevel}
           observations={observations}
@@ -315,6 +336,9 @@ export async function SpotDetailView({
           currentUserId={authContext?.userId ?? null}
           currentStewardId={authContext?.stewardId ?? null}
           isSystemAdmin={authContext?.isSystemAdmin ?? false}
+          highlightObservationId={highlightObservationId}
+          highlightPhotoId={highlightPhotoId}
+          featuredPhoto={featuredPhoto}
         />
       }
     />

@@ -80,13 +80,29 @@ function FillGeoDetailsButtonInner({
         c.types.includes("administrative_area_level_2"),
       );
 
-      const payload: Record<string, string> = {};
+      const payload: {
+        address?: string;
+        state?: string;
+        postalCity?: string;
+        municipality?: string;
+        county?: string;
+        useMunicipalityForSlug?: boolean;
+      } = {};
       if (missing.address && response.results[0]?.formatted_address) {
         payload.address = response.results[0].formatted_address;
       }
       if (missing.state && stateComponent) payload.state = stateComponent.short_name;
       if (missing.postalCity && postalCityComponent) {
         payload.postalCity = postalCityComponent.long_name;
+      } else if (missing.postalCity && (!missing.municipality || municipalityComponent)) {
+        // Some points (rural/unincorporated areas) have no finer-grained
+        // locality/sublocality for Google to return as postalCity -- fall
+        // back to slugging off municipality instead, so the spot still gets
+        // a permalink rather than staying stuck at /spots/<id> forever. Only
+        // safe once we know a municipality actually exists here: either the
+        // spot already has one (!missing.municipality) or this same geocode
+        // call is about to supply one.
+        payload.useMunicipalityForSlug = true;
       }
       if (missing.municipality && municipalityComponent) {
         payload.municipality = municipalityComponent.long_name;

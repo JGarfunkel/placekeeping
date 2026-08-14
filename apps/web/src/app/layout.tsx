@@ -9,6 +9,7 @@ import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
 import "./globals.css";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import { DatabaseWarningBanner } from "@/components/DatabaseWarningBanner";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { HeaderMenu } from "@/components/nav/HeaderMenu";
 import { PauseBanner } from "@/components/PauseBanner";
 import { RegisterServiceWorker } from "@/components/RegisterServiceWorker";
@@ -69,6 +70,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
+        <GoogleAnalytics />
         {dbUnavailable && <DatabaseWarningBanner />}
         {!dbUnavailable && writesPaused && <PauseBanner />}
         <AnnouncementBanner />

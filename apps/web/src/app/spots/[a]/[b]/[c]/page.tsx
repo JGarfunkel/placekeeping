@@ -1,12 +1,20 @@
-import { getSpotById, getUserByUserId, resolveMunicipality } from "@placekeeping/core";
+import {
+  getSpotById,
+  getUserByUserId,
+  listObservationsForSpot,
+  resolveMunicipality,
+} from "@placekeeping/core";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ObservationForm } from "@/components/forms/ObservationForm";
+import { SpotDetailView } from "@/components/spots/SpotDetailView";
 import {
   MunicipalityAmbiguityView,
   TerritoryView,
 } from "@/components/spots/TerritoryView";
-import { requireAuthContext } from "@/lib/session";
+import { buildObservationMetadata } from "@/lib/observationMetadata";
+import { getAuthContext, requireAuthContext } from "@/lib/session";
+import { observationPath } from "@/lib/spotPath";
 import { classifySpotPath } from "@/lib/spotRoute";
 import { buildTerritoryMetadata } from "@/lib/territoryMetadata";
 
@@ -17,6 +25,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { a, b, c } = await params;
   const route = classifySpotPath([a, b, c]);
+  if (route.kind === "spotObservation") {
+    const spot = await getSpotById(route.id);
+    if (!spot) return {};
+    const observations = await listObservationsForSpot(spot.spotId);
+    const observation = observations.find((o) => o.observationId === route.observationId);
+    return observation ? buildObservationMetadata(spot, observation) : {};
+  }
   if (route.kind !== "municipality") return {};
   const resolution = await resolveMunicipality(route.cc, route.sc, route.mc);
   return resolution && !("ambiguous" in resolution)
@@ -52,6 +67,41 @@ export default async function SpotsDepth3Page({
           observerName={observerUser?.username ?? ""}
         />
       </main>
+    );
+  }
+
+  if (route.kind === "spotObservation") {
+    const [spot, observations, authContext] = await Promise.all([
+      getSpotById(route.id),
+      listObservationsForSpot(route.id),
+      getAuthContext(),
+    ]);
+    if (!spot) {
+      console.warn("[spots] 404: no spot with id for observation permalink", route.id);
+      notFound();
+    }
+    const observation = observations.find((o) => o.observationId === route.observationId);
+    if (!observation) {
+      console.warn("[spots] 404: observation not found on this spot", {
+        spotId: spot.spotId,
+        observationId: route.observationId,
+      });
+      notFound();
+    }
+    // Once the spot has a slug, prefer that permalink over this numeric-id
+    // fallback -- same idea as SpotsDepth1Page's redirect for the plain spot
+    // page.
+    const canonical = observationPath(spot, observation.observationId);
+    if (canonical !== `/spots/${a}/${b}/${c}`) {
+      redirect(canonical);
+    }
+    return (
+      <SpotDetailView
+        spot={spot}
+        observations={observations}
+        authContext={authContext}
+        highlightObservationId={observation.observationId}
+      />
     );
   }
 

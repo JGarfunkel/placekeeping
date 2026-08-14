@@ -94,6 +94,10 @@ export const createSpotSchema = z.object({
   postalCity: z.string().optional(),
   county: z.string().optional(),
   useMunicipalityForSlug: z.boolean().default(false),
+  // Manual override for the final /<state>/<locality>/<slug> URL segment.
+  // Slugified and uniqueness-suffixed server-side (see computeSpotSlug) --
+  // omit/blank to auto-derive from `name` as before.
+  slug: z.string().optional(),
   sizeSqft: z.number().positive().optional(),
   vegetation: vegetationSchema.optional(),
   weedLevel: weedLevelSchema.default("minimal"),

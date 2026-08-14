@@ -13,16 +13,8 @@ import {
   type ParcelSelection,
 } from "@/components/spots/ParcelPicker";
 import { multiPolygonToPolygonPaths } from "@/lib/geo/parcelGeometry";
+import { spotPath } from "@/lib/spotPath";
 import { SiteDetailsEditor } from "./SiteDetailsEditor";
-
-// Prefers the friendly /spots/us/<state>/<locality>/<slug> URL (see
-// SpotsDepth1Page's redirect for the canonical form); falls back to the
-// numeric id for spots that haven't been slugged yet (missing geo data).
-function spotPath(spot: SpotSummary): string {
-  return spot.slugState && spot.slugLocality && spot.slug
-    ? `/spots/us/${spot.slugState}/${spot.slugLocality}/${spot.slug}`
-    : `/spots/${spot.spotId}`;
-}
 
 // Map + parcel list + spot list for a site. Shared by the standalone site
 // page (/sites/[siteId]) and the Site column embedded in a spot's detail
