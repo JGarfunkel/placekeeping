@@ -35,7 +35,7 @@ substitutions:
   _FIREBASE_AUTH_DOMAIN: "placekeeping-pro.firebaseapp.com"
   _FIREBASE_PROJECT_ID: "placekeeping-pro"
   _FIREBASE_APP_ID: "1:333932433476:web:fa7eb9ea29b6be92a2ec11"
-  _GA_MEASUREMENT_ID: "G-3P16E8TD3H"
+  _GA_MEASUREMENT_ID: "G-EJQZVCX7J1"
   _APP_BASE_URL: "placekeeping.org"
   _CONTACT_FORWARD_EMAIL: "theplacekeeper@gmail.com"
   _EMAIL_FROM: "theplacekeeper@gmail.com"
