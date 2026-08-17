@@ -8,11 +8,17 @@
   "scripts": {
     "generate": "dotenv -e ../../.env -- drizzle-kit generate",
     "migrate": "dotenv -e ../../.env -- drizzle-kit migrate",
+    "migrate:proddb": "dotenv -e ../../.env.proddb -- drizzle-kit migrate",
     "studio": "dotenv -e ../../.env -- drizzle-kit studio",
+    "studio:proddb": "dotenv -e ../../.env.proddb -- drizzle-kit studio",
     "check": "dotenv -e ../../.env -- tsx src/checkTablesCli.ts",
+    "check:proddb": "dotenv -e ../../.env.proddb -- tsx src/checkTablesCli.ts",
     "set-admin": "dotenv -e ../../.env -- tsx src/set-admin.ts",
+    "set-admin:proddb": "dotenv -e ../../.env.proddb -- tsx src/set-admin.ts",
     "set-level": "dotenv -e ../../.env -- tsx src/set-level.ts",
-    "backfill-observation-vegetation": "dotenv -e ../../.env -- tsx src/backfillObservationVegetation.ts"
+    "set-level:proddb": "dotenv -e ../../.env.proddb -- tsx src/set-level.ts",
+    "backfill-observation-vegetation": "dotenv -e ../../.env -- tsx src/backfillObservationVegetation.ts",
+    "backfill-observation-vegetation:proddb": "dotenv -e ../../.env.proddb -- tsx src/backfillObservationVegetation.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.36.4",

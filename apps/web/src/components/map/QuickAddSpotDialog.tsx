@@ -59,6 +59,7 @@ export function QuickAddSpotDialog({
     initialCoverPhotoObservedAt ?? null,
   );
   const [selectedSteward, setSelectedSteward] = useState<StewardRef | null>(null);
+  const [stewardIsOwner, setStewardIsOwner] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -151,6 +152,7 @@ export function QuickAddSpotDialog({
           coverPhotoUrl: coverPhotoUrl || undefined,
           coverPhotoObservedAt: coverPhotoUrl ? (coverPhotoObservedAt ?? undefined) : undefined,
           stewardId: selectedSteward?.stewardId ?? undefined,
+          stewardIsOwner,
           siteId,
         }),
       });
@@ -229,12 +231,23 @@ export function QuickAddSpotDialog({
 
           <div className="flex flex-col gap-1 text-sm">
             Steward
+
+            
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={stewardIsOwner}
+              onChange={(e) => setStewardIsOwner(e.target.checked)}
+            />
+            Steward Is Owner
+          </label>
+
+
             <StewardAssociationPicker
               selected={selectedSteward}
               onSelect={setSelectedSteward}
             />
           </div>
-
           <label className="flex flex-col gap-1 text-sm">
             Vegetation
             <select

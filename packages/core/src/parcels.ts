@@ -12,6 +12,7 @@ import type {
 } from "@placekeeping/shared-types";
 import { DEFAULT_STATE_CODE, getStateConfig, statesForPoint } from "@placekeeping/shared-types";
 import { and, desc, eq, ne, sql } from "drizzle-orm";
+import { debugLog } from "./debug";
 import { logRemoteCall } from "./remoteLog";
 import { toSiteDto } from "./sites";
 
@@ -321,14 +322,24 @@ async function fetchNearbyParcelsForState(
     throw new Error(`ArcGIS parcel query failed (${stateCode}): ${response.status}`);
   }
   const body = (await response.json()) as {
-    features: Array<{
+    error?: { code: number; message: string };
+    features?: Array<{
       type: "Feature";
       geometry: { type: string; coordinates: unknown };
       properties: Record<string, unknown>;
     }>;
   };
+  // ArcGIS reports query errors (bad field name, bad geometry, etc.) as a
+  // 200 OK with an `error` body instead of a non-2xx status -- the `!response.ok`
+  // check above never catches this, so it's checked explicitly here rather
+  // than letting `body.features` be undefined and crashing `.map` below.
+  if (body.error) {
+    throw new Error(
+      `ArcGIS parcel query failed (${stateCode}): ${body.error.code} ${body.error.message}`,
+    );
+  }
 
-  return body.features.map((feature) => {
+  return (body.features ?? []).map((feature) => {
     const geometry = toMultiPolygonGeometry(feature.geometry);
     return {
       ...toParcelDto(parcelConfig.fields, feature.properties),
@@ -356,11 +367,24 @@ export async function fetchNearbyParcels(
 ): Promise<NearbyParcel[]> {
   const candidateStates = statesForPoint(lat, lng).filter((state) => state.parcels);
 
-  const results = await Promise.all(
+  // Settled, not Promise.all: bounding boxes overlap along state lines (see
+  // statesForPoint), so a point near a border legitimately queries two
+  // services at once. One of them being down/misconfigured shouldn't erase
+  // a genuine hit from the other -- that state just contributes no
+  // candidates, logged rather than thrown.
+  const settled = await Promise.allSettled(
     candidateStates.map((state) =>
       fetchNearbyParcelsForState(state.code, state.parcels!, lat, lng),
     ),
   );
+  const results = settled.map((outcome, i) => {
+    if (outcome.status === "fulfilled") return outcome.value;
+    debugLog(
+      `[parcels] nearby-parcels:${candidateStates[i].code} failed:`,
+      outcome.reason,
+    );
+    return [];
+  });
 
   return results.flat().sort((a, b) => {
     if (a.containsPin !== b.containsPin) return a.containsPin ? -1 : 1;

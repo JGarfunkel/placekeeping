@@ -35,6 +35,7 @@ function categoryIcon(key: string): string {
       vegetation: "none",
       weedLevel: "minimal",
       stewardId: status === "stewarded" ? "steward" : null,
+      stewardIsOwner: false,
     }),
   );
 }

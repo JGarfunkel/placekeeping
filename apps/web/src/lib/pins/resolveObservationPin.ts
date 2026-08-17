@@ -22,5 +22,8 @@ export function resolveObservationPin(obs: {
     vegetation: obs.vegetation,
     weedLevel: obs.weedLevel ?? "minimal",
     stewardId: obs.stewardId,
+    // Observations have no stewardIsOwner of their own -- only spots.stewardId
+    // is snapshotted here (see stewardId above), so ownership never applies.
+    stewardIsOwner: false,
   });
 }

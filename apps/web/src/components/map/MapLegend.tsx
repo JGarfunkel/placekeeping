@@ -24,6 +24,7 @@ function samplePin(purpose: Purpose, vegetation: Vegetation, stewarded: boolean)
       vegetation,
       weedLevel: "minimal",
       stewardId: stewarded ? "sample" : null,
+      stewardIsOwner: false,
     }),
   );
 }
@@ -53,6 +54,7 @@ const DOT_EXAMPLES = WEED_LEVELS.filter((level) => level.value !== "minimal").ma
         vegetation: "woodland",
         weedLevel: level.value,
         stewardId: null,
+        stewardIsOwner: false,
       }),
     ),
     label: `${level.label} — ${level.short}`,

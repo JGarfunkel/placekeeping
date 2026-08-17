@@ -5,6 +5,8 @@ type StewardRef = { stewardId: string; name: string };
 export function StewardshipFields({
   selectedSteward,
   onSelectedStewardChange,
+  stewardIsOwner,
+  onStewardIsOwnerChange,
   needs,
   onNeedsChange,
   plans,
@@ -16,6 +18,8 @@ export function StewardshipFields({
 }: {
   selectedSteward: StewardRef | null;
   onSelectedStewardChange: (steward: StewardRef | null) => void;
+  stewardIsOwner: boolean;
+  onStewardIsOwnerChange: (value: boolean) => void;
   needs: string;
   onNeedsChange: (value: string) => void;
   plans: string;
@@ -33,6 +37,24 @@ export function StewardshipFields({
           selected={selectedSteward}
           onSelect={onSelectedStewardChange}
         />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={stewardIsOwner}
+            onChange={(e) => onStewardIsOwnerChange(e.target.checked)}
+          />
+          Privately owned (the steward is the property&apos;s legal owner,
+          not a third-party caretaker)
+        </label>
+        {stewardIsOwner && !selectedSteward && (
+          <p className="pl-6 text-xs text-neutral-500">
+            No steward linked yet — the owner can claim this spot later by
+            registering as a steward.
+          </p>
+        )}
       </div>
 
       <label className="flex flex-col gap-1 text-sm">

@@ -3,6 +3,7 @@ import type { AnyPgTable } from "drizzle-orm/pg-core";
 import { checkDatabaseConnection, db } from "./client";
 import {
   appSettings,
+  events,
   observations,
   parcels,
   siteParcels,
@@ -28,6 +29,7 @@ const ALL_TABLES: AnyPgTable[] = [
   observations,
   subdivisions,
   appSettings,
+  events,
 ];
 
 export interface TableCheckResult {

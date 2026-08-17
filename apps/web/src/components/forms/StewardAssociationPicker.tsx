@@ -81,14 +81,22 @@ export function StewardAssociationPicker({
     onSelect(steward);
   }
 
+  const individualCandidate = candidates.find(
+    (c) => c.relationship === "individual",
+  );
+  const groupCandidates = candidates.filter((c) => c.relationship !== "individual");
+
   // Selects the caller's own individual steward, creating it on the spot
   // (via the same idempotent POST /api/stewards/me the profile page's
   // "Become a steward" button uses) if they don't have one yet -- so
   // stewarding your own spot doesn't require a separate trip to /me first.
   async function handleMe() {
-    const individual = candidates.find((c) => c.relationship === "individual");
-    if (individual) {
-      onSelect({ stewardId: individual.stewardId, name: individual.name });
+    if (individualCandidate) {
+      onSelect({
+        stewardId: individualCandidate.stewardId,
+        name: individualCandidate.name,
+      });
+      setOpen(false);
       return;
     }
 
@@ -103,6 +111,7 @@ export function StewardAssociationPicker({
         );
       }
       onSelect({ stewardId: body.steward.stewardId, name: body.steward.name });
+      setOpen(false);
     } catch (err) {
       setMeError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -127,44 +136,15 @@ export function StewardAssociationPicker({
     );
   }
 
+  const trimmedQuery = query.trim();
+  const showingSearch = trimmedQuery.length > 0;
+
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={handleMe}
-          disabled={mePending}
-          className="rounded-md border border-neutral-900 px-3 py-1.5 text-sm font-medium hover:bg-neutral-50 disabled:opacity-50"
-        >
-          {mePending ? "Signing up…" : "Me"}
-        </button>
-        {meError && <p className="text-xs text-red-600">{meError}</p>}
-      </div>
-
-      {candidates.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {candidates.map((c) => (
-            <button
-              key={c.stewardId}
-              type="button"
-              onClick={() => onSelect({ stewardId: c.stewardId, name: c.name })}
-              className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-50"
-            >
-              {c.name}
-              {RELATIONSHIP_LABELS[c.relationship] && (
-                <span className="ml-1 text-xs text-neutral-500">
-                  ({RELATIONSHIP_LABELS[c.relationship]})
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-      )}
-
       <div className="relative">
         <input
           className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm"
-          placeholder="Search stewards by name…"
+          placeholder="Search stewards, or pick from the list…"
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -173,30 +153,71 @@ export function StewardAssociationPicker({
           onFocus={() => setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
         />
-        {open && query.trim().length > 0 && (
+        {open && (
           <div className="absolute z-10 mt-1 w-full rounded-md border border-neutral-200 bg-white shadow-md">
-            {loading ? (
-              <p className="px-3 py-2 text-xs text-neutral-500">Searching…</p>
-            ) : results.length > 0 ? (
-              results.map((r) => (
+            {showingSearch ? (
+              loading ? (
+                <p className="px-3 py-2 text-xs text-neutral-500">Searching…</p>
+              ) : results.length > 0 ? (
+                results.map((r) => (
+                  <button
+                    key={r.stewardId}
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      onSelect(r);
+                      setQuery("");
+                      setOpen(false);
+                    }}
+                    className="block w-full px-3 py-2 text-left text-sm hover:bg-neutral-50"
+                  >
+                    {r.name}
+                  </button>
+                ))
+              ) : (
+                <p className="px-3 py-2 text-xs text-neutral-500">
+                  No stewards found
+                </p>
+              )
+            ) : (
+              <>
                 <button
-                  key={r.stewardId}
                   type="button"
                   onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    onSelect(r);
-                    setQuery("");
-                    setOpen(false);
-                  }}
-                  className="block w-full px-3 py-2 text-left text-sm hover:bg-neutral-50"
+                  onClick={handleMe}
+                  disabled={mePending}
+                  className="block w-full px-3 py-2 text-left text-sm hover:bg-neutral-50 disabled:opacity-50"
                 >
-                  {r.name}
+                  {mePending
+                    ? "Signing up…"
+                    : (individualCandidate?.name ?? "Me")}
                 </button>
-              ))
-            ) : (
-              <p className="px-3 py-2 text-xs text-neutral-500">
-                No stewards found
-              </p>
+                {meError && (
+                  <p className="px-3 pb-2 text-xs text-red-600">{meError}</p>
+                )}
+                {groupCandidates.map((c) => (
+                  <button
+                    key={c.stewardId}
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      onSelect({ stewardId: c.stewardId, name: c.name });
+                      setOpen(false);
+                    }}
+                    className="block w-full px-3 py-2 text-left text-sm hover:bg-neutral-50"
+                  >
+                    {c.name}
+                    {RELATIONSHIP_LABELS[c.relationship] && (
+                      <span className="ml-1 text-xs text-neutral-500">
+                        ({RELATIONSHIP_LABELS[c.relationship]})
+                      </span>
+                    )}
+                  </button>
+                ))}
+                <p className="px-3 py-1 text-xs text-neutral-400">
+                  Or type to search all stewards
+                </p>
+              </>
             )}
           </div>
         )}

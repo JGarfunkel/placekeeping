@@ -6,6 +6,7 @@ import {
   listRecentSpots,
   listRecentUsers,
 } from "@placekeeping/core";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LogDisplay, type LogEntry } from "@/components/LogDisplay";
 import { WritesPauseToggle } from "@/components/forms/WritesPauseToggle";
@@ -92,7 +93,12 @@ export default async function AdminPage() {
         </section>
       </div>
       <section className="flex flex-col gap-2">
-        <h2 className="font-medium">Recent activity</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="font-medium">Recent activity</h2>
+          <Link href="/admin/events" className="text-sm underline">
+            View full event log &rarr;
+          </Link>
+        </div>
         <LogDisplay entries={entries.slice(0, RECENT_LIMIT)} />
       </section>
     </main>

@@ -56,6 +56,7 @@ export function PinMatrix() {
                   vegetation: veg.value,
                   weedLevel: "minimal",
                   stewardId: "sample",
+                  stewardIsOwner: false,
                 }),
               );
               const open = renderPin(
@@ -64,6 +65,7 @@ export function PinMatrix() {
                   vegetation: veg.value,
                   weedLevel: "minimal",
                   stewardId: null,
+                  stewardIsOwner: false,
                 }),
               );
               return (

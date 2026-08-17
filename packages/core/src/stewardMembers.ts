@@ -5,6 +5,7 @@ import type {
   StewardMemberRole,
 } from "@placekeeping/shared-types";
 import { and, eq } from "drizzle-orm";
+import { logEvent, snapshotToChanges } from "./events";
 import { getStewardByUserId } from "./stewards";
 
 export async function listStewardMembers(
@@ -134,6 +135,7 @@ export async function addStewardMember(
   stewardId: string,
   userId: string,
   role: StewardMemberRole = "member",
+  actorUserId: string | null = null,
 ) {
   const [created] = await db
     .insert(stewardMembers)
@@ -143,6 +145,13 @@ export async function addStewardMember(
       set: { role },
     })
     .returning();
+  await logEvent({
+    entityType: "steward_member",
+    entityId: `${stewardId}:${userId}`,
+    action: "create",
+    userId: actorUserId,
+    changes: snapshotToChanges({ stewardId, userId, role: created.role }, "create"),
+  });
   return created;
 }
 
@@ -151,10 +160,12 @@ export async function updateStewardMemberRole(
   stewardId: string,
   userId: string,
   role: StewardMemberRole,
+  actorUserId: string | null = null,
 ) {
+  const members = await listStewardMembers(stewardId);
+  const target = members.find((m) => m.userId === userId);
+
   if (role === "member") {
-    const members = await listStewardMembers(stewardId);
-    const target = members.find((m) => m.userId === userId);
     const adminCount = members.filter((m) => m.role === "admin").length;
     if (target?.role === "admin" && adminCount <= 1) {
       return { ok: false as const, error: "Cannot demote a group's last admin" };
@@ -168,11 +179,24 @@ export async function updateStewardMemberRole(
       and(eq(stewardMembers.stewardId, stewardId), eq(stewardMembers.userId, userId)),
     )
     .returning();
+  if (updated && target && target.role !== updated.role) {
+    await logEvent({
+      entityType: "steward_member",
+      entityId: `${stewardId}:${userId}`,
+      action: "update",
+      userId: actorUserId,
+      changes: { role: { from: target.role, to: updated.role } },
+    });
+  }
   return { ok: true as const, member: updated ?? null };
 }
 
 // Guards against orphaning a group: refuses to remove its last admin.
-export async function removeStewardMember(stewardId: string, userId: string) {
+export async function removeStewardMember(
+  stewardId: string,
+  userId: string,
+  actorUserId: string | null = null,
+) {
   const members = await listStewardMembers(stewardId);
   const target = members.find((m) => m.userId === userId);
   if (!target) return { ok: true as const };
@@ -187,5 +211,12 @@ export async function removeStewardMember(stewardId: string, userId: string) {
     .where(
       and(eq(stewardMembers.stewardId, stewardId), eq(stewardMembers.userId, userId)),
     );
+  await logEvent({
+    entityType: "steward_member",
+    entityId: `${stewardId}:${userId}`,
+    action: "delete",
+    userId: actorUserId,
+    changes: snapshotToChanges({ stewardId, userId, role: target.role }, "delete"),
+  });
   return { ok: true as const };
 }

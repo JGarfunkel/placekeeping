@@ -50,7 +50,7 @@ export const PATCH = withApiErrorHandling(
       );
     }
 
-    const site = await updateSite(siteId, parsed.data);
+    const site = await updateSite(siteId, parsed.data, authContext.userId);
     if (!site) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }

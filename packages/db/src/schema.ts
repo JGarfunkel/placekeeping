@@ -466,6 +466,17 @@ export const spots = pgTable(
     stewardId: uuid("steward_id").references(() => stewards.stewardId, {
       onDelete: "set null",
     }),
+    // True when this spot's steward is (or, if stewardId is still unset,
+    // will be once claimed) its own legal owner -- typical for private
+    // property -- rather than a third-party caretaker, typical for public
+    // land. Deliberately independent of stewardId: bulk/self-service entry
+    // of private properties can mark this without going through the steward
+    // picker at all, ahead of an owner ever logging in to create a steward
+    // record and claim the spot (see StewardAssociationPicker). Lives here,
+    // not on `stewards`, because the same individual steward can be the
+    // owner on one spot and just a caretaker on another -- it describes this
+    // spot's relationship, not the steward record.
+    stewardIsOwner: boolean("steward_is_owner").notNull().default(false),
     // Raw steward name as imported from a spreadsheet — intentionally not
     // resolved against `stewardId`, since it may not match any real Steward.
     stewardName: text("steward_name"),
@@ -578,6 +589,36 @@ export const observations = pgTable(
   },
   (table) => [
     index("observations_spot_id_idx").on(table.spotId, table.observedAt),
+  ],
+);
+
+// Audit trail of create/update/delete operations across the app's main
+// entities -- who did what to which row and when. `entityId` is text (not a
+// real FK) since it has to hold both integer ids (spots, sites) and uuids
+// (observations, stewards, users) uniformly across one column. `changes` is
+// {fieldName: {from, to}} -- from is null on create, to is null on delete,
+// see diffFields/snapshotToChanges in packages/core/src/events.ts. Internal
+// caches (parcels, subdivisions, verification_tokens) are deliberately not
+// logged here -- they're system-derived/ephemeral, not user actions.
+export const events = pgTable(
+  "events",
+  {
+    eventId: uuid("event_id").primaryKey().defaultRandom(),
+    entityType: text("entity_type").notNull(),
+    entityId: text("entity_id").notNull(),
+    action: text("action").notNull(),
+    userId: uuid("user_id").references(() => users.userId, {
+      onDelete: "set null",
+    }),
+    changes: jsonb("changes").$type<Record<string, { from: unknown; to: unknown }>>(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("events_entity_idx").on(table.entityType, table.entityId),
+    index("events_created_at_idx").on(table.createdAt),
+    index("events_user_id_idx").on(table.userId),
   ],
 );
 

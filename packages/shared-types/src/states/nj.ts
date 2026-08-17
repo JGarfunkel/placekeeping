@@ -51,9 +51,9 @@ export const NJ_STATE_CONFIG: StateConfig = {
       address: "PROP_LOC",
       propertyClass: "PROP_CLASS",
       acres: "CALC_ACRE",
-      // No int roll-year field -- PCL_LASTUPD is a last-update date, used
+      // No int roll-year field -- PCLLASTUPD is a last-update date, used
       // to derive a vintage year instead (see parcels.ts's cacheParcel).
-      vintageDateField: "PCL_LASTUPD",
+      vintageDateField: "PCLLASTUPD",
     },
     // No classAllowlist/classDescriptions yet -- MOD-IV classes (Table 2 of
     // local/state-expansion.md) are deferred, so "Show Owner" stays

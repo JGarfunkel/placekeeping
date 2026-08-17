@@ -116,6 +116,9 @@ function SpotFormFields({
   const [selectedSteward, setSelectedSteward] = useState<StewardRef | null>(
     currentSteward,
   );
+  const [stewardIsOwner, setStewardIsOwner] = useState(
+    existing?.stewardIsOwner ?? false,
+  );
   const [purpose, setPurpose] = useState(existing?.purpose ?? "");
   const [access, setAccess] = useState(existing?.access ?? "");
   const [description, setDescription] = useState(existing?.description ?? "");
@@ -214,6 +217,7 @@ function SpotFormFields({
         educationalComponent,
         educationalNotes: educationalNotes || undefined,
         stewardId: selectedSteward?.stewardId ?? null,
+        stewardIsOwner,
         purpose: purpose || undefined,
         access: access || undefined,
         description: description || undefined,
@@ -660,6 +664,8 @@ function SpotFormFields({
         <StewardshipFields
           selectedSteward={selectedSteward}
           onSelectedStewardChange={setSelectedSteward}
+          stewardIsOwner={stewardIsOwner}
+          onStewardIsOwnerChange={setStewardIsOwner}
           needs={needs}
           onNeedsChange={setNeeds}
           plans={plans}

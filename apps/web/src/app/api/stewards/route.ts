@@ -21,7 +21,7 @@ export const POST = withApiErrorHandling(async (request: NextRequest) => {
     );
   }
 
-  const steward = await createGroupSteward(parsed.data);
+  const steward = await createGroupSteward(parsed.data, authContext.userId);
   return NextResponse.json(
     {
       steward: {

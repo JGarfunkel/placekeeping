@@ -1,6 +1,7 @@
 import { db, users } from "@placekeeping/db";
 import type { UpdateUserProfileInput } from "@placekeeping/shared-types";
 import { desc, eq, sql } from "drizzle-orm";
+import { diffFields, logEvent, snapshotToChanges } from "./events";
 import { checkPhotoUrls } from "./photoModeration";
 import { isOwnStorageUrl } from "./photoStorage";
 import { generateUsername } from "./username";
@@ -32,6 +33,16 @@ export async function getOrCreateUserByFirebaseUid(params: {
       email: params.email ?? null,
     })
     .returning();
+  await logEvent({
+    entityType: "user",
+    entityId: created.userId,
+    action: "create",
+    userId: created.userId,
+    changes: snapshotToChanges(
+      { name: created.name, username: created.username, email: created.email },
+      "create",
+    ),
+  });
   return created;
 }
 
@@ -113,6 +124,12 @@ export async function updateUserProfile(
     await checkPhotoUrls([input.photoUrl]);
   }
 
+  const [current] = await db
+    .select({ username: users.username, photoUrl: users.photoUrl })
+    .from(users)
+    .where(eq(users.userId, userId))
+    .limit(1);
+
   const [updated] = await db
     .update(users)
     .set({
@@ -122,5 +139,22 @@ export async function updateUserProfile(
     })
     .where(eq(users.userId, userId))
     .returning();
+
+  if (current && updated) {
+    const changes = diffFields(
+      current as unknown as Record<string, unknown>,
+      updated as unknown as Record<string, unknown>,
+      input as Record<string, unknown>,
+    );
+    if (changes) {
+      await logEvent({
+        entityType: "user",
+        entityId: userId,
+        action: "update",
+        userId,
+        changes,
+      });
+    }
+  }
   return { ok: true as const, user: updated };
 }

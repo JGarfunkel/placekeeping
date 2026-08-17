@@ -1,0 +1,1 @@
+ALTER TABLE "spots" ADD COLUMN "steward_is_owner" boolean DEFAULT false NOT NULL;

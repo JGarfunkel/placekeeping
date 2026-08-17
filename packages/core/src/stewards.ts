@@ -7,6 +7,7 @@ import type {
 } from "@placekeeping/shared-types";
 import { and, eq, ilike } from "drizzle-orm";
 import { debugLog } from "./debug";
+import { diffFields, logEvent, snapshotToChanges } from "./events";
 import { checkPhotoUrls } from "./photoModeration";
 import { isOwnStorageUrl } from "./photoStorage";
 import { computeStewardSlug } from "./slug";
@@ -57,12 +58,22 @@ export async function createIndividualStewardForUser(user: {
     created.stewardId,
     user.userId,
   );
+  await logEvent({
+    entityType: "steward",
+    entityId: created.stewardId,
+    action: "create",
+    userId: user.userId,
+    changes: snapshotToChanges(created as unknown as Record<string, unknown>, "create"),
+  });
   return created;
 }
 
 // System-admin-only: groups aren't owned by a single login, so userId is
 // never set here -- membership/adminship is tracked via steward_members.
-export async function createGroupSteward(input: CreateGroupStewardInput) {
+export async function createGroupSteward(
+  input: CreateGroupStewardInput,
+  actorUserId: string | null = null,
+) {
   const [created] = await db
     .insert(stewards)
     .values({
@@ -75,6 +86,13 @@ export async function createGroupSteward(input: CreateGroupStewardInput) {
     })
     .returning();
   debugLog("[stewards] createGroupSteward saved", created.stewardId);
+  await logEvent({
+    entityType: "steward",
+    entityId: created.stewardId,
+    action: "create",
+    userId: actorUserId,
+    changes: snapshotToChanges(created as unknown as Record<string, unknown>, "create"),
+  });
   return created;
 }
 
@@ -141,6 +159,7 @@ export async function searchStewardsByName(
 export async function updateSteward(
   stewardId: string,
   input: UpdateStewardInput,
+  actorUserId: string | null = null,
 ) {
   debugLog("[stewards] updateSteward", stewardId, input);
 
@@ -151,6 +170,8 @@ export async function updateSteward(
     await checkPhotoUrls([input.logoUrl]);
   }
 
+  const current = await getStewardByStewardId(stewardId);
+
   const slugField = input.name
     ? { slug: await computeStewardSlug(input.name, stewardId) }
     : {};
@@ -160,6 +181,23 @@ export async function updateSteward(
     .where(eq(stewards.stewardId, stewardId))
     .returning();
   debugLog("[stewards] updateSteward saved", stewardId, "->", updated?.stewardId);
+
+  if (current && updated) {
+    const changes = diffFields(
+      current as unknown as Record<string, unknown>,
+      updated as unknown as Record<string, unknown>,
+      input as Record<string, unknown>,
+    );
+    if (changes) {
+      await logEvent({
+        entityType: "steward",
+        entityId: stewardId,
+        action: "update",
+        userId: actorUserId,
+        changes,
+      });
+    }
+  }
   return updated;
 }
 
@@ -195,6 +233,20 @@ export async function createGroupStewardSelfService(
     const { token } = await createVerificationToken(
       "steward",
       created.stewardId,
+      tx,
+    );
+
+    await logEvent(
+      {
+        entityType: "steward",
+        entityId: created.stewardId,
+        action: "create",
+        userId: creatorUserId,
+        changes: snapshotToChanges(
+          created as unknown as Record<string, unknown>,
+          "create",
+        ),
+      },
       tx,
     );
 

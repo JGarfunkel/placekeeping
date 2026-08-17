@@ -40,6 +40,7 @@ export function StewardshipSection({
   const [isEditing, setIsEditing] = useState(false);
   const [description, setDescription] = useState(spot.description ?? "");
   const [selectedSteward, setSelectedSteward] = useState(currentSteward);
+  const [stewardIsOwner, setStewardIsOwner] = useState(spot.stewardIsOwner);
   const [needs, setNeeds] = useState(spot.needs ?? "");
   const [plans, setPlans] = useState(spot.plans ?? "");
   const [educationalComponent, setEducationalComponent] = useState(
@@ -54,6 +55,7 @@ export function StewardshipSection({
   function startEditing() {
     setDescription(spot.description ?? "");
     setSelectedSteward(currentSteward);
+    setStewardIsOwner(spot.stewardIsOwner);
     setNeeds(spot.needs ?? "");
     setPlans(spot.plans ?? "");
     setEducationalComponent(spot.educationalComponent);
@@ -77,6 +79,7 @@ export function StewardshipSection({
         body: JSON.stringify({
           description: description || undefined,
           stewardId: selectedSteward?.stewardId ?? null,
+          stewardIsOwner,
           needs: needs || undefined,
           plans: plans || undefined,
           educationalComponent,
@@ -135,6 +138,8 @@ export function StewardshipSection({
           <StewardshipFields
             selectedSteward={selectedSteward}
             onSelectedStewardChange={setSelectedSteward}
+            stewardIsOwner={stewardIsOwner}
+            onStewardIsOwnerChange={setStewardIsOwner}
             needs={needs}
             onNeedsChange={setNeeds}
             plans={plans}
@@ -179,10 +184,12 @@ export function StewardshipSection({
                     >
                       {currentSteward?.name ?? "View steward profile"}
                     </Link>
+                    {spot.stewardIsOwner && " (owner)"}
                     {isOwner && " (you)"}
                   </>
                 ) : (
-                  spot.stewardName
+                  spot.stewardName ??
+                  (spot.stewardIsOwner ? "Stewarded by owner" : null)
                 )
               }
             />
@@ -199,7 +206,7 @@ export function StewardshipSection({
             />
           </dl>
 
-          {!spot.stewardId && !spot.stewardName && (
+          {!spot.stewardId && !spot.stewardName && !spot.stewardIsOwner && (
             <p className="text-sm text-neutral-500">
               This spot doesn&apos;t have a steward yet.
             </p>

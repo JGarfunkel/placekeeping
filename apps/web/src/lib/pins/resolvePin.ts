@@ -27,7 +27,7 @@ export interface PinSpec {
 
 export function resolvePin(spot: {
   purpose: Purpose; vegetation: Vegetation;
-  weedLevel: WeedLevel; stewardId: string | null;
+  weedLevel: WeedLevel; stewardId: string | null; stewardIsOwner: boolean;
 }): PinSpec {
   // Vegetation wins whenever there is any -- even on a monument, since what
   // is actually growing there is more informative than a fixed obelisk. The
@@ -45,7 +45,11 @@ export function resolvePin(spot: {
     spot.purpose === "garden"   ? "pink" :
                                    "green";
 
-  const fill: PinFill = spot.stewardId ? "solid" : "outline";
+  // stewardIsOwner counts as stewarded even with no stewardId yet -- a
+  // privately-owned spot marked ahead of the owner claiming it (see
+  // spots.stewardIsOwner) should read as solid, not outline, same as one
+  // with a linked steward.
+  const fill: PinFill = spot.stewardId || spot.stewardIsOwner ? "solid" : "outline";
 
   // No weed-glyph suppression. The glyph says WHICH weed; the dot says HOW
   // MUCH. A bramble pin with a light ring means brambles coming in at the

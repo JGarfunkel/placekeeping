@@ -59,7 +59,7 @@ export const PATCH = withApiErrorHandling(
       );
     }
 
-    const spot = await updateSpot(spotId, parsed.data);
+    const spot = await updateSpot(spotId, parsed.data, authContext.userId);
     debugLog("[api/spots/:id] PATCH responding stewardId", spot?.stewardId);
     return NextResponse.json({ spot });
   },
@@ -94,7 +94,7 @@ export const DELETE = withApiErrorHandling(
       );
     }
 
-    await deleteSpot(spotId);
+    await deleteSpot(spotId, authContext.userId);
     return new NextResponse(null, { status: 204 });
   },
 );

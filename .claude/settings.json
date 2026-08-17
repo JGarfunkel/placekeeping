@@ -10,7 +10,18 @@
       "Bash(npm install *)",
       "Bash(npm ls *)",
       "Bash(npx eslint *)",
-      "Bash(docker compose *)"
+      "Bash(docker compose *)",
+      "WebFetch(domain:resend.com)",
+      "Bash(node -e \"const pkg = require\\('./node_modules/resend/package.json'\\); console.log\\(pkg.version\\)\")",
+      "WebFetch(domain:gis.data.mass.gov)",
+      "WebFetch(domain:services1.arcgis.com)",
+      "WebSearch",
+      "WebFetch(domain:hub.arcgis.com)",
+      "WebFetch(domain:www.arcgis.com)",
+      "WebFetch(domain:geodata.vermont.gov)",
+      "WebFetch(domain:gis.maine.gov)",
+      "WebFetch(domain:services3.arcgis.com)",
+      "WebFetch(domain:www.ksrevenue.gov)"
     ]
   }
 }

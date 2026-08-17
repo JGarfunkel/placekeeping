@@ -7,6 +7,7 @@ import type {
   WeedLevel,
 } from "@placekeeping/shared-types";
 import { desc, eq } from "drizzle-orm";
+import { diffFields, logEvent, snapshotToChanges } from "./events";
 import { checkPhotoUrls, getModerationMode } from "./photoModeration";
 import { isOwnStorageUrl, ownStorageKey } from "./photoStorage";
 import { listPhotosForObservations } from "./photos";
@@ -199,6 +200,17 @@ export async function createObservation(
     );
   }
 
+  await logEvent({
+    entityType: "observation",
+    entityId: row.observationId,
+    action: "create",
+    userId,
+    changes: snapshotToChanges(
+      toObservationDto(row) as unknown as Record<string, unknown>,
+      "create",
+    ),
+  });
+
   return toObservationDto(row);
 }
 
@@ -253,5 +265,21 @@ export async function updateObservation(
     );
   }
 
-  return toObservationDto(row);
+  const updated = toObservationDto(row);
+  const changes = diffFields(
+    existing as unknown as Record<string, unknown>,
+    updated as unknown as Record<string, unknown>,
+    input as Record<string, unknown>,
+  );
+  if (changes) {
+    await logEvent({
+      entityType: "observation",
+      entityId: observationId,
+      action: "update",
+      userId,
+      changes,
+    });
+  }
+
+  return updated;
 }

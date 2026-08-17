@@ -2,6 +2,7 @@ export * from "./appSettings";
 export * from "./auth";
 export * from "./debug";
 export * from "./email";
+export * from "./events";
 export * from "./firebase-admin";
 export * from "./inboundEmail";
 export * from "./spots";

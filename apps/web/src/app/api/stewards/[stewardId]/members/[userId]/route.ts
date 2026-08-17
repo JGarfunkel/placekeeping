@@ -22,7 +22,8 @@ async function authorize(stewardId: string) {
 export const PATCH = withApiErrorHandling(
   async (request: NextRequest, { params }: Params) => {
     const { stewardId, userId } = await params;
-    if (!(await authorize(stewardId))) {
+    const authContext = await authorize(stewardId);
+    if (!authContext) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -39,6 +40,7 @@ export const PATCH = withApiErrorHandling(
       stewardId,
       userId,
       parsed.data.role,
+      authContext.userId,
     );
     if (!result.ok) {
       return NextResponse.json({ error: result.error }, { status: 409 });
@@ -50,11 +52,16 @@ export const PATCH = withApiErrorHandling(
 export const DELETE = withApiErrorHandling(
   async (_request: NextRequest, { params }: Params) => {
     const { stewardId, userId } = await params;
-    if (!(await authorize(stewardId))) {
+    const authContext = await authorize(stewardId);
+    if (!authContext) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const result = await removeStewardMember(stewardId, userId);
+    const result = await removeStewardMember(
+      stewardId,
+      userId,
+      authContext.userId,
+    );
     if (!result.ok) {
       return NextResponse.json({ error: result.error }, { status: 409 });
     }

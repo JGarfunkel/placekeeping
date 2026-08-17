@@ -16,6 +16,7 @@ export function resolveSpotPin(spot: {
   vegetation: Vegetation | null;
   weedLevel: WeedLevel;
   stewardId: string | null;
+  stewardIsOwner: boolean;
 }): PinSpec | null {
   const purpose = toPinPurpose(spot.purpose);
   const vegetation = spot.vegetation ?? "none";
@@ -25,5 +26,6 @@ export function resolveSpotPin(spot: {
     vegetation,
     weedLevel: spot.weedLevel,
     stewardId: spot.stewardId,
+    stewardIsOwner: spot.stewardIsOwner,
   });
 }

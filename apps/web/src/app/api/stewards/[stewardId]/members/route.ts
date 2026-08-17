@@ -66,6 +66,7 @@ export const POST = withApiErrorHandling(
       stewardId,
       user.userId,
       parsed.data.role,
+      authContext.userId,
     );
     return NextResponse.json({ member }, { status: 201 });
   },

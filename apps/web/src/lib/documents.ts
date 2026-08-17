@@ -4,7 +4,11 @@ import path from "node:path";
 const CONTENT_DIR = path.join(process.cwd(), "src/content");
 
 export async function readDocumentHtml(slug: string): Promise<string> {
-  return readFile(path.join(CONTENT_DIR, `${slug}.html`), "utf8");
+  const html = await readFile(path.join(CONTENT_DIR, `${slug}.html`), "utf8");
+  // Normalize CRLF (checked out as-is on Windows) to LF -- otherwise the raw
+  // \r\n ends up in the dangerouslySetInnerHTML string while the browser's
+  // HTML parser normalizes it to \n, causing a hydration mismatch.
+  return html.replace(/\r\n/g, "\n");
 }
 
 // Docs served at /about/[slug]. "about" itself lives at /about via its own
@@ -16,6 +20,7 @@ export const aboutDocs = {
   philosophy: "Site Philosophy",
   theory: "Theory",
   usage: "Usage",
+  examples: "Examples",
 } as const;
 
 export type AboutDocSlug = keyof typeof aboutDocs;

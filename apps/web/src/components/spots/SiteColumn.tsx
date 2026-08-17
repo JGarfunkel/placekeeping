@@ -96,6 +96,7 @@ export function SiteColumn({
                 purpose: spot.purpose,
                 weedLevel: spot.weedLevel,
                 stewardId: spot.stewardId,
+                stewardIsOwner: spot.stewardIsOwner,
                 coverPhotoUrl: spot.coverPhotoUrl,
               },
             ]}

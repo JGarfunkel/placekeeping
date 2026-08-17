@@ -38,6 +38,11 @@ export const spotSchema = z.object({
   educationalComponent: z.boolean(),
   educationalNotes: z.string().nullable(),
   stewardId: z.string().uuid().nullable(),
+  // True when this spot's steward is (or will be, once claimed) its own
+  // legal owner rather than a third-party caretaker. Independent of
+  // stewardId -- see stewardIsOwner on the spots table in
+  // packages/db/src/schema.ts.
+  stewardIsOwner: z.boolean(),
   stewardName: z.string().nullable(),
   // Set once at spot creation from the authenticated caller; unlike
   // stewardId it's never reassigned or cleared by updateSpot. Not part of
@@ -71,6 +76,7 @@ export const spotSummarySchema = spotSchema
     purpose: true,
     weedLevel: true,
     stewardId: true,
+    stewardIsOwner: true,
     coverPhotoUrl: true,
     // Lets callers link to the friendly /spots/us/<state>/<locality>/<slug>
     // URL instead of the numeric /spots/<id> one (see SiteMapAndParcels'
@@ -104,6 +110,10 @@ export const createSpotSchema = z.object({
   educationalComponent: z.boolean().default(false),
   educationalNotes: z.string().optional(),
   stewardId: z.string().uuid().nullable().optional(),
+  // Independent of stewardId -- can be set on an unstewarded spot ahead of
+  // an owner claiming it later. See spots.stewardIsOwner in
+  // packages/db/src/schema.ts.
+  stewardIsOwner: z.boolean().optional(),
   stewardName: z.string().optional(),
   siteId: z.number().int().positive().optional(),
   purpose: spotPurposeSchema.optional(),

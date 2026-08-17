@@ -103,7 +103,6 @@ describeIfDb("scoreboard counts (adjustTerritoryCounts via createSpot/updateSpot
         purpose: "garden",
       },
       null,
-      null,
     );
     createdSpotIds.push(spot.spotId);
 
@@ -151,7 +150,6 @@ describeIfDb("scoreboard counts (adjustTerritoryCounts via createSpot/updateSpot
         purpose: "wild_area",
       },
       null,
-      null,
     );
     createdSpotIds.push(spot.spotId);
 
@@ -193,7 +191,6 @@ describeIfDb("scoreboard counts (adjustTerritoryCounts via createSpot/updateSpot
         weedLevel: "minimal",
         educationalComponent: false,
       },
-      null,
       null,
     );
     createdSpotIds.push(spot.spotId);
@@ -245,7 +242,6 @@ describeIfDb("scoreboard counts (adjustTerritoryCounts via createSpot/updateSpot
         weedLevel: "minimal",
         educationalComponent: false,
       },
-      null,
       null,
     );
     createdSpotIds.push(spot.spotId);

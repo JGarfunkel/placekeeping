@@ -101,6 +101,10 @@ export const PATCH = withApiErrorHandling(async (request: NextRequest) => {
     );
   }
 
-  const steward = await updateSteward(authContext.stewardId, parsed.data);
+  const steward = await updateSteward(
+    authContext.stewardId,
+    parsed.data,
+    authContext.userId,
+  );
   return NextResponse.json({ steward: serializeSteward(steward) });
 });

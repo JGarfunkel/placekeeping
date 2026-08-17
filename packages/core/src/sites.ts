@@ -1,6 +1,7 @@
 import { db, parcels, siteParcels, sites, spots, users } from "@placekeeping/db";
 import type { LinkSpotToSiteInput, Site, UpdateSiteInput } from "@placekeeping/shared-types";
 import { and, desc, eq, ne, sql } from "drizzle-orm";
+import { diffFields, logEvent, snapshotToChanges } from "./events";
 
 const siteColumns = {
   siteId: sites.siteId,
@@ -118,12 +119,34 @@ export async function getSiteParcelSwisSblIds(
 export async function updateSite(
   siteId: number,
   input: UpdateSiteInput,
+  actorUserId: string | null = null,
 ): Promise<Site | null> {
+  const current = await getSiteById(siteId);
+  if (!current) return null;
+
   await db
     .update(sites)
     .set({ ...input, updatedAt: new Date() })
     .where(eq(sites.siteId, siteId));
-  return getSiteById(siteId);
+
+  const updated = await getSiteById(siteId);
+  if (updated) {
+    const changes = diffFields(
+      current as unknown as Record<string, unknown>,
+      updated as unknown as Record<string, unknown>,
+      input as Record<string, unknown>,
+    );
+    if (changes) {
+      await logEvent({
+        entityType: "site",
+        entityId: siteId,
+        action: "update",
+        userId: actorUserId,
+        changes,
+      });
+    }
+  }
+  return updated;
 }
 
 // The local/spot-resolution.md §8 cascade save: join an existing site, or
@@ -151,6 +174,19 @@ export async function linkSpotToSite(
         })
         .returning({ siteId: sites.siteId });
       siteId = created.siteId;
+      await logEvent(
+        {
+          entityType: "site",
+          entityId: siteId,
+          action: "create",
+          userId: createdByUserId,
+          changes: snapshotToChanges(
+            { name: input.newSite.name, purpose: input.newSite.purpose },
+            "create",
+          ),
+        },
+        tx,
+      );
     }
 
     await tx

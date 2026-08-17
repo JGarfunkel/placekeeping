@@ -34,6 +34,6 @@ export const POST = withApiErrorHandling(async (request: NextRequest) => {
     );
   }
 
-  const spot = await createSpot(parsed.data, authContext.stewardId, authContext.userId);
+  const spot = await createSpot(parsed.data, authContext.userId);
   return NextResponse.json({ spot }, { status: 201 });
 });

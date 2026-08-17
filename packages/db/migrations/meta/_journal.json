@@ -29,6 +29,20 @@
       "when": 1786478176583,
       "tag": "0003_add_parcels_state_code",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786977381554,
+      "tag": "0004_events",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1786990491156,
+      "tag": "0005_spots_steward_is_owner",
+      "breakpoints": true
     }
   ]
 }

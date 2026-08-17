@@ -66,7 +66,11 @@ export const PATCH = withApiErrorHandling(
       );
     }
 
-    const steward = await updateSteward(stewardId, parsed.data);
+    const steward = await updateSteward(
+      stewardId,
+      parsed.data,
+      authContext.userId,
+    );
     return NextResponse.json({
       steward: {
         stewardId: steward.stewardId,

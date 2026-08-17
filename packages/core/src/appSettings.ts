@@ -1,5 +1,6 @@
 import { appSettings, db } from "@placekeeping/db";
 import { eq } from "drizzle-orm";
+import { logEvent } from "./events";
 
 // Thrown by assertWritesEnabled (called from the pause gate in
 // apps/web/src/lib/apiError.ts) and mapped to a 503 there, same pattern as
@@ -62,6 +63,13 @@ export async function setWritesPaused(
     })
     .where(eq(appSettings.id, 1))
     .returning();
+  await logEvent({
+    entityType: "app_settings",
+    entityId: 1,
+    action: "update",
+    userId,
+    changes: { writesPaused: { from: !paused, to: paused } },
+  });
   return toAppSettings(updated);
 }
 

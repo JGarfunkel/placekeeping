@@ -15,6 +15,7 @@ import {
 } from "@placekeeping/shared-types";
 import { and, desc, eq, ilike, isNull, ne, sql } from "drizzle-orm";
 import { debugLog } from "./debug";
+import { diffFields, logEvent, snapshotToChanges } from "./events";
 import { createObservation } from "./observations";
 import { findContainingParcel, resolveSiteForParcel } from "./parcels";
 import { computeSpotSlug } from "./slug";
@@ -45,6 +46,7 @@ const fullSpotColumns = {
   educationalComponent: spots.educationalComponent,
   educationalNotes: spots.educationalNotes,
   stewardId: spots.stewardId,
+  stewardIsOwner: spots.stewardIsOwner,
   stewardName: spots.stewardName,
   createdByUserId: spots.createdByUserId,
   siteId: spots.siteId,
@@ -88,6 +90,7 @@ function toSpotDto(row: any): Spot {
     educationalComponent: row.educationalComponent,
     educationalNotes: row.educationalNotes,
     stewardId: row.stewardId,
+    stewardIsOwner: row.stewardIsOwner,
     stewardName: row.stewardName,
     createdByUserId: row.createdByUserId,
     siteId: row.siteId,
@@ -136,6 +139,7 @@ export async function findNearbySpots(
       purpose: spots.purpose,
       weedLevel: spots.weedLevel,
       stewardId: spots.stewardId,
+      stewardIsOwner: spots.stewardIsOwner,
       coverPhotoUrl: spots.coverPhotoUrl,
       slugState: spots.slugState,
       slugLocality: spots.slugLocality,
@@ -157,6 +161,7 @@ export async function findNearbySpots(
     purpose: r.purpose,
     weedLevel: r.weedLevel as WeedLevel,
     stewardId: r.stewardId,
+    stewardIsOwner: r.stewardIsOwner,
     coverPhotoUrl: r.coverPhotoUrl,
     slugState: r.slugState,
     slugLocality: r.slugLocality,
@@ -200,6 +205,7 @@ export async function listSpotsBySite(siteId: number): Promise<SpotSummary[]> {
       purpose: spots.purpose,
       weedLevel: spots.weedLevel,
       stewardId: spots.stewardId,
+      stewardIsOwner: spots.stewardIsOwner,
       coverPhotoUrl: spots.coverPhotoUrl,
       slugState: spots.slugState,
       slugLocality: spots.slugLocality,
@@ -219,6 +225,7 @@ export async function listSpotsBySite(siteId: number): Promise<SpotSummary[]> {
     purpose: r.purpose,
     weedLevel: r.weedLevel as WeedLevel,
     stewardId: r.stewardId,
+    stewardIsOwner: r.stewardIsOwner,
     coverPhotoUrl: r.coverPhotoUrl,
     slugState: r.slugState,
     slugLocality: r.slugLocality,
@@ -240,6 +247,7 @@ export async function listSpotsBySteward(stewardId: string): Promise<SpotSummary
       purpose: spots.purpose,
       weedLevel: spots.weedLevel,
       stewardId: spots.stewardId,
+      stewardIsOwner: spots.stewardIsOwner,
       coverPhotoUrl: spots.coverPhotoUrl,
       slugState: spots.slugState,
       slugLocality: spots.slugLocality,
@@ -259,6 +267,7 @@ export async function listSpotsBySteward(stewardId: string): Promise<SpotSummary
     purpose: r.purpose,
     weedLevel: r.weedLevel as WeedLevel,
     stewardId: r.stewardId,
+    stewardIsOwner: r.stewardIsOwner,
     coverPhotoUrl: r.coverPhotoUrl,
     slugState: r.slugState,
     slugLocality: r.slugLocality,
@@ -286,6 +295,7 @@ export async function listSpotsByCreator(
       purpose: spots.purpose,
       weedLevel: spots.weedLevel,
       stewardId: spots.stewardId,
+      stewardIsOwner: spots.stewardIsOwner,
       coverPhotoUrl: spots.coverPhotoUrl,
       slugState: spots.slugState,
       slugLocality: spots.slugLocality,
@@ -306,6 +316,7 @@ export async function listSpotsByCreator(
     purpose: r.purpose,
     weedLevel: r.weedLevel as WeedLevel,
     stewardId: r.stewardId,
+    stewardIsOwner: r.stewardIsOwner,
     coverPhotoUrl: r.coverPhotoUrl,
     slugState: r.slugState,
     slugLocality: r.slugLocality,
@@ -348,10 +359,9 @@ export async function getSpotById(spotId: number): Promise<Spot | null> {
 
 export async function createSpot(
   input: CreateSpotInput,
-  creatorStewardId: string | null,
   creatorUserId: string | null,
 ): Promise<Spot> {
-  debugLog("[spots] createSpot", input, "creatorStewardId", creatorStewardId);
+  debugLog("[spots] createSpot", input);
   const useMunicipalityForSlug = input.useMunicipalityForSlug ?? false;
 
   // Local containment (local/spot-resolution.md §1/§3): a cached parcel
@@ -423,7 +433,10 @@ export async function createSpot(
       weedLevel: input.weedLevel,
       educationalComponent: input.educationalComponent,
       educationalNotes: input.educationalNotes,
-      stewardId: input.stewardId ?? creatorStewardId,
+      // No implicit self-assignment: a spot with no steward picked stays
+      // unstewarded, even for its own creator. See StewardAssociationPicker.
+      stewardId: input.stewardId ?? null,
+      stewardIsOwner: input.stewardIsOwner ?? false,
       stewardName: input.stewardName,
       createdByUserId: creatorUserId,
       siteId: input.siteId ?? resolvedSite?.siteId,
@@ -442,6 +455,13 @@ export async function createSpot(
   const created = await getSpotById(row.spotId);
   if (!created) throw new Error("Failed to load created spot");
   debugLog("[spots] createSpot saved", created.spotId, "stewardId", created.stewardId);
+  await logEvent({
+    entityType: "spot",
+    entityId: created.spotId,
+    action: "create",
+    userId: creatorUserId,
+    changes: snapshotToChanges(created as unknown as Record<string, unknown>, "create"),
+  });
   await adjustTerritoryCounts(created, 1);
 
   // The cover photo supplied at creation time is always the photo the spot
@@ -463,6 +483,7 @@ export async function createSpot(
 export async function updateSpot(
   spotId: number,
   input: UpdateSpotInput,
+  actorUserId: string | null = null,
 ): Promise<Spot | null> {
   // coverPhotoObservedAt only ever backdates the one-time observation
   // createSpot logs alongside a new cover photo -- not a spots column, so it
@@ -482,21 +503,9 @@ export async function updateSpot(
   // Fetched unconditionally (not just when slug-relevant fields change) --
   // adjustTerritoryCounts below needs the pre-update territory/category
   // fields regardless of what's actually changing, to decrement the old
-  // bucket before incrementing the new one.
-  const [current] = await db
-    .select({
-      name: spots.name,
-      state: spots.state,
-      municipality: spots.municipality,
-      postalCity: spots.postalCity,
-      county: spots.county,
-      useMunicipalityForSlug: spots.useMunicipalityForSlug,
-      stewardId: spots.stewardId,
-      purpose: spots.purpose,
-    })
-    .from(spots)
-    .where(eq(spots.spotId, spotId))
-    .limit(1);
+  // bucket before incrementing the new one. The full DTO also doubles as
+  // the "before" snapshot for the update's event-log diff.
+  const current = await getSpotById(spotId);
 
   if (!current) return null;
 
@@ -553,6 +562,20 @@ export async function updateSpot(
   if (updated) {
     await adjustTerritoryCounts(current, -1);
     await adjustTerritoryCounts(updated, 1);
+    const changes = diffFields(
+      current as unknown as Record<string, unknown>,
+      updated as unknown as Record<string, unknown>,
+      input as Record<string, unknown>,
+    );
+    if (changes) {
+      await logEvent({
+        entityType: "spot",
+        entityId: spotId,
+        action: "update",
+        userId: actorUserId,
+        changes,
+      });
+    }
   }
   return updated;
 }
@@ -580,24 +603,22 @@ export async function getSpotBySlug(
 
 // Observations cascade-delete via the DB FK (observations.spot_id ->
 // spots.spot_id ON DELETE CASCADE) -- no explicit cleanup needed here.
-export async function deleteSpot(spotId: number): Promise<void> {
-  const [current] = await db
-    .select({
-      state: spots.state,
-      municipality: spots.municipality,
-      postalCity: spots.postalCity,
-      county: spots.county,
-      useMunicipalityForSlug: spots.useMunicipalityForSlug,
-      stewardId: spots.stewardId,
-      purpose: spots.purpose,
-    })
-    .from(spots)
-    .where(eq(spots.spotId, spotId))
-    .limit(1);
+export async function deleteSpot(
+  spotId: number,
+  actorUserId: string | null = null,
+): Promise<void> {
+  const current = await getSpotById(spotId);
 
   await db.delete(spots).where(eq(spots.spotId, spotId));
 
   if (current) {
     await adjustTerritoryCounts(current, -1);
+    await logEvent({
+      entityType: "spot",
+      entityId: spotId,
+      action: "delete",
+      userId: actorUserId,
+      changes: snapshotToChanges(current as unknown as Record<string, unknown>, "delete"),
+    });
   }
 }
