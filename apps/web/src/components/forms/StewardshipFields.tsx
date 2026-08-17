@@ -46,8 +46,7 @@ export function StewardshipFields({
             checked={stewardIsOwner}
             onChange={(e) => onStewardIsOwnerChange(e.target.checked)}
           />
-          Privately owned (the steward is the property&apos;s legal owner,
-          not a third-party caretaker)
+          Steward is property owner (not a third-party caretaker)
         </label>
         {stewardIsOwner && !selectedSteward && (
           <p className="pl-6 text-xs text-neutral-500">
