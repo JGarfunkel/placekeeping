@@ -14,6 +14,7 @@ import {
 } from "@/components/spots/ParcelPicker";
 import { multiPolygonToPolygonPaths } from "@/lib/geo/parcelGeometry";
 import { spotPath } from "@/lib/spotPath";
+import { ReassignParcelControl } from "./ReassignParcelControl";
 import { SiteDetailsEditor } from "./SiteDetailsEditor";
 
 // Map + parcel list + spot list for a site. Shared by the standalone site
@@ -122,6 +123,17 @@ export function SiteMapAndParcels({
                     >
                       ★
                     </span>
+                  )}
+                  {canEditSite && (
+                    <>
+                      {" "}
+                      &middot;{" "}
+                      <ReassignParcelControl
+                        siteId={site.siteId}
+                        swisSblId={p.swisSblId}
+                        printKey={p.printKey}
+                      />
+                    </>
                   )}
                 </li>
               );

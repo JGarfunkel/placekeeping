@@ -116,6 +116,180 @@ export async function getSiteParcelSwisSblIds(
   return rows.map((r) => r.swisSblId);
 }
 
+export type RemoveSiteParcelResult =
+  | { ok: true }
+  | { ok: false; reason: "not_linked" }
+  | { ok: false; reason: "in_use"; spotNames: string[] };
+
+// Manual admin/creator curation: drop a parcel from a site's extent
+// (site_parcels) directly. The only other paths that touch site_parcels are
+// spot-driven (linkSpotToSite, reassignSpotParcel above) and already keep
+// themselves consistent; this is the one place a human can remove a parcel
+// without going through a spot. Refuses when a member spot's parcel_sbl
+// still points at it -- deleting out from under a spot would drop it from
+// the site's own parcel list while the spot still claims it. Reassign or
+// clear that spot's parcel first (reassignSpotParcel), then retry.
+export async function removeSiteParcel(
+  siteId: number,
+  swisSblId: string,
+  actorUserId: string | null = null,
+): Promise<RemoveSiteParcelResult> {
+  const inUseBy = await db
+    .select({ name: spots.name })
+    .from(spots)
+    .where(and(eq(spots.siteId, siteId), eq(spots.parcelSbl, swisSblId)));
+  if (inUseBy.length > 0) {
+    return {
+      ok: false,
+      reason: "in_use",
+      spotNames: inUseBy.map((s) => s.name),
+    };
+  }
+
+  const deleted = await db
+    .delete(siteParcels)
+    .where(
+      and(
+        eq(siteParcels.siteId, siteId),
+        eq(siteParcels.swisSblId, swisSblId),
+      ),
+    )
+    .returning({ swisSblId: siteParcels.swisSblId });
+  if (deleted.length === 0) {
+    return { ok: false, reason: "not_linked" };
+  }
+
+  await logEvent({
+    entityType: "site",
+    entityId: siteId,
+    action: "update",
+    userId: actorUserId,
+    changes: { parcel: { from: swisSblId, to: null } },
+  });
+  return { ok: true };
+}
+
+export type ReassignSiteParcelResult =
+  | { ok: true; site: Site }
+  | { ok: false; reason: "not_linked" }
+  | { ok: false; reason: "same_site" };
+
+// Admin/creator curation: move a parcel from one site to another -- existing
+// or brand new -- rather than only being able to drop it (removeSiteParcel
+// above). Any member spot of the *source* site still resolved to this
+// parcel moves with it (its siteId is repointed), since a spot's site
+// membership follows the parcel it's anchored to -- leaving it behind would
+// recreate the same site_parcels/spot inconsistency removeSiteParcel
+// refuses to create. Mirrors linkSpotToSite's "existing site or create one"
+// input shape and transaction structure.
+export async function reassignSiteParcel(
+  fromSiteId: number,
+  swisSblId: string,
+  target: LinkSpotToSiteInput,
+  actorUserId: string | null = null,
+): Promise<ReassignSiteParcelResult> {
+  if ("siteId" in target && target.siteId === fromSiteId) {
+    return { ok: false, reason: "same_site" };
+  }
+
+  // Thrown to roll back the transaction (including a just-created new site)
+  // when the parcel turns out not to be linked to the source site -- caught
+  // below and turned back into a result rather than an exception.
+  class NotLinkedError extends Error {}
+
+  try {
+    return await db.transaction(async (tx) => {
+      let toSiteId: number;
+
+      if ("siteId" in target) {
+        toSiteId = target.siteId;
+      } else {
+        const [created] = await tx
+          .insert(sites)
+          .values({
+            name: target.newSite.name,
+            purpose: target.newSite.purpose,
+            createdBy: actorUserId,
+          })
+          .returning({ siteId: sites.siteId });
+        toSiteId = created.siteId;
+        await logEvent(
+          {
+            entityType: "site",
+            entityId: toSiteId,
+            action: "create",
+            userId: actorUserId,
+            changes: snapshotToChanges(
+              { name: target.newSite.name, purpose: target.newSite.purpose },
+              "create",
+            ),
+          },
+          tx,
+        );
+      }
+
+      const deleted = await tx
+        .delete(siteParcels)
+        .where(
+          and(
+            eq(siteParcels.siteId, fromSiteId),
+            eq(siteParcels.swisSblId, swisSblId),
+          ),
+        )
+        .returning({ swisSblId: siteParcels.swisSblId });
+      if (deleted.length === 0) {
+        throw new NotLinkedError();
+      }
+
+      await tx
+        .insert(siteParcels)
+        .values({ siteId: toSiteId, swisSblId })
+        .onConflictDoNothing();
+
+      await tx
+        .update(spots)
+        .set({ siteId: toSiteId })
+        .where(
+          and(eq(spots.siteId, fromSiteId), eq(spots.parcelSbl, swisSblId)),
+        );
+
+      await logEvent(
+        {
+          entityType: "site",
+          entityId: fromSiteId,
+          action: "update",
+          userId: actorUserId,
+          changes: { parcel: { from: swisSblId, to: null } },
+        },
+        tx,
+      );
+      await logEvent(
+        {
+          entityType: "site",
+          entityId: toSiteId,
+          action: "update",
+          userId: actorUserId,
+          changes: { parcel: { from: null, to: swisSblId } },
+        },
+        tx,
+      );
+
+      const [row] = await tx
+        .select({ ...siteColumns, createdByUsername: users.username })
+        .from(sites)
+        .leftJoin(users, eq(users.userId, sites.createdBy))
+        .where(eq(sites.siteId, toSiteId))
+        .limit(1);
+      return { ok: true as const, site: toSiteDto(row) };
+    });
+  } catch (error) {
+    if (error instanceof NotLinkedError) {
+      return { ok: false, reason: "not_linked" };
+    }
+    throw error;
+  }
+}
+
 export async function updateSite(
   siteId: number,
   input: UpdateSiteInput,

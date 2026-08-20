@@ -120,3 +120,19 @@ export const linkSpotToSiteSchema = z.union([
   }),
 ]);
 export type LinkSpotToSiteInput = z.infer<typeof linkSpotToSiteSchema>;
+
+// Body for PATCH /api/sites/:siteId/parcels -- an admin/creator moving a
+// parcel (and any spot still resolved to it) to a different site, existing
+// or brand new. Same target shape as linkSpotToSiteSchema, plus the parcel
+// being moved.
+export const reassignSiteParcelSchema = z.union([
+  z.object({ swisSblId: z.string(), siteId: z.number().int().positive() }),
+  z.object({
+    swisSblId: z.string(),
+    newSite: z.object({
+      name: z.string().min(1),
+      purpose: z.string().nullable(),
+    }),
+  }),
+]);
+export type ReassignSiteParcelInput = z.infer<typeof reassignSiteParcelSchema>;

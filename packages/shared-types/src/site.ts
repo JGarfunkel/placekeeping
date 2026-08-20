@@ -36,6 +36,12 @@ export type CreateSiteInput = z.infer<typeof createSiteSchema>;
 export const updateSiteSchema = createSiteSchema.partial();
 export type UpdateSiteInput = z.infer<typeof updateSiteSchema>;
 
+// Body for DELETE /api/sites/:siteId/parcels -- an admin/creator manually
+// dropping a parcel from the site's extent (see removeSiteParcel in
+// @placekeeping/core).
+export const removeSiteParcelSchema = z.object({ swisSblId: z.string() });
+export type RemoveSiteParcelInput = z.infer<typeof removeSiteParcelSchema>;
+
 // Site + its site_parcels membership, for the read-only site detail page.
 export const siteWithParcelsSchema = siteSchema.extend({
   parcelSwisSblIds: z.array(z.string()),

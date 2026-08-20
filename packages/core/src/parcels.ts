@@ -608,3 +608,45 @@ export async function findCandidateSites(
     neighborSwisSblId: row.neighborSwisSblId,
   }));
 }
+
+const QUARTER_MILE_METERS = 402.336;
+
+// Sites with at least one parcel within a quarter mile of the given parcel
+// -- backs the "move parcel to a different site" admin picker
+// (ReassignParcelControl), so it suggests plausible nearby sites instead of
+// every site in the system. Unlike findCandidateSites' 0.0001-degree buffer
+// (fine for touching-parcel detection at NY latitudes), this casts to
+// geography so the radius is an accurate meter distance everywhere.
+export async function findNearbySites(
+  swisSblId: string,
+  excludeSiteId: number | null = null,
+): Promise<Site[]> {
+  const conditions = [
+    ne(parcels.swisSblId, swisSblId),
+    sql`ST_DWithin(${parcels.geom}::geography, (SELECT geom FROM parcels WHERE swis_sbl_id = ${swisSblId} LIMIT 1)::geography, ${QUARTER_MILE_METERS})`,
+  ];
+  if (excludeSiteId !== null) {
+    conditions.push(ne(sites.siteId, excludeSiteId));
+  }
+
+  const rows = await db
+    .selectDistinctOn([sites.siteId], {
+      siteId: sites.siteId,
+      name: sites.name,
+      purpose: sites.purpose,
+      gisOpenSpace: sites.gisOpenSpace,
+      gisLandUse: sites.gisLandUse,
+      hnpMapNumber: sites.hnpMapNumber,
+      stewardshipProgram: sites.stewardshipProgram,
+      stewardshipRef: sites.stewardshipRef,
+      createdAt: sites.createdAt,
+      updatedAt: sites.updatedAt,
+    })
+    .from(parcels)
+    .innerJoin(siteParcels, eq(siteParcels.swisSblId, parcels.swisSblId))
+    .innerJoin(sites, eq(sites.siteId, siteParcels.siteId))
+    .where(and(...conditions))
+    .orderBy(sites.siteId);
+
+  return rows.map(toSiteDto);
+}
