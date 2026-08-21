@@ -17,6 +17,7 @@ import MarkerClusterGroup from "react-leaflet-cluster";
 import { BASE_LAYERS, MAP_CLUSTER_RADIUS, type BaseLayerKey } from "@/components/map/baseLayers";
 import type { ParcelPolygon } from "@/components/map/GoogleMapView";
 import { LayerSwitcher } from "@/components/map/LayerSwitcher";
+import { clampBoundsToMaxExtent } from "@/lib/geo/maxExtent";
 import { MAP_VIEW_COOKIE_NAME } from "@/lib/mapView";
 import { DEFAULT_PIN_SVG, PIN_ANCHOR, renderPin } from "@/lib/pins/renderPin";
 import { resolveSpotPin } from "@/lib/pins/resolveSpotPin";
@@ -124,7 +125,17 @@ function ViewStatePersister() {
   return null;
 }
 
-function FitBoundsToPolygons({ polygons }: { polygons: ParcelPolygon[] }) {
+function FitBoundsToPolygons({
+  polygons,
+  spots,
+}: {
+  polygons: ParcelPolygon[];
+  // Folded into the fit alongside the polygons -- a spot pin sitting off a
+  // parcel's own boundary should still be in frame, and including it here
+  // (rather than fitting polygons alone) is what "near the pins" means for
+  // the clamp below.
+  spots: SpotSummary[];
+}) {
   const map = useMap();
   // While a candidate picker is toggling `highlighted` on/off (see
   // ParcelPicker), fit to just the highlighted one so it fills the box
@@ -137,11 +148,24 @@ function FitBoundsToPolygons({ polygons }: { polygons: ParcelPolygon[] }) {
 
   useEffect(() => {
     if (boundsPolygons.length === 0) return;
-    const bounds = L.latLngBounds(
-      boundsPolygons.flatMap((polygon) => polygon.paths.flatMap((ring) => ring.map((p) => [p.lat, p.lng] as [number, number]))),
+    const points: [number, number][] = boundsPolygons.flatMap((polygon) =>
+      polygon.paths.flatMap((ring) => ring.map((p) => [p.lat, p.lng] as [number, number])),
     );
-    map.fitBounds(bounds, { padding: [32, 32] });
-  }, [map, boundsPolygons]);
+    for (const spot of spots) points.push([spot.latitude, spot.longitude]);
+    const raw = L.latLngBounds(points);
+    // Never zoom out further than MAX_SITE_EXTENT_METERS square, however
+    // sprawling the raw polygon+pin bounds is (see clampBoundsToMaxExtent).
+    const clamped = clampBoundsToMaxExtent({
+      south: raw.getSouth(),
+      north: raw.getNorth(),
+      west: raw.getWest(),
+      east: raw.getEast(),
+    });
+    map.fitBounds(
+      L.latLngBounds([clamped.south, clamped.west], [clamped.north, clamped.east]),
+      { padding: [32, 32] },
+    );
+  }, [map, boundsPolygons, spots]);
 
   return null;
 }
@@ -249,7 +273,7 @@ export function LeafletMapView({
           />
 
           {hasPolygons ? (
-            <FitBoundsToPolygons polygons={parcelPolygons!} />
+            <FitBoundsToPolygons polygons={parcelPolygons!} spots={spots} />
           ) : (
             compact && <ZoomToFixedOffset zoom={BASE_LAYERS[layer].maxZoom - 3} />
           )}

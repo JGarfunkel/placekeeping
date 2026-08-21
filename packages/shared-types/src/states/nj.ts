@@ -13,7 +13,7 @@ export const NJ_STATE_CONFIG: StateConfig = {
     // Plain name field (e.g. "ESSEX"), matching the parcels layer's own
     // COUNTY field -- GNIS_NAME/COUNTY_LABEL may carry a "County" suffix,
     // which wouldn't match a URL slug's stripped name.
-    county: { layerId: 1, nameField: "COUNTY" },
+    county: { layerId: 1, nameField: "COUNTY", idField: "GNIS" },
     municipalities: [
       {
         // NJ has no unincorporated land and no separate city/town/village
@@ -22,6 +22,7 @@ export const NJ_STATE_CONFIG: StateConfig = {
         layerId: 2,
         nameField: "NAME",
         countyField: "COUNTY",
+        idField: "GNIS",
         populationFields: ["POP2020", "POP2010", "POP2000", "POP1990", "POP1980"],
         type: {
           field: "MUN_TYPE",

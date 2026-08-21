@@ -171,6 +171,7 @@ export const territoryTypeValues = [
   "township",
   "district",
   "zip",
+  "cdp",
 ] as const;
 export const territoryTypeSchema = z.enum(territoryTypeValues);
 export type TerritoryType = z.infer<typeof territoryTypeSchema>;

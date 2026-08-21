@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { BaseLayerKey } from "@/components/map/baseLayers";
 import { LayerSwitcher } from "@/components/map/LayerSwitcher";
+import { clampBoundsToMaxExtent } from "@/lib/geo/maxExtent";
 import { MAP_VIEW_COOKIE_NAME } from "@/lib/mapView";
 import { renderPin } from "@/lib/pins/renderPin";
 import { resolveSpotPin } from "@/lib/pins/resolveSpotPin";
@@ -65,7 +66,17 @@ function ZoomToMaxOffset({
   return null;
 }
 
-function FitBoundsToPolygons({ polygons }: { polygons: ParcelPolygon[] }) {
+function FitBoundsToPolygons({
+  polygons,
+  spots,
+}: {
+  polygons: ParcelPolygon[];
+  // Folded into the fit alongside the polygons -- a spot pin sitting off a
+  // parcel's own boundary should still be in frame, and including it here
+  // (rather than fitting polygons alone) is what "near the pins" means for
+  // the clamp below.
+  spots: SpotSummary[];
+}) {
   const map = useMap();
   // While a candidate picker is toggling `highlighted` on/off (see
   // ParcelPicker), fit to just the highlighted one so it fills the box
@@ -78,14 +89,31 @@ function FitBoundsToPolygons({ polygons }: { polygons: ParcelPolygon[] }) {
 
   useEffect(() => {
     if (!map || boundsPolygons.length === 0) return;
-    const bounds = new google.maps.LatLngBounds();
+    const raw = new google.maps.LatLngBounds();
     for (const polygon of boundsPolygons) {
       for (const ring of polygon.paths) {
-        for (const point of ring) bounds.extend(point);
+        for (const point of ring) raw.extend(point);
       }
     }
-    map.fitBounds(bounds, 32);
-  }, [map, boundsPolygons]);
+    for (const spot of spots) raw.extend({ lat: spot.latitude, lng: spot.longitude });
+    const ne = raw.getNorthEast();
+    const sw = raw.getSouthWest();
+    // Never zoom out further than MAX_SITE_EXTENT_METERS square, however
+    // sprawling the raw polygon+pin bounds is (see clampBoundsToMaxExtent).
+    const clamped = clampBoundsToMaxExtent({
+      south: sw.lat(),
+      north: ne.lat(),
+      west: sw.lng(),
+      east: ne.lng(),
+    });
+    map.fitBounds(
+      new google.maps.LatLngBounds(
+        { lat: clamped.south, lng: clamped.west },
+        { lat: clamped.north, lng: clamped.east },
+      ),
+      32,
+    );
+  }, [map, boundsPolygons, spots]);
 
   return null;
 }
@@ -311,7 +339,7 @@ export function GoogleMapView({
             onMoveDragEnd={(spot, to) => setPendingMove({ spot, to })}
           />
           {parcelPolygons && parcelPolygons.length > 0 ? (
-            <FitBoundsToPolygons polygons={parcelPolygons} />
+            <FitBoundsToPolygons polygons={parcelPolygons} spots={spots} />
           ) : (
             compact && <ZoomToMaxOffset center={center} offset={3} />
           )}

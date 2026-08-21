@@ -363,12 +363,13 @@ export const NY_STATE_CONFIG: StateConfig = {
   boundingBox: { minLat: 40.3, maxLat: 45.2, minLng: -80.0, maxLng: -71.7 },
   civilBoundaries: {
     url: "https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Civil_Boundaries/FeatureServer",
-    county: { layerId: 2, nameField: "NAME" },
+    county: { layerId: 2, nameField: "NAME", idField: "GNIS_ID" },
     municipalities: [
       {
         layerId: 4,
         nameField: "NAME",
         countyField: "COUNTY",
+        idField: "GNIS_ID",
         populationFields: NY_POPULATION_FIELDS,
         type: "city",
       },
@@ -376,6 +377,7 @@ export const NY_STATE_CONFIG: StateConfig = {
         layerId: 5,
         nameField: "NAME",
         countyField: "COUNTY",
+        idField: "GNIS_ID",
         populationFields: NY_POPULATION_FIELDS,
         type: "town",
       },
@@ -383,6 +385,7 @@ export const NY_STATE_CONFIG: StateConfig = {
         layerId: 7,
         nameField: "NAME",
         countyField: "COUNTY",
+        idField: "GNIS_ID",
         populationFields: NY_POPULATION_FIELDS,
         type: "village",
       },

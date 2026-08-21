@@ -334,6 +334,13 @@ export const parcels = pgTable(
     // "Show owner" button on later visits without persisting the owner
     // string. See local/spot-resolution.md §5 / §8.
     ownerRevealedAt: timestamp("owner_revealed_at", { withTimezone: true }),
+    // True when the boundary looks like it was traced along a curving
+    // linear feature (a road/ROW edge) rather than drawn as a small number
+    // of straight survey lines -- see computeShapeFlag in
+    // packages/core/src/parcels.ts. A hint for map-display cropping and
+    // manual review, not a correctness signal: the geometry itself is still
+    // authoritative for containment/join queries.
+    shapeFlag: boolean("shape_flag").notNull().default(false),
   },
   (table) => [
     index("parcels_geom_gix").using("gist", table.geom),
@@ -412,6 +419,21 @@ export const subdivisions = pgTable(
     // or GIS lookup resolves it, same progressive-population pattern as
     // centerLat/centerLng/zoom below.
     type: text("type"),
+    // A stable government-assigned ID (Census GEOID for country/state/CDP,
+    // GNIS_ID for NY/NJ counties+municipalities, FIPS_ID for MA counties,
+    // ZIP_CODE for zips) -- distinct from `path`, which is a human slug
+    // that can drift from a GIS layer's exact spelling (see the path
+    // comment above). Null until GIS-resolved, or permanently null for a
+    // layer with no such field on record (MA's municipality layer). Not
+    // unique-indexed: NY's GNIS_ID, MA's FIPS_ID, and Census GEOID are
+    // different ID spaces that could theoretically collide across sources.
+    externalId: text("external_id"),
+    // The boundary polygon itself, once GIS-resolved -- same multiPolygon
+    // type as sites.geom/parcels.geom. Null until a page visit or GIS
+    // lookup resolves it, same progressive-population pattern as
+    // centerLat/centerLng/zoom below (and, before this column existed, the
+    // only thing ever kept from a resolved feature's geometry).
+    geom: multiPolygon("geom"),
     centerLat: numeric("center_lat", { precision: 9, scale: 6 }),
     centerLng: numeric("center_lng", { precision: 9, scale: 6 }),
     zoom: integer("zoom"),
@@ -429,7 +451,10 @@ export const subdivisions = pgTable(
     source: text("source"),
     fetchedAt: timestamp("fetched_at", { withTimezone: true }),
   },
-  (table) => [uniqueIndex("subdivisions_path_idx").on(table.path)],
+  (table) => [
+    uniqueIndex("subdivisions_path_idx").on(table.path),
+    index("subdivisions_geom_gix").using("gist", table.geom),
+  ],
 );
 
 export const spots = pgTable(

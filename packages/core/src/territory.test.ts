@@ -5,6 +5,9 @@ import {
   categoryKey,
   civilBoundaryLayers,
   combineZipFeatures,
+  countyPathSegment,
+  externalIdOf,
+  normalizeCountyName,
   pickWinner,
   populationOf,
   resolveMuniType,
@@ -18,10 +21,29 @@ function candidate(overrides: Partial<Candidate> & Pick<Candidate, "type" | "nam
   return {
     county: null,
     population: null,
-    geometry: { coordinates: [] },
+    externalId: null,
+    geometry: { type: "Polygon", coordinates: [] },
     ...overrides,
   };
 }
+
+describe("normalizeCountyName", () => {
+  it("strips a trailing County suffix", () => {
+    expect(normalizeCountyName("Westchester County")).toBe("Westchester");
+    expect(normalizeCountyName("Oswego  county")).toBe("Oswego");
+  });
+
+  it("leaves an already-bare county name alone", () => {
+    expect(normalizeCountyName("Westchester")).toBe("Westchester");
+  });
+});
+
+describe("countyPathSegment", () => {
+  it("produces the same path regardless of a County suffix", () => {
+    expect(countyPathSegment("Westchester County")).toBe(countyPathSegment("Westchester"));
+    expect(countyPathSegment("Westchester")).toBe("westchester-county");
+  });
+});
 
 describe("stripQualifier", () => {
   it("parses a trailing type qualifier", () => {
@@ -225,6 +247,21 @@ describe("populationOf", () => {
 
   it("returns null when none of the configured fields are present", () => {
     expect(populationOf({}, ["POP2020", "POP2010"])).toBeNull();
+  });
+});
+
+describe("externalIdOf", () => {
+  it("returns null when no idField is configured", () => {
+    expect(externalIdOf({ GNIS_ID: 978538 }, undefined)).toBeNull();
+  });
+
+  it("reads and stringifies the configured field", () => {
+    expect(externalIdOf({ GNIS_ID: 978538 }, "GNIS_ID")).toBe("978538");
+    expect(externalIdOf({ ZIP_CODE: "10562" }, "ZIP_CODE")).toBe("10562");
+  });
+
+  it("returns null when the configured field is missing", () => {
+    expect(externalIdOf({}, "GNIS_ID")).toBeNull();
   });
 });
 
@@ -440,7 +477,7 @@ describe("combineZipFeatures", () => {
     return {
       type: "Feature",
       properties,
-      geometry: { coordinates: coordinates ?? [] },
+      geometry: { type: "Polygon", coordinates: coordinates ?? [] },
     };
   }
 
@@ -475,7 +512,18 @@ describe("combineZipFeatures", () => {
         coordinates: [[1, 1]],
       }),
     ]);
-    expect(result?.geometry.coordinates).toEqual([[[0, 0]], [[1, 1]]]);
+    expect(result?.geometry).toEqual({
+      type: "MultiPolygon",
+      coordinates: [[[0, 0]], [[1, 1]]],
+    });
+  });
+
+  it("picks the lowest ZIP code as the primary externalId when several codes share a name", () => {
+    const result = combineZipFeatures([
+      zipFeature({ ZIP_CODE: "10562", PO_NAME: "Ossining", STATE: "NY", POPULATION: 1 }),
+      zipFeature({ ZIP_CODE: "10510", PO_NAME: "Ossining", STATE: "NY", POPULATION: 1 }),
+    ]);
+    expect(result?.externalId).toBe("10510");
   });
 });
 

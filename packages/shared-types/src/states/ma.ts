@@ -19,13 +19,17 @@ export const MA_STATE_CONFIG: StateConfig = {
       url: "https://services1.arcgis.com/hGdibHYSPO59RG1h/arcgis/rest/services/Massachusetts_Counties/FeatureServer",
       layerId: 1,
       nameField: "COUNTY",
+      idField: "FIPS_ID",
     },
     municipalities: [
       {
         // Single flat "Areas" layer covering all 351 municipalities, type
         // as an attribute -- confirmed live distinct values: C=city,
         // T=town, TC=town with city government (mapped to city, the
-        // functional match).
+        // functional match). No idField -- confirmed live this layer has no
+        // GNIS/FIPS place-level field, only FIPS_STCO (state+county, not
+        // muni-specific) and an Esri-only TOWN_ID/GlobalID, neither a real
+        // government identifier.
         layerId: 1,
         nameField: "TOWN",
         countyField: "COUNTY",

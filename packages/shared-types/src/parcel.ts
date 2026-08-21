@@ -23,6 +23,10 @@ export const parcelSchema = z.object({
   // this parcel, so the client can skip re-offering "Show owner". See
   // packages/db/src/schema.ts's parcels.ownerRevealedAt.
   ownerRevealedAt: z.string().datetime().nullable(),
+  // Best-effort "this boundary looks like it traces a road/ROW edge rather
+  // than surveyed lot lines" hint -- see computeShapeFlag in
+  // packages/core/src/parcels.ts. Not authoritative; a UI cue only.
+  shapeFlag: z.boolean(),
 });
 export type Parcel = z.infer<typeof parcelSchema>;
 

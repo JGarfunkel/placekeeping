@@ -1,6 +1,6 @@
-import { getStateConfig } from "@placekeeping/shared-types";
+import { getStateConfig, type MultiPolygonGeometry } from "@placekeeping/shared-types";
 import { describe, expect, it } from "vitest";
-import { outFieldsFor, toParcelDto } from "./parcels";
+import { computeShapeFlag, outFieldsFor, toParcelDto } from "./parcels";
 
 const CONFIGURED_STATES = ["ny", "nj", "ma"] as const;
 
@@ -76,5 +76,66 @@ describe("toParcelDto -- vintage year", () => {
     // never-equal (see cacheParcel's natural key).
     const dto = toParcelDto({ externalId: "ID" }, { ID: "x" });
     expect(dto.rollYr).toBe(new Date().getFullYear());
+  });
+});
+
+// Ring generators for computeShapeFlag's fixtures below. `center` is a
+// realistic NY latitude/longitude so the meters<->degrees conversion is
+// representative; both approximate meters the same simple way computeShapeFlag's
+// haversine helper effectively does at this scale.
+function circleRing(
+  center: [number, number],
+  radiusMeters: number,
+  vertexCount: number,
+): number[][] {
+  const [lng0, lat0] = center;
+  const metersPerDegLat = 111320;
+  const metersPerDegLng = 111320 * Math.cos((lat0 * Math.PI) / 180);
+  const points: number[][] = [];
+  for (let i = 0; i <= vertexCount; i++) {
+    const angle = (2 * Math.PI * i) / vertexCount;
+    const dLat = (radiusMeters * Math.sin(angle)) / metersPerDegLat;
+    const dLng = (radiusMeters * Math.cos(angle)) / metersPerDegLng;
+    points.push([lng0 + dLng, lat0 + dLat]);
+  }
+  return points;
+}
+
+function multiPolygon(ring: number[][]): MultiPolygonGeometry {
+  return { type: "MultiPolygon", coordinates: [[ring]] };
+}
+
+const NY_CENTER: [number, number] = [-73.776, 41.156];
+
+describe("computeShapeFlag", () => {
+  it("flags a boundary with many closely-spaced vertices (road-hugging curve)", () => {
+    // ~8.9m average segment over 100 vertices matches the real New Castle,
+    // NY town hall parcel (100.11-2-26) this heuristic was calibrated
+    // against: its frontage traces a curving road rather than straight lot
+    // lines. Circumference/vertexCount here lands in the same range.
+    const ring = circleRing(NY_CENTER, 142, 100);
+    expect(computeShapeFlag(multiPolygon(ring))).toBe(true);
+  });
+
+  it("does not flag an ordinary few-vertex parcel, even if small", () => {
+    // A simple rectangle: 4 corners, well under SHAPE_FLAG_MIN_VERTICES.
+    // Guards against flagging a tiny parcel whose few segments are short
+    // only because the parcel itself is tiny.
+    const ring = [
+      [NY_CENTER[0], NY_CENTER[1]],
+      [NY_CENTER[0] + 0.0005, NY_CENTER[1]],
+      [NY_CENTER[0] + 0.0005, NY_CENTER[1] + 0.0005],
+      [NY_CENTER[0], NY_CENTER[1] + 0.0005],
+      [NY_CENTER[0], NY_CENTER[1]],
+    ];
+    expect(computeShapeFlag(multiPolygon(ring))).toBe(false);
+  });
+
+  it("does not flag a many-vertex parcel with ordinary-length segments", () => {
+    // Same vertex count as the flagged fixture, but a large enough radius
+    // that each segment averages well over 15m -- e.g. a big, gently
+    // curving natural boundary rather than a tightly-traced road edge.
+    const ring = circleRing(NY_CENTER, 800, 100);
+    expect(computeShapeFlag(multiPolygon(ring))).toBe(false);
   });
 });

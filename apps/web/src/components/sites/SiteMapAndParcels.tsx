@@ -115,6 +115,15 @@ export function SiteMapAndParcels({
                     {p.propClass}
                   </span>{" "}
                   &middot; {p.calcAcres?.toFixed(1)} ac
+                  {p.shapeFlag && (
+                    <span
+                      className="ml-1 text-amber-500"
+                      title="Boundary looks like it traces a road/ROW edge rather than surveyed lot lines -- worth a manual look"
+                      aria-label="Irregular boundary, worth a manual look"
+                    >
+                      ⚠
+                    </span>
+                  )}
                   {isCurrentSpotParcel && (
                     <span
                       className="ml-1 text-amber-500"

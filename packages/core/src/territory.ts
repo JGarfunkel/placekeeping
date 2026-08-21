@@ -35,6 +35,18 @@ const US_STATES_URL =
 const ZIP_BOUNDARIES_URL =
   "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Boundaries_2023/FeatureServer/3";
 
+// Nationwide Census Designated Places -- the informal "locale" name people
+// actually use (Chappaqua, Katonah), distinct from both the governing
+// municipality and the ZIP delivery area. Confirmed live 2026-08: layer 5
+// of this MapServer is the current-vintage CDP layer, with a real GEOID and
+// polygon (e.g. Chappaqua CDP -> GEOID 3613805) -- unlike ZIP_BOUNDARIES_URL
+// above (Esri/TomTom ZIP delivery-area polygons, no GEOID, not a real named
+// place). Tried between civil boundaries and the ZIP fallback in
+// resolveMunicipality: a real government jurisdiction always wins over a
+// same-named CDP, and a CDP always wins over the ZIP-area approximation.
+const CDP_BOUNDARIES_URL =
+  "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Places_CouSub_ConCity_SubMCD/MapServer/5";
+
 // Re-exported for existing consumers (backfillSubdivisions.ts, tests) --
 // the type itself now lives in shared-types since CivilBoundariesConfig
 // needs it too, and shared-types can't depend back on core.
@@ -49,6 +61,9 @@ export interface TerritoryResolution {
   centerLat: number;
   centerLng: number;
   zoom: number;
+  // A stable government-assigned ID (see subdivisions.externalId in
+  // schema.ts) -- null for a source with no such field on record.
+  externalId: string | null;
 }
 
 export interface MunicipalityAmbiguity {
@@ -70,6 +85,7 @@ function rowToResolution(row: {
   name: string;
   county: string | null;
   type: string | null;
+  externalId: string | null;
   centerLat: string | null;
   centerLng: string | null;
   zoom: number | null;
@@ -86,6 +102,7 @@ function rowToResolution(row: {
     name: row.name,
     county: row.county,
     type: row.type as TerritoryType | null,
+    externalId: row.externalId,
     centerLat: Number(row.centerLat),
     centerLng: Number(row.centerLng),
     zoom: row.zoom,
@@ -113,10 +130,18 @@ async function getCachedByPath(path: string): Promise<TerritoryResolution | null
 // visit is the first thing to ever touch this path, or fills in a row that
 // adjustTerritoryCounts already created (counts-only, null center) if a
 // spot save got there first. Never touches spotCounts either way.
+// `geometry` is the raw GeoJSON Polygon/MultiPolygon a resolver's ArcGIS
+// feature came with (null for the hardcoded country row, which has none) --
+// stored via the same ST_GeomFromGeoJSON/ST_Multi pattern parcels.ts uses
+// for parcel boundaries.
 async function cacheResolution(
   resolution: TerritoryResolution,
+  geometry: { type: string; coordinates: unknown } | null,
   source: string,
 ): Promise<void> {
+  const geom = geometry
+    ? sql`ST_SetSRID(ST_Multi(ST_GeomFromGeoJSON(${JSON.stringify(geometry)})), 4326)`
+    : null;
   await db
     .insert(subdivisions)
     .values({
@@ -125,6 +150,8 @@ async function cacheResolution(
       name: resolution.name,
       county: resolution.county,
       type: resolution.type,
+      externalId: resolution.externalId,
+      geom,
       centerLat: String(resolution.centerLat),
       centerLng: String(resolution.centerLng),
       zoom: resolution.zoom,
@@ -138,6 +165,8 @@ async function cacheResolution(
         name: resolution.name,
         county: resolution.county,
         type: resolution.type,
+        externalId: resolution.externalId,
+        geom,
         centerLat: String(resolution.centerLat),
         centerLng: String(resolution.centerLng),
         zoom: resolution.zoom,
@@ -191,7 +220,7 @@ function boundsFromGeometry(geometry: { coordinates: unknown }): {
 
 export interface ArcGisFeature<TProps> {
   type: "Feature";
-  geometry: { coordinates: unknown };
+  geometry: { type: string; coordinates: unknown };
   properties: TProps;
 }
 
@@ -233,6 +262,7 @@ const MAINLAND_US: TerritoryResolution = {
   name: "United States",
   county: null,
   type: "country",
+  externalId: null,
   centerLat: 39.5,
   centerLng: -98.35,
   zoom: 4,
@@ -242,7 +272,7 @@ export async function resolveCountry(cc: string): Promise<TerritoryResolution | 
   if (cc.toLowerCase() !== "us") return null;
   const cached = await getCachedByPath("us");
   if (cached) return cached;
-  await cacheResolution(MAINLAND_US, "hardcoded:mainland-us");
+  await cacheResolution(MAINLAND_US, null, "hardcoded:mainland-us");
   return MAINLAND_US;
 }
 
@@ -251,6 +281,10 @@ export async function resolveCountry(cc: string): Promise<TerritoryResolution | 
 interface StateProps {
   NAME: string;
   STUSAB: string;
+  // 2-digit state FIPS code -- also the Census GEOID at this level, and the
+  // prefix used to scope a nationwide CDP-layer query to one state (see
+  // getStateFips/findCdpWinner below).
+  GEOID: string;
 }
 
 export async function resolveState(
@@ -279,10 +313,20 @@ export async function resolveState(
     name: feature.properties.NAME,
     county: null,
     type: "state",
+    externalId: feature.properties.GEOID,
     ...bounds,
   };
-  await cacheResolution(resolution, "census-tigerweb:State");
+  await cacheResolution(resolution, feature.geometry, "census-tigerweb:State");
   return resolution;
+}
+
+// The 2-digit state FIPS code -- reuses resolveState's own caching (DB +
+// in-process resolutionCache), so this is cheap after the first call for a
+// given state. Used to scope the nationwide CDP layer query in
+// findCdpWinner to one state, since that layer has no STUSAB field.
+async function getStateFips(stateCode: string): Promise<string | null> {
+  const state = await resolveState("us", stateCode);
+  return state?.externalId ?? null;
 }
 
 // ---- Municipality level -----------------------------------------------------
@@ -295,6 +339,7 @@ const QUALIFIER_TYPES: MunicipalityType[] = [
   "township",
   "county",
   "zip",
+  "cdp",
 ];
 
 export function stripQualifier(mc: string): { name: string; qualifier: MunicipalityType | null } {
@@ -315,13 +360,27 @@ export interface Candidate {
   name: string;
   county: string | null;
   population: number | null;
-  geometry: { coordinates: unknown };
+  externalId: string | null;
+  geometry: { type: string; coordinates: unknown };
 }
 
 // Tries each configured population field (newest-first) in turn -- states
 // publish different sets of census-year columns (NY/NJ have decade columns
 // back to 1980/1990, MA has them back to 1960), so this just walks
 // whichever list a given layer config supplies.
+// Reads a layer's configured government-ID field (see idField on
+// MunicipalityLayerConfig), if any -- coerced to string since ArcGIS layers
+// mix numeric and string ID fields across states (e.g. NY's GNIS_ID is
+// numeric, ZIP_CODE is a zero-padded string).
+export function externalIdOf(
+  properties: Record<string, unknown>,
+  idField: string | undefined,
+): string | null {
+  if (!idField) return null;
+  const value = properties[idField];
+  return value === null || value === undefined ? null : String(value);
+}
+
 export function populationOf(
   properties: Record<string, unknown>,
   fields: string[] | undefined,
@@ -402,6 +461,7 @@ async function findCandidates(
             ? ((feature.properties[layer.countyField] as string | null | undefined) ?? null)
             : null,
           population: populationOf(feature.properties, layer.populationFields),
+          externalId: externalIdOf(feature.properties, layer.idField),
           geometry: feature.geometry,
         };
         byKey.set(`${type}:${candidate.name}:${candidate.county}`, candidate);
@@ -488,11 +548,19 @@ function slugifyMuniName(name: string): string {
 
 // A spot's stored county name usually already ends in "County" (e.g.
 // Google's administrative_area_level_2 long_name, "Westchester County"),
-// but a "-county" suffix always gets appended below to build the path --
-// strip a pre-existing one first so it doesn't double up into
+// but other sources (NY parcel data) supply the bare name -- strip a
+// pre-existing suffix so both spellings normalize to the same value. Shared
+// with spots.ts, which applies this at write time so `spots.county` itself
+// stays consistent, not just the path built from it here.
+export function normalizeCountyName(countyName: string): string {
+  return countyName.trim().replace(/\s+county$/i, "").trim();
+}
+
+// A "-county" suffix always gets appended below to build the path -- start
+// from the normalized name so it doesn't double up into
 // "westchester-county-county".
 export function countyPathSegment(countyName: string): string {
-  return `${slugifyMuniName(countyName.replace(/\s+county$/i, ""))}-county`;
+  return `${slugifyMuniName(normalizeCountyName(countyName))}-county`;
 }
 
 interface ZipProps {
@@ -514,16 +582,28 @@ export function combineZipFeatures(
     (sum, f) => sum + (f.properties.POPULATION ?? 0),
     0,
   );
+  // No single ZIP_CODE is "the" ID for a PO_NAME split across several
+  // codes -- lowest wins as a best-effort, deterministic primary ID (e.g.
+  // Ossining's 10510/10562 -> 10510), same spirit as combining every
+  // feature's geometry below rather than picking just one.
+  const primaryZip = [...features].map((f) => f.properties.ZIP_CODE).sort()[0] ?? null;
   return {
     type: "zip",
     name: features[0].properties.PO_NAME,
     county: null,
     population: totalPopulation || null,
+    externalId: primaryZip,
     // Feeding boundsFromGeometry a synthetic coordinates array holding
     // every matched ZIP's own coordinates -- its recursive walk just looks
     // for [lng, lat] leaf pairs, so this combines their envelopes for free
-    // without needing a dedicated multi-geometry bounds function.
-    geometry: { coordinates: features.map((f) => f.geometry.coordinates) },
+    // without needing a dedicated multi-geometry bounds function. Each
+    // ZIP feature is itself a GeoJSON Polygon (confirmed live), so nesting
+    // their coordinate arrays under one "MultiPolygon" type produces valid
+    // GeoJSON for storage too, not just bounds.
+    geometry: {
+      type: "MultiPolygon",
+      coordinates: features.map((f) => f.geometry.coordinates),
+    },
   };
 }
 
@@ -548,6 +628,38 @@ async function findZipWinner(
   return combineZipFeatures(features);
 }
 
+interface CdpProps {
+  NAME: string; // Census NAME always carries a " CDP" suffix, e.g. "Chappaqua CDP".
+  GEOID: string;
+}
+
+// Finds a Census Designated Place by name within one state. The CDP layer
+// has no STUSAB field (only a numeric STATE FIPS code), hence getStateFips
+// -- and CDP names in this layer always carry a trailing " CDP", hence
+// appending it to the query rather than matching NAME directly.
+async function findCdpWinner(stateCode: string, name: string): Promise<Candidate | null> {
+  const fips = await getStateFips(stateCode);
+  if (!fips) return null;
+
+  const nameVariants = Array.from(new Set([name, name.replace(/-/g, " ")]));
+  for (const variant of nameVariants) {
+    const where = `UPPER(NAME)=UPPER('${escapeForArcGis(variant)} CDP') AND STATE='${fips}'`;
+    const features = await queryArcGis<CdpProps>(CDP_BOUNDARIES_URL, where);
+    const feature = features[0];
+    if (feature) {
+      return {
+        type: "cdp",
+        name: feature.properties.NAME.replace(/ CDP$/i, ""),
+        county: null,
+        population: null,
+        externalId: feature.properties.GEOID,
+        geometry: feature.geometry,
+      };
+    }
+  }
+  return null;
+}
+
 export async function resolveMunicipality(
   cc: string,
   sc: string,
@@ -569,9 +681,16 @@ export async function resolveMunicipality(
   // (or an unresolved name) falls through to the nationwide ZIP lookup below.
   const civilBoundaries = getStateConfig(stateCode)?.civilBoundaries;
   let winner: Candidate | MunicipalityAmbiguity | null = null;
-  if (civilBoundaries && qualifier !== "zip") {
+  if (civilBoundaries && qualifier !== "zip" && qualifier !== "cdp") {
     const candidates = await findCandidates(name, civilBoundaries);
     winner = pickWinner(candidates, qualifier);
+  }
+
+  // CDP ("locale") lookup: only once civil boundaries have ruled out a real
+  // governing municipality/county of the same name, and only when an
+  // explicit qualifier hasn't already picked "zip" instead.
+  if (winner === null && qualifier !== "zip") {
+    winner = await findCdpWinner(stateCode, name);
   }
 
   if (winner === null) {
@@ -594,13 +713,16 @@ export async function resolveMunicipality(
     name: winner.name,
     county: winner.county,
     type: winner.type,
+    externalId: winner.externalId,
     ...bounds,
   };
   const source =
     winner.type === "zip"
       ? "esri-usa-zip-boundaries"
-      : `${stateCode}-civil-boundaries:${winner.type}`;
-  await cacheResolution(resolution, source);
+      : winner.type === "cdp"
+        ? "census-tigerweb:cdp"
+        : `${stateCode}-civil-boundaries:${winner.type}`;
+  await cacheResolution(resolution, winner.geometry, source);
   resolutionCache.set(requestedPath, resolution);
   return resolution;
 }

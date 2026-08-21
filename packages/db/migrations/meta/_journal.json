@@ -43,6 +43,20 @@
       "when": 1786990491156,
       "tag": "0005_spots_steward_is_owner",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1787275666120,
+      "tag": "0006_subdivisions_external_id_geom",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1787277804480,
+      "tag": "0007_slow_zombie",
+      "breakpoints": true
     }
   ]
 }

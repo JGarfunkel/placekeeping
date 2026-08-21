@@ -20,7 +20,14 @@ export type MunicipalityType =
   | "borough"
   | "township"
   | "county"
-  | "zip";
+  | "zip"
+  // Census Designated Place -- an informal, unincorporated "locale" name
+  // (e.g. Chappaqua, Katonah) with its own Census boundary and GEOID,
+  // resolved nationwide via a fixed Census layer (see CDP_BOUNDARIES_URL in
+  // territory.ts), not a per-state civilBoundaries config -- included here
+  // so it can share Candidate/pickWinner/subdivisions.type plumbing with
+  // the state-configured municipality types.
+  | "cdp";
 
 // One queryable layer of municipal boundaries. Two states rarely model
 // local government the same way: NY splits cities/towns/villages into
@@ -36,6 +43,13 @@ export interface MunicipalityLayerConfig {
   layerId: number;
   nameField: string;
   countyField?: string;
+  // A stable government-assigned ID field on this layer (e.g. NY/NJ's
+  // GNIS_ID, USGS's national place-name identifier), read into
+  // Candidate.externalId and persisted to subdivisions -- distinct from
+  // our own `path`, which is a human slug and can drift from the GIS
+  // layer's exact spelling. Omit when the layer has no such field (e.g.
+  // MA's municipality layer).
+  idField?: string;
   // Ordered newest-first; populationOf tries each in turn. Used to break
   // ties between same-named municipalities in different counties.
   populationFields?: string[];
@@ -52,7 +66,7 @@ export interface CivilBoundariesConfig {
   url: string;
   // Omit for a state with no county-boundary layer available at all --
   // county-level lookup just isn't available for that state yet.
-  county?: { url?: string; layerId: number; nameField: string };
+  county?: { url?: string; layerId: number; nameField: string; idField?: string };
   // NY: 3 entries (cities/towns/villages), each a fixed type. NJ/MA: 1
   // entry, a flat layer with a type field.
   municipalities: MunicipalityLayerConfig[];

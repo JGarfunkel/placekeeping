@@ -1,0 +1,1 @@
+ALTER TABLE "parcels" ADD COLUMN "shape_flag" boolean DEFAULT false NOT NULL;

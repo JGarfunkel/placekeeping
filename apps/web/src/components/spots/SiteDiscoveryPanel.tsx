@@ -5,6 +5,7 @@ import {
   type ParcelCandidate,
   type ParcelLookupResult,
   type ParcelOwnerInfo,
+  type Site,
   type SiteCandidate,
   type Spot,
 } from "@placekeeping/shared-types";
@@ -68,6 +69,16 @@ export function SiteDiscoveryPanel({ spot }: { spot: Spot }) {
   const [selectedSiteId, setSelectedSiteId] = useState<number | "new" | "">(
     "",
   );
+  // A site picked via the "search nearby sites" fallback rather than an
+  // auto-detected direct hit / touching-parcel candidate (findCandidateSites'
+  // ~11m buffer can miss a site that's merely nearby, e.g. across a street --
+  // findNearbySites' quarter-mile radius, same as ReassignParcelControl,
+  // backs the fallback search). Kept separate so it can render as its own
+  // radio row without needing to be threaded into `siteCandidates`.
+  const [manualSite, setManualSite] = useState<{
+    siteId: number;
+    name: string;
+  } | null>(null);
   const [newSiteName, setNewSiteName] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -387,8 +398,14 @@ export function SiteDiscoveryPanel({ spot }: { spot: Spot }) {
           <SiteJoinPanel
             loading={loadingCandidates}
             candidates={siteCandidates}
+            swisSblId={parcelResult.parcel.swisSblId}
             selectedSiteId={selectedSiteId}
             onSelect={setSelectedSiteId}
+            manualSite={manualSite}
+            onManualSitePicked={(site) => {
+              setManualSite(site);
+              setSelectedSiteId(site.siteId);
+            }}
             newSiteName={newSiteName}
             onNewSiteNameChange={setNewSiteName}
             saving={saving}
@@ -405,8 +422,11 @@ export function SiteDiscoveryPanel({ spot }: { spot: Spot }) {
 function SiteJoinPanel({
   loading,
   candidates,
+  swisSblId,
   selectedSiteId,
   onSelect,
+  manualSite,
+  onManualSitePicked,
   newSiteName,
   onNewSiteNameChange,
   saving,
@@ -416,8 +436,11 @@ function SiteJoinPanel({
 }: {
   loading: boolean;
   candidates: SiteCandidatesResult | null;
+  swisSblId: string;
   selectedSiteId: number | "new" | "";
   onSelect: (value: number | "new" | "") => void;
+  manualSite: { siteId: number; name: string } | null;
+  onManualSitePicked: (site: { siteId: number; name: string }) => void;
   newSiteName: string;
   onNewSiteNameChange: (value: string) => void;
   saving: boolean;
@@ -474,6 +497,23 @@ function SiteJoinPanel({
           </label>
         ))}
 
+      {manualSite && (
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="radio"
+            name="site-choice"
+            checked={selectedSiteId === manualSite.siteId}
+            onChange={() => onSelect(manualSite.siteId)}
+          />
+          {manualSite.name}
+          <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600">
+            via search
+          </span>
+        </label>
+      )}
+
+      <NearbySitePicker swisSblId={swisSblId} onPick={onManualSitePicked} />
+
       <label className="flex items-center gap-2 text-sm">
         <input
           type="radio"
@@ -502,6 +542,84 @@ function SiteJoinPanel({
       >
         {saving ? "Saving…" : "Save site & link"}
       </button>
+    </div>
+  );
+}
+
+// Fallback for when the site the user wants isn't a direct hit or a
+// touching-parcel candidate (findCandidateSites' ~11m buffer) -- e.g. it's
+// across a street. Searches the same quarter-mile radius as
+// ReassignParcelControl's "move parcel" picker, lazily on open so it doesn't
+// cost a request on every spot page load.
+function NearbySitePicker({
+  swisSblId,
+  onPick,
+}: {
+  swisSblId: string;
+  onPick: (site: { siteId: number; name: string }) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [sites, setSites] = useState<Site[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open || sites) return;
+    let cancelled = false;
+    fetch(`/api/sites?nearSwisSblId=${encodeURIComponent(swisSblId)}`)
+      .then((res) => res.json())
+      .then((body) => {
+        if (!cancelled) setSites(body.sites);
+      })
+      .catch(() => {
+        if (!cancelled) setError("Failed to load nearby sites");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, sites, swisSblId]);
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="self-start text-xs font-medium text-neutral-600 underline hover:text-neutral-900"
+      >
+        Not seeing the site you want? Search nearby sites
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      {!sites && !error && (
+        <p className="text-xs text-neutral-500">Loading nearby sites…</p>
+      )}
+      {error && <p className="text-xs text-red-600">{error}</p>}
+      {sites && sites.length === 0 && (
+        <p className="text-xs text-neutral-500">
+          No other sites within a quarter mile.
+        </p>
+      )}
+      {sites && sites.length > 0 && (
+        <select
+          className="rounded-md border border-neutral-300 px-2 py-1 text-sm"
+          defaultValue=""
+          onChange={(e) => {
+            const site = sites.find((s) => s.siteId === Number(e.target.value));
+            if (site) onPick({ siteId: site.siteId, name: site.name });
+          }}
+        >
+          <option value="" disabled>
+            Choose a nearby site…
+          </option>
+          {sites.map((s) => (
+            <option key={s.siteId} value={s.siteId}>
+              {s.name}
+            </option>
+          ))}
+        </select>
+      )}
     </div>
   );
 }

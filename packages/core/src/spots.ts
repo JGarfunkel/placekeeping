@@ -2,7 +2,6 @@ import { db, spots, users } from "@placekeeping/db";
 import {
   DEFAULT_STATE_CODE,
   deriveAccessibility,
-  getStateConfig,
   statesForPoint,
   type CreateSpotInput,
   type NearbySpotsQuery,
@@ -19,7 +18,7 @@ import { diffFields, logEvent, snapshotToChanges } from "./events";
 import { createObservation } from "./observations";
 import { findContainingParcel, resolveSiteForParcel } from "./parcels";
 import { computeSpotSlug } from "./slug";
-import { adjustTerritoryCounts } from "./territory";
+import { adjustTerritoryCounts, normalizeCountyName } from "./territory";
 
 const fullSpotColumns = {
   spotId: spots.spotId,
@@ -392,12 +391,15 @@ export async function createSpot(
   const resolvedState =
     input.state ??
     (containingParcel
-      ? (statesForPoint(input.latitude, input.longitude)[0]?.name ??
-        getStateConfig(DEFAULT_STATE_CODE)?.name)
+      ? (statesForPoint(input.latitude, input.longitude)[0]?.code ??
+        DEFAULT_STATE_CODE)
       : undefined);
   const resolvedMunicipality =
     input.municipality ?? containingParcel?.muniName ?? undefined;
   const resolvedCounty = input.county ?? containingParcel?.countyName ?? undefined;
+  const normalizedCounty = resolvedCounty
+    ? normalizeCountyName(resolvedCounty)
+    : resolvedCounty;
 
   const { slugState, slugLocality, slug } = await computeSpotSlug({
     name: input.name,
@@ -422,7 +424,7 @@ export async function createSpot(
       state: resolvedState,
       municipality: resolvedMunicipality,
       postalCity: input.postalCity,
-      county: resolvedCounty,
+      county: normalizedCounty,
       useMunicipalityForSlug,
       slugState,
       slugLocality,
@@ -494,10 +496,12 @@ export async function updateSpot(
     latitude,
     longitude,
     sizeSqft,
+    county: rawCounty,
     coverPhotoObservedAt: _coverPhotoObservedAt,
     slug: _rawSlug,
     ...rest
   } = input;
+  const county = rawCounty ? normalizeCountyName(rawCounty) : rawCounty;
   debugLog("[spots] updateSpot", spotId, input);
 
   // Fetched unconditionally (not just when slug-relevant fields change) --
@@ -539,6 +543,7 @@ export async function updateSpot(
     .update(spots)
     .set({
       ...rest,
+      ...(county !== undefined ? { county } : {}),
       ...(sizeSqft !== undefined ? { sizeSqft: String(sizeSqft) } : {}),
       ...(latitude !== undefined && longitude !== undefined
         ? {

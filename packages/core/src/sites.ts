@@ -72,6 +72,8 @@ export interface SiteParcelGeometry {
   // Raw GeoJSON MultiPolygon, ready for a client-side conversion to map
   // polygon paths. [lng, lat] order per GeoJSON convention.
   geometry: { type: "MultiPolygon"; coordinates: number[][][][] };
+  // See parcels.shapeFlag / computeShapeFlag in packages/core/src/parcels.ts.
+  shapeFlag: boolean;
 }
 
 // One row per parcel identifier (not per cached roll year) -- takes the
@@ -89,6 +91,7 @@ export async function getSiteParcelGeometries(
       calcAcres: parcels.calcAcres,
       rollYr: parcels.rollYr,
       geometryJson: sql<string>`ST_AsGeoJSON(${parcels.geom})`,
+      shapeFlag: parcels.shapeFlag,
     })
     .from(siteParcels)
     .innerJoin(parcels, eq(parcels.swisSblId, siteParcels.swisSblId))
@@ -103,6 +106,7 @@ export async function getSiteParcelGeometries(
     calcAcres: row.calcAcres === null ? null : Number(row.calcAcres),
     rollYr: row.rollYr,
     geometry: JSON.parse(row.geometryJson),
+    shapeFlag: row.shapeFlag,
   }));
 }
 

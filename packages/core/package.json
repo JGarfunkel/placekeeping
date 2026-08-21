@@ -7,7 +7,10 @@
   "types": "src/index.ts",
   "scripts": {
     "backfill-subdivisions": "dotenv -e ../../.env -- tsx src/backfillSubdivisions.ts",
-    "backfill-observation-photos": "dotenv -e ../../.env -- tsx src/backfillObservationPhotos.ts"
+    "backfill-subdivisions:proddb": "dotenv -e ../../.env.proddb -- tsx src/backfillSubdivisions.ts",
+    "backfill-observation-photos": "dotenv -e ../../.env -- tsx src/backfillObservationPhotos.ts",
+    "normalize-spot-location-fields": "dotenv -e ../../.env -- tsx src/normalizeSpotLocationFields.ts",
+    "normalize-spot-location-fields:proddb": "dotenv -e ../../.env.proddb -- tsx src/normalizeSpotLocationFields.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1092.0",

@@ -171,6 +171,7 @@ const parcelColumns = {
   rollYr: parcels.rollYr,
   spatialYr: parcels.spatialYr,
   ownerRevealedAt: parcels.ownerRevealedAt,
+  shapeFlag: parcels.shapeFlag,
 };
 
 function toParcelDtoFromRow(row: any): Parcel {
@@ -253,6 +254,10 @@ export function toParcelDto(fields: ParcelFieldMap, properties: Record<string, u
     // need the authoritative value (e.g. the Find Parcel route) re-read via
     // getCachedParcel after cacheParcel() instead of trusting this.
     ownerRevealedAt: null,
+    // Placeholder -- this DTO has no geometry to compute from yet. The one
+    // production caller (fetchNearbyParcelsForState) overrides it with a
+    // real computeShapeFlag(geometry) result once geometry is in hand.
+    shapeFlag: false,
   };
 }
 
@@ -280,6 +285,50 @@ export function parcelContainsPoint(
     }
     return inside;
   });
+}
+
+const EARTH_RADIUS_METERS = 6371000;
+
+function haversineMeters(a: [number, number], b: [number, number]): number {
+  const [lng1, lat1] = a;
+  const [lng2, lat2] = b;
+  const rad = Math.PI / 180;
+  const dLat = (lat2 - lat1) * rad;
+  const dLng = (lng2 - lng1) * rad;
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLng / 2) ** 2;
+  return 2 * EARTH_RADIUS_METERS * Math.asin(Math.sqrt(s));
+}
+
+// A boundary traced along a curving road/ROW edge (rather than drawn as a
+// handful of straight survey lines) shows up as many vertices packed into a
+// short average segment length, regardless of the polygon's overall
+// compactness -- New Castle, NY's town hall parcel (100.11-2-26, a 10.6-acre
+// lot whose frontage hugs a curving road) averages an 8.9m segment over 100
+// vertices, while ordinary rectangular residential parcels nearby average
+// 18-42m over 7-23 vertices. MIN_VERTICES guards against flagging a small,
+// genuinely simple polygon whose few segments are short only because the
+// parcel itself is tiny.
+const SHAPE_FLAG_MIN_VERTICES = 20;
+const SHAPE_FLAG_MAX_AVG_SEGMENT_METERS = 15;
+
+export function computeShapeFlag(geometry: MultiPolygonGeometry): boolean {
+  let vertexCount = 0;
+  let perimeterMeters = 0;
+  for (const rings of geometry.coordinates) {
+    for (const ring of rings) {
+      vertexCount += Math.max(ring.length - 1, 0);
+      for (let i = 0; i < ring.length - 1; i++) {
+        perimeterMeters += haversineMeters(
+          ring[i] as [number, number],
+          ring[i + 1] as [number, number],
+        );
+      }
+    }
+  }
+  if (vertexCount < SHAPE_FLAG_MIN_VERTICES) return false;
+  return perimeterMeters / vertexCount < SHAPE_FLAG_MAX_AVG_SEGMENT_METERS;
 }
 
 const NEARBY_RADIUS_METERS = 15;
@@ -346,6 +395,7 @@ async function fetchNearbyParcelsForState(
       geometry,
       stateCode,
       containsPin: parcelContainsPoint(geometry, lat, lng),
+      shapeFlag: computeShapeFlag(geometry),
     };
   });
 }
@@ -474,12 +524,14 @@ export async function cacheParcel(parcel: FetchedParcel): Promise<void> {
       // Mirrors the state-tagged `source` values territory.ts writes for
       // subdivisions (e.g. "nys-civil-boundaries:${type}").
       source: `${parcel.stateCode}-parcels`,
+      shapeFlag: computeShapeFlag(parcel.geometry),
     })
     .onConflictDoUpdate({
       target: [parcels.stateCode, parcels.swisSblId, parcels.rollYr],
       set: {
         source: `${parcel.stateCode}-parcels`,
         fetchedAt: new Date(),
+        shapeFlag: computeShapeFlag(parcel.geometry),
       },
     });
 }
