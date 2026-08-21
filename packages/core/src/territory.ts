@@ -6,8 +6,8 @@ import type {
   TerritoryLevel,
   TerritoryType,
 } from "@placekeeping/shared-types";
-import { getStateConfig } from "@placekeeping/shared-types";
-import { and, eq, ilike, inArray, like, sql } from "drizzle-orm";
+import { getStateConfig, STATE_CONFIGS } from "@placekeeping/shared-types";
+import { and, eq, ilike, inArray, isNotNull, like, sql } from "drizzle-orm";
 import { debugLog } from "./debug";
 import { logRemoteCall } from "./remoteLog";
 
@@ -1051,4 +1051,203 @@ export async function getTerritoryCounts(
     .where(eq(subdivisions.path, path))
     .limit(1);
   return row?.spotCounts ?? {};
+}
+
+// ---- Subdivision search (home page autocomplete) -------------------------
+
+export interface SubdivisionSearchResult {
+  path: string;
+  name: string;
+  type: TerritoryType | null;
+  // Display-only containing state/country names -- "" when the state row
+  // itself hasn't been GIS-resolved yet (shouldn't happen in practice, since
+  // a level-2 row's state is resolved first, but this is a display fallback
+  // rather than an assumed invariant).
+  state: string;
+  country: string;
+  centerLat: number;
+  centerLng: number;
+  zoom: number;
+}
+
+// Level-2 (county/city/town/village/zip) rows only -- a state or country
+// itself isn't what "subdivision" means to a caller of this search, and
+// only rows a page visit has already GIS-resolved (centerLat/centerLng/zoom
+// all set, see the null-center comment on the subdivisions table above) are
+// navigable, so unresolved placeholder rows (spot-count-only, see
+// bumpTerritoryCount) are excluded.
+export async function searchSubdivisions(query: string): Promise<SubdivisionSearchResult[]> {
+  const rows = await db
+    .select({
+      path: subdivisions.path,
+      name: subdivisions.name,
+      type: subdivisions.type,
+      centerLat: subdivisions.centerLat,
+      centerLng: subdivisions.centerLng,
+      zoom: subdivisions.zoom,
+    })
+    .from(subdivisions)
+    .where(
+      and(
+        eq(subdivisions.level, 2),
+        ilike(subdivisions.name, `%${query}%`),
+        isNotNull(subdivisions.centerLat),
+        isNotNull(subdivisions.centerLng),
+        isNotNull(subdivisions.zoom),
+      ),
+    )
+    .orderBy(subdivisions.name)
+    .limit(10);
+
+  if (rows.length === 0) return [];
+
+  const statePaths = Array.from(
+    new Set(rows.map((row) => row.path.split("/").slice(0, 2).join("/"))),
+  );
+  const stateRows = await db
+    .select({ path: subdivisions.path, name: subdivisions.name })
+    .from(subdivisions)
+    .where(inArray(subdivisions.path, statePaths));
+  const stateNameByPath = new Map(stateRows.map((row) => [row.path, row.name]));
+
+  return rows.map((row) => ({
+    path: row.path,
+    name: row.name,
+    type: row.type as TerritoryType | null,
+    state: stateNameByPath.get(row.path.split("/").slice(0, 2).join("/")) ?? "",
+    country: "United States",
+    centerLat: Number(row.centerLat),
+    centerLng: Number(row.centerLng),
+    zoom: row.zoom as number,
+  }));
+}
+
+// Static FIPS codes for every state searchSubdivisionsLive covers --
+// avoids calling getStateFips (which resolves and CACHES the state's own
+// subdivisions row as a side effect) just to scope the nationwide CDP query
+// to one state. searchSubdivisionsLive must stay fully read-only, so this
+// stays hardcoded rather than looked up live.
+const CONFIGURED_STATE_FIPS: Record<string, string> = {
+  ct: "09",
+  ma: "25",
+  me: "23",
+  nh: "33",
+  nj: "34",
+  ny: "36",
+  ri: "44",
+  vt: "50",
+};
+
+// searchSubdivisions above only finds subdivisions this app has already
+// GIS-resolved (a page visit or a spot save touched that exact path) --
+// most real towns nobody has ever looked up yet just aren't in the table
+// (see the module-level comment on subdivisions in schema.ts). This is the
+// explicit fallback: live-query every configured state's civil-boundary
+// layers (city/town/village/county) plus the nationwide CDP layer (scoped
+// per state via its FIPS code), for a name *containing* the query rather
+// than resolveMunicipality's exact match. Deliberately read-only -- unlike
+// resolveMunicipality, results here are NOT written to subdivisions via
+// cacheResolution. A row should only ever appear because a spot was
+// actually saved there (adjustTerritoryCounts) or a territory page was
+// actually visited (resolveMunicipality); a search hit alone isn't either
+// of those, and caching every searched-for place would let a user's
+// half-typed query pollute the table with towns nobody's ever spotted.
+// Deliberately NOT wired into the debounced typeahead itself either: ~8
+// states x several ArcGIS layers is dozens of parallel live requests, too
+// slow and too heavy on a free public service to fire on every keystroke --
+// callers should only invoke this on an explicit user action (e.g. a
+// "search all places" checkbox), not automatically.
+export async function searchSubdivisionsLive(
+  query: string,
+): Promise<SubdivisionSearchResult[]> {
+  const trimmed = query.trim();
+  if (trimmed.length < 2) return [];
+  const escaped = escapeForArcGis(trimmed.toUpperCase());
+
+  const perState = await Promise.all(
+    Object.values(STATE_CONFIGS).map(async (config) => {
+      const candidates: Candidate[] = [];
+
+      if (config.civilBoundaries) {
+        const layers = civilBoundaryLayers(config.civilBoundaries);
+        const layerResults = await Promise.all(
+          layers.map((layer) =>
+            queryLayer<MuniFeatureProps>(
+              layer.url ?? config.civilBoundaries!.url,
+              layer.layerId,
+              `UPPER(${layer.nameField}) LIKE '%${escaped}%'`,
+            ).catch(() => []),
+          ),
+        );
+        layers.forEach((layer, i) => {
+          for (const feature of layerResults[i]) {
+            const type = resolveMuniType(layer.type, feature.properties);
+            if (!type) continue;
+            candidates.push({
+              type,
+              name: String(feature.properties[layer.nameField]),
+              county: layer.countyField
+                ? ((feature.properties[layer.countyField] as string | null | undefined) ?? null)
+                : null,
+              population: populationOf(feature.properties, layer.populationFields),
+              externalId: externalIdOf(feature.properties, layer.idField),
+              geometry: feature.geometry,
+            });
+          }
+        });
+      }
+
+      const fips = CONFIGURED_STATE_FIPS[config.code];
+      if (fips) {
+        const cdpFeatures = await queryArcGis<CdpProps>(
+          CDP_BOUNDARIES_URL,
+          `UPPER(NAME) LIKE '%${escaped}%' AND STATE='${fips}'`,
+        ).catch(() => []);
+        for (const feature of cdpFeatures) {
+          candidates.push({
+            type: "cdp",
+            name: feature.properties.NAME.replace(/ CDP$/i, ""),
+            county: null,
+            population: null,
+            externalId: feature.properties.GEOID,
+            geometry: feature.geometry,
+          });
+        }
+      }
+
+      // Same dedupe key as findCandidates -- a name can legitimately appear
+      // on more than one layer (e.g. a CDP sharing a name with a village).
+      const byKey = new Map<string, Candidate>();
+      for (const candidate of candidates) {
+        byKey.set(`${candidate.type}:${candidate.name}:${candidate.county}`, candidate);
+      }
+
+      return { config, candidates: Array.from(byKey.values()) };
+    }),
+  );
+
+  const results: SubdivisionSearchResult[] = [];
+  for (const { config, candidates } of perState) {
+    for (const candidate of candidates) {
+      const path = `us/${config.code}/${slugifyMuniName(candidate.name)}-${candidate.type}`;
+      // Prefer an already-cached row (from a real spot/page visit) over the
+      // live feature's own geometry when both exist, purely for display
+      // consistency with the rest of the app -- but never write here (see
+      // the module comment above).
+      const cached = await getCachedByPath(path);
+      const bounds = cached ?? boundsFromGeometry(candidate.geometry);
+      results.push({
+        path,
+        name: cached?.name ?? candidate.name,
+        type: cached?.type ?? candidate.type,
+        state: config.name,
+        country: "United States",
+        centerLat: bounds.centerLat,
+        centerLng: bounds.centerLng,
+        zoom: bounds.zoom,
+      });
+    }
+  }
+
+  return results.sort((a, b) => a.name.localeCompare(b.name)).slice(0, 25);
 }

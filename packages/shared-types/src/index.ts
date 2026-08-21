@@ -7,4 +7,5 @@ export * from "./observation";
 export * from "./states";
 export * from "./steward";
 export * from "./stewardMember";
+export * from "./territory";
 export * from "./user";

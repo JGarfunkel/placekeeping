@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { DatabaseWarningBanner } from "@/components/DatabaseWarningBanner";
 import { SpotFilters } from "@/components/SpotFilters";
+import { SubdivisionSearch } from "@/components/SubdivisionSearch";
 import { MapLegend } from "@/components/map/MapLegend";
 import { MapView } from "@/components/map/MapView";
 import { UploadPhotoButton } from "@/components/photos/UploadPhotoButton";
@@ -27,6 +28,7 @@ const DEFAULT_RADIUS_MI = 1000;
 type SearchParams = {
   lat?: string;
   lng?: string;
+  zoom?: string;
   radiusMi?: string;
   stewardId?: string;
   unstewarded?: string;
@@ -50,7 +52,11 @@ export default async function HomePage({
   const lng = params.lng
     ? Number(params.lng)
     : (savedView?.lng ?? DEFAULT_CENTER.lng);
-  const zoom = savedView && !params.lat ? savedView.zoom : 11;
+  const zoom = params.zoom
+    ? Number(params.zoom)
+    : savedView && !params.lat
+      ? savedView.zoom
+      : 11;
   const radiusMi = params.radiusMi
     ? Number(params.radiusMi)
     : params.lat
@@ -96,14 +102,15 @@ export default async function HomePage({
     <main className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-8">
       {dbUnavailable && <DatabaseWarningBanner />}
 
-      {/* <SpotFilters /> */}
+      <div className="flex flex-wrap items-center gap-3">
+        <SubdivisionSearch />
 
-      {authContext && (
-        <div className="text-sm text-neutral-500">
-          To add a a new spot: right-click the map or
-          <UploadPhotoButton observerName={observerName} />
-        </div>
-      )}
+        {authContext && (
+          <div className="text-sm text-neutral-500">
+            <UploadPhotoButton observerName={observerName} /> or click map to add
+          </div>
+        )}
+      </div>
 
       <div className="flex flex-col gap-4 md:flex-row">
         <div className="md:w-2/3">
