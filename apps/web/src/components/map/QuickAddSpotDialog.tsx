@@ -214,7 +214,7 @@ export function QuickAddSpotDialog({
 
           <fieldset className="flex flex-col gap-1 text-sm">
             <legend>Type</legend>
-            <div className="flex gap-3">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
               {spotTypeOptions.map((opt) => (
                 <label key={opt.value} className="flex items-center gap-1.5">
                   <input

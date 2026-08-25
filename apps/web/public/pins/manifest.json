@@ -21,6 +21,7 @@
   "glyphs": [
     "garden",
     "monument",
+    "island",
     "vegetable_herb",
     "ornamental",
     "pollinator",
@@ -97,6 +98,28 @@
       "color": "grey",
       "fill": "outline",
       "dot": "thick"
+    },
+    {
+      "file": "sample/island--none--minimal--stewarded.svg",
+      "purpose": "island",
+      "vegetation": "none",
+      "weed_level": "minimal",
+      "stewarded": true,
+      "glyph": "island",
+      "color": "grey",
+      "fill": "solid",
+      "dot": null
+    },
+    {
+      "file": "sample/island--none--minimal--open.svg",
+      "purpose": "island",
+      "vegetation": "none",
+      "weed_level": "minimal",
+      "stewarded": false,
+      "glyph": "island",
+      "color": "grey",
+      "fill": "outline",
+      "dot": null
     },
     {
       "file": "sample/wild_area--woodland--minimal--stewarded.svg",

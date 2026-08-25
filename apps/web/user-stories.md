@@ -137,6 +137,22 @@ As user with editor rights (admin, creator, steward member) can:
 6. ✅ Allow for linking of profile photo or uploading of photo for profile. Use Google CloudVision API for images — `users.photoUrl` ([schema.ts](../packages/db/src/schema.ts)), edited on `/me` via [ProfilePhotoForm.tsx](../apps/web/src/components/forms/ProfilePhotoForm.tsx) (auto-saves through `PATCH /api/users/me`), same upload-or-paste-URL [PhotoUploadField.tsx](../apps/web/src/components/forms/PhotoUploadField.tsx) as the steward logo above, moderated via `checkPhotoUrls` in `updateUserProfile` ([users.ts](../packages/core/src/users.ts)) for pasted URLs. Shown as an avatar on the public `/user/[identifier]` page.
 7. 🟡 A user's profile page can be edited by that user, or the site admin — self-edit works (username, photo); there's no admin-edit-any-user route or UI yet, matching the "user management ... remain unbuilt" gap noted under Admin below.
 
+## Open Graph Integration
+
+1. Add OG tags to each of the pages, using the logical image and description. I figure sites are tricky because they have no associated -- could we render the associated map that is shown to the user? Or otherwise just pick the cover image for the first added spot?
+
+2. Add permalinks for Observations, Photos. We'll need those. We can add a link icon for the user to grab the link. 
+
+3. Rendering an observation - permalink would append observation-id to the spot/. Bring up the spot page and scroll the observation into view, with a light highlight for the card
+
+4. Rendering a observation/photo - permalink would append observation-id/photo-id to the spot: This is a bit ambitious: the user should see a big photo, 90% of the width of viewing port. Could we switch the flex layout from horizontal to vertical, and have the Site and Spot sections above and collapsed, and then this observation highlighted with the selected photo open.
+
+5. The point of doing this is something bigger - once we have that URL, we can then include it in a card on other pages like so: 
+<script src="https://placekeeping.org/embed.js" async></script>
+<pk-card url="https://placekeeping.org/spots/us/ny/mount-kisco/laura-flewellyn-memorial-pollinator-garden" width="500"></pk-card>
+
+This would render as a neat visual card, with the placeKeeping wordmark, hyperlink, image, and appropriate title, and be rendered properly within any page including the embed.js script
+
 ## Admin
 
 1. 🟡 Admin can see parcel owner-of-record for any spot, not just their own — `stewards.isAdmin` gates the "Show owner" reveal in [SiteDiscoveryPanel.tsx](../apps/web/src/components/spots/SiteDiscoveryPanel.tsx) alongside spot ownership

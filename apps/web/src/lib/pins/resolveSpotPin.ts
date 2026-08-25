@@ -4,6 +4,7 @@ import { resolvePin, isSpot, type Purpose, type PinSpec } from "./resolvePin";
 function toPinPurpose(purpose: SpotPurpose | null): Purpose {
   if (purpose === "garden") return "garden";
   if (purpose === "monument") return "monument";
+  if (purpose === "island") return "island";
   return "wild_area"; // wild_area, none, or null fall through
 }
 

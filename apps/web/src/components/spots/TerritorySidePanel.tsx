@@ -20,18 +20,18 @@ function formatCategory(key: string): string {
   return `${status === "stewarded" ? "Stewarded" : "Unstewarded"} ${label}`;
 }
 
-// The scoreboard only knows purpose, not vegetation. Monument's glyph never
-// depends on vegetation, and garden's falls back to its own glyph when
-// vegetation is "none" (see resolvePin.ts), so passing vegetation: "none"
-// here still gets each its real pin. wild_area/none has no such fallback and
-// gets the same default marker the map itself uses when there's no
-// vegetation-derived glyph to draw.
+// The scoreboard only knows purpose, not vegetation. Monument's and island's
+// glyphs never depend on vegetation, and garden's falls back to its own
+// glyph when vegetation is "none" (see resolvePin.ts), so passing
+// vegetation: "none" here still gets each its real pin. wild_area/none has
+// no such fallback and gets the same default marker the map itself uses
+// when there's no vegetation-derived glyph to draw.
 function categoryIcon(key: string): string {
   const { status, purpose } = parseCategory(key);
-  if (purpose !== "garden" && purpose !== "monument") return DEFAULT_PIN_SVG;
+  if (purpose !== "garden" && purpose !== "monument" && purpose !== "island") return DEFAULT_PIN_SVG;
   return renderPin(
     resolvePin({
-      purpose: purpose as "garden" | "monument",
+      purpose: purpose as "garden" | "monument" | "island",
       vegetation: "none",
       weedLevel: "minimal",
       stewardId: status === "stewarded" ? "steward" : null,

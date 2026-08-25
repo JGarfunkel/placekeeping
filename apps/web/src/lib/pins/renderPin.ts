@@ -18,6 +18,7 @@ const TRIM_WIDTH = 1;
 const GLYPH_BOX: Record<string, { w: number; h: number; trim: number; dx?: number; dy?: number }> = {
   garden:            { w: 15, h: 15, trim: 1.00 },
   monument:          { w: 30, h: 30, trim: 1.35 },  // source art has ~48% internal padding
+  island:            { w: 15, h: 15, trim: 1.00 },
   vegetable_herb:    { w: 15, h: 15, trim: 0.92 },
   ornamental:        { w: 15, h: 15, trim: 0.95 },
   pollinator:        { w: 30, h: 30, trim: 2.00, dx: 6, dy: 2 },  // source art is mostly thin negative space; needs much more trim than its bounding box suggests, and its own centring reads off-centre left without a nudge right

@@ -3,7 +3,7 @@
 import type { SpotSummary } from "@placekeeping/shared-types";
 import L from "leaflet";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   MapContainer,
   Marker,
@@ -170,6 +170,34 @@ function FitBoundsToPolygons({
   return null;
 }
 
+// MapContainer's center/zoom props are read only once, at mount (a
+// documented react-leaflet limitation -- they're an initial view, not a
+// controlled one). Without this, a center/zoom change driven from outside
+// the map itself (e.g. SubdivisionSearch pushing a new lat/lng/zoom into
+// the URL) would re-render this component with new props the map never
+// picks up. Skips its own first run so it doesn't fight
+// ZoomToFixedOffset's mount-time zoom override for the compact case below.
+function RecenterOnChange({
+  center,
+  zoom,
+}: {
+  center: { lat: number; lng: number };
+  zoom: number;
+}) {
+  const map = useMap();
+  const isFirst = useRef(true);
+
+  useEffect(() => {
+    if (isFirst.current) {
+      isFirst.current = false;
+      return;
+    }
+    map.setView([center.lat, center.lng], zoom);
+  }, [map, center.lat, center.lng, zoom]);
+
+  return null;
+}
+
 // Leaflet has no per-coordinate "actual max zoom" service like Google's
 // MaxZoomService. Approximated with a fixed value (layer max minus an
 // offset) rather than a dynamic lookup -- see design.md "Max zoom: fixed
@@ -278,6 +306,7 @@ export function LeafletMapView({
             compact && <ZoomToFixedOffset zoom={BASE_LAYERS[layer].maxZoom - 3} />
           )}
 
+          <RecenterOnChange center={center} zoom={zoom} />
           {persistViewState && <ViewStatePersister />}
           {canAddSpot && (
             <ContextMenuToAdd onAdd={setPendingLocation} />

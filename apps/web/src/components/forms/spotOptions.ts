@@ -25,7 +25,8 @@ export const weedLevelOptions = WEED_LEVELS.map(({ value, label }) => ({
 
 export const spotPurposeOptions: { value: SpotPurpose; label: string }[] = [
   { value: "garden", label: "Garden" },
-  { value: "monument", label: "Monument or Memorial" },
+  { value: "monument", label: "Monument/Memorial" },
+  { value: "island", label: "Traffic island" },
   { value: "wild_area", label: "Wild area" },
   { value: "none", label: "None" },
 ];

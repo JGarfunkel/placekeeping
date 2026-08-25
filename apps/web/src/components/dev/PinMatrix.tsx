@@ -6,6 +6,7 @@ const PURPOSES: { value: Purpose; label: string }[] = [
   { value: "wild_area", label: "Wild area" },
   { value: "garden", label: "Garden" },
   { value: "monument", label: "Monument" },
+  { value: "island", label: "Traffic island" },
 ];
 
 function Pin({ svg, caption }: { svg: string; caption: string }) {

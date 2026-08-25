@@ -1,0 +1,1 @@
+ALTER TYPE "public"."spot_purpose" ADD VALUE 'island' BEFORE 'wild_area';

@@ -40,6 +40,7 @@ export const stewardMemberRoleEnum = pgEnum("steward_member_role", [
 export const spotPurposeEnum = pgEnum("spot_purpose", [
   "garden",
   "monument",
+  "island",
   "wild_area",
   "none",
 ]);

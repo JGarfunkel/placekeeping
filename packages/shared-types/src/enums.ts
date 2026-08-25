@@ -96,6 +96,7 @@ export type WeedLevel = z.infer<typeof weedLevelSchema>;
 export const spotPurposeValues = [
   "garden",
   "monument",
+  "island",
   "wild_area",
   "none",
 ] as const;

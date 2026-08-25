@@ -1,4 +1,4 @@
-export type Purpose    = "garden" | "monument" | "wild_area";
+export type Purpose    = "garden" | "monument" | "island" | "wild_area";
 export type Vegetation =
   | "vegetable_herb" | "ornamental" | "pollinator"
   | "wetland" | "woodland" | "grassland" | "mowed_lawn"
@@ -29,19 +29,26 @@ export function resolvePin(spot: {
   purpose: Purpose; vegetation: Vegetation;
   weedLevel: WeedLevel; stewardId: string | null; stewardIsOwner: boolean;
 }): PinSpec {
-  // Vegetation wins whenever there is any -- even on a monument, since what
-  // is actually growing there is more informative than a fixed obelisk. The
-  // monument/garden glyphs are fallbacks for when there's nothing to draw.
+  // Vegetation wins whenever there is any -- even on a monument or island,
+  // since what is actually growing there is more informative than a fixed
+  // obelisk or bare curb. The monument/garden/island glyphs are fallbacks
+  // for when there's nothing to draw instead.
   const glyph =
     spot.vegetation !== "none"  ? spot.vegetation :
     spot.purpose === "monument" ? "monument" :
     spot.purpose === "garden"   ? "garden" :
+    spot.purpose === "island"   ? "island" :
                                    spot.vegetation;
 
-  // Color encodes type, not condition: garden vs. monument vs. wild area.
-  // Weediness is the dot's job (below), not the pin's color.
+  // Color encodes type, not condition: garden vs. monument vs. island vs.
+  // wild area. Weediness is the dot's job (below), not the pin's color.
+  // Island shares monument's grey rather than getting its own hue -- both
+  // read as civic/built rather than living vegetation, and it avoids
+  // re-validating a 4th deuteranopia-safe color against the other three
+  // (see public/pins/README.md's Colors section).
   const color: PinColor =
     spot.purpose === "monument" ? "grey" :
+    spot.purpose === "island"   ? "grey" :
     spot.purpose === "garden"   ? "pink" :
                                    "green";
 

@@ -66,6 +66,35 @@ function ZoomToMaxOffset({
   return null;
 }
 
+// `defaultCenter`/`defaultZoom` on <Map> below are, per their "default"
+// naming, uncontrolled -- read only once, at mount. Without this, a
+// center/zoom change driven from outside the map itself (e.g.
+// SubdivisionSearch pushing a new lat/lng/zoom into the URL) would
+// re-render this component with new props the map never picks up. Skips
+// its own first run so it doesn't fight ZoomToMaxOffset's mount-time zoom
+// override for the compact case below.
+function RecenterOnChange({
+  center,
+  zoom,
+}: {
+  center: { lat: number; lng: number };
+  zoom: number;
+}) {
+  const map = useMap();
+  const isFirst = useRef(true);
+
+  useEffect(() => {
+    if (!map) return;
+    if (isFirst.current) {
+      isFirst.current = false;
+      return;
+    }
+    map.moveCamera({ center, zoom });
+  }, [map, center.lat, center.lng, zoom]);
+
+  return null;
+}
+
 function FitBoundsToPolygons({
   polygons,
   spots,
@@ -343,6 +372,7 @@ export function GoogleMapView({
           ) : (
             compact && <ZoomToMaxOffset center={center} offset={3} />
           )}
+          <RecenterOnChange center={center} zoom={zoom} />
           {persistViewState && <ViewStatePersister />}
           {selected && (
             <InfoWindow

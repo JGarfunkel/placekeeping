@@ -6,19 +6,22 @@ Three fields resolve to one pin: `purpose`, `vegetation`, `weed_level` — plus 
 
 | channel | carries | values |
 |---|---|---|
-| glyph | what is growing — including which *kind* of weed | 11 glyphs |
+| glyph | what is growing — including which *kind* of weed | 12 glyphs |
 | color | type | green · pink · grey |
 | fill | does anyone tend it | solid · outline |
 | dot | how much of it there is | none · hollow ring · solid disc · double ring |
 
 **Glyph.** `vegetation` wins whenever it's set to anything but `none` — including on a
-monument, since what's actually growing there is more informative than a fixed obelisk.
-`monument` and `garden` each supply their own glyph only as a fallback, for when there's
-nothing growing to draw instead.
+monument or traffic island, since what's actually growing there is more informative than a
+fixed obelisk or bare curb. `monument`, `garden`, and `island` each supply their own glyph
+only as a fallback, for when there's nothing growing to draw instead. `island` is drawn as a
+hollow circle.
 
-**Color.** Purpose only: green for `wild_area`, pink for `garden`, grey for `monument`.
-Condition plays no part — a weedy garden is still pink, a weedy wild area is still green;
-weediness lives entirely in the dot now.
+**Color.** Purpose only: green for `wild_area`, pink for `garden`, grey for `monument` and
+`island` alike — both read as civic/built rather than living vegetation, so `island` reuses
+monument's grey instead of adding a 4th hue to re-validate (see Colors below). Condition
+plays no part — a weedy garden is still pink, a weedy wild area is still green; weediness
+lives entirely in the dot now.
 
 **Dot.** Not suppressed when the glyph is already a weed — the glyph says WHICH weed, the dot
 says HOW MUCH. A pin with a light ring means brambles coming in at the edge; the same pin with
@@ -50,13 +53,13 @@ designated use and nothing growing is not a place.
 ```
 resolvePin.ts       fields -> PinSpec. The whole decision, ~30 lines.
 renderPin.ts        PinSpec -> SVG string. Composes body + <use> glyph + dot.
-glyph-sprite.svg    all 11 glyphs as <symbol>, currentColor
+glyph-sprite.svg    all 12 glyphs as <symbol>, currentColor
 glyph/              the same glyphs individually, for legends and filters
-sample/             15 representative pins, pre-rendered
+sample/             17 representative pins, pre-rendered
 manifest.json       colors, glyph ids, and what each sample resolves to
 ```
 
-Do **not** pre-render the full matrix — 11 glyphs × 3 colors × 2 fills × 3 dot states is well
+Do **not** pre-render the full matrix — 12 glyphs × 3 colors × 2 fills × 3 dot states is well
 over a hundred files, most never used. Compose at runtime: the body is one path, the glyph is a
 `<use>`, the dot is a circle.
 
@@ -87,7 +90,7 @@ into the square path and the stem disappears. `glyphTransform()` in `renderPin.t
 |---|---|---|---|
 | green | `#2f6b4f` | `#234f3b` | wild area |
 | pink | `#b5296b` | `#8a1f52` | garden |
-| grey | `#5c5347` | `#443d34` | monument |
+| grey | `#5c5347` | `#443d34` | monument, traffic island |
 
 Grey is warm-stone, not neutral, on purpose. An earlier neutral/cool-leaning grey (tried both
 here and in the blue detour below) collapses toward green under deuteranopia — simulated ΔE

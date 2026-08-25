@@ -6,13 +6,16 @@ import { resolvePin, type Purpose, type Vegetation } from "@/lib/pins/resolvePin
 import { renderPin } from "@/lib/pins/renderPin";
 import { WEED_LEVELS } from "@/taxonomy/weedLevels";
 
-// Every glyph the pin system can draw: monument always supplies its own;
-// garden supplies its own only when vegetation is unset, otherwise it (like
-// wild_area) falls through to the vegetation glyph. See
+// Every glyph the pin system can draw: monument and island always supply
+// their own; garden supplies its own only when vegetation is unset,
+// otherwise it (like wild_area) falls through to the vegetation glyph. See
 // apps/web/public/pins/README.md.
 const GLYPH_LABELS = [
   ...spotPurposeOptions.filter(
-    (option) => option.value === "garden" || option.value === "monument",
+    (option) =>
+      option.value === "garden" ||
+      option.value === "monument" ||
+      option.value === "island",
   ),
   ...vegetationOptions.filter((option) => option.value !== "none"),
 ].map((option) => ({ glyph: option.value, label: option.label }));
