@@ -21,7 +21,7 @@ export const BASE_LAYERS: Record<"aerial" | "streets" | "osm", TileLayerDef> & {
     // CartoDB Voyager: muted like Positron but with light color (water/parks/roads)
     // instead of greyscale, so pins stand out without the map looking flat.
     // Free, no API key required.
-    url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
+    url: `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=${process.env.NEXT_PUBLIC_CARTO_API_KEY}`,
     attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
     maxZoom: 19,

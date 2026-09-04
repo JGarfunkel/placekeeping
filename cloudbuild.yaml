@@ -30,6 +30,7 @@ substitutions:
   _REPO: placekeeping
   _SERVICE: placekeeping-web
   _MAPS_KEY: ""
+  _CARTO_API_KEY: "cb1_2v81_1_2712d59a04b27f740300beec"
   _MAPS_MAP_ID: "112da5005f01d08e486aec86"
   _FIREBASE_API_KEY: ""
   _FIREBASE_AUTH_DOMAIN: "placekeeping-pro.firebaseapp.com"
@@ -54,6 +55,7 @@ steps:
       - --build-arg=NEXT_PUBLIC_FIREBASE_PROJECT_ID=$_FIREBASE_PROJECT_ID
       - --build-arg=NEXT_PUBLIC_FIREBASE_APP_ID=$_FIREBASE_APP_ID
       - --build-arg=NEXT_PUBLIC_GA_MEASUREMENT_ID=$_GA_MEASUREMENT_ID
+      - --build-arg=NEXT_PUBLIC_CARTO_API_KEY=$_CARTO_API_KEY
       - -t
       - $_REGION-docker.pkg.dev/$PROJECT_ID/$_REPO/web:$COMMIT_SHA
       - -t
