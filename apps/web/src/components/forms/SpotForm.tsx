@@ -1,22 +1,17 @@
 "use client";
 
-import type { Spot, Vegetation, WeedLevel } from "@placekeeping/shared-types";
+import type { Focus, Setting, Spot, WeedLevel } from "@placekeeping/shared-types";
 import { APIProvider, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import {
-  type EditState,
-  type Field,
-  onVegetationChange,
-  onWeedLevelChange,
-  overtakenPrompt,
-  weedLevelWarning,
-} from "@/taxonomy/vegetationWeedSync";
+import { WEED_LEVELS } from "@/taxonomy/weedLevels";
+import { BloomMonthsInput } from "./BloomMonthsField";
 import { FormSection } from "./FormSection";
 import {
+  focusOptions,
   placeAccessOptions,
-  spotPurposeOptions,
-  vegetationOptions,
+  settingOptions,
+  spotFunctionOptions,
   weedLevelOptions,
 } from "./spotOptions";
 import { StewardshipFields } from "./StewardshipFields";
@@ -91,22 +86,14 @@ function SpotFormFields({
   const [addressVisibility, setAddressVisibility] = useState(
     existing?.addressVisibility ?? "public",
   );
-  const [vegetation, setVegetation] = useState<Vegetation | "">(
-    existing?.vegetation ?? "",
-  );
+  const [focus, setFocus] = useState<Focus | "">(existing?.focus ?? "");
+  const [setting, setSetting] = useState<Setting | "">(existing?.setting ?? "");
   const [weedLevel, setWeedLevel] = useState<WeedLevel>(
     existing?.weedLevel ?? "minimal",
   );
-  const [touched, setTouched] = useState<Set<Field>>(new Set());
-
-  function applyEdit(edit: (s: EditState) => EditState) {
-    const next = edit({ vegetation, weedLevel, touched: new Set(touched) });
-    setVegetation(next.vegetation);
-    setWeedLevel(next.weedLevel);
-    setTouched(next.touched);
-  }
-
-  const editState: EditState = { vegetation, weedLevel, touched };
+  const [bloomMonths, setBloomMonths] = useState<number[]>(
+    existing?.bloomMonths ?? [],
+  );
   const [educationalComponent, setEducationalComponent] = useState(
     existing?.educationalComponent ?? false,
   );
@@ -212,8 +199,10 @@ function SpotFormFields({
         useMunicipalityForSlug,
         slug: slug.trim() || undefined,
         sizeSqft: sizeSqft ? Number(sizeSqft) : undefined,
-        vegetation: vegetation || undefined,
+        focus: focus || undefined,
+        setting: setting || undefined,
         weedLevel,
+        bloomMonths,
         educationalComponent,
         educationalNotes: educationalNotes || undefined,
         stewardId: selectedSteward?.stewardId ?? null,
@@ -543,14 +532,14 @@ function SpotFormFields({
       <FormSection title="Details">
         <div className="flex gap-3">
           <label className="flex flex-1 flex-col gap-1 text-sm">
-            Purpose
+            Function
             <select
               className="rounded-md border border-neutral-300 px-3 py-2"
               value={purpose}
               onChange={(e) => setPurpose(e.target.value as typeof purpose)}
             >
               <option value="">Unspecified</option>
-              {spotPurposeOptions.map((opt) => (
+              {spotFunctionOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
@@ -588,18 +577,14 @@ function SpotFormFields({
 
         <div className="flex gap-3">
           <label className="flex flex-1 flex-col gap-1 text-sm">
-            Vegetation
+            Focus
             <select
               className="rounded-md border border-neutral-300 px-3 py-2"
-              value={vegetation}
-              onChange={(e) =>
-                applyEdit((s) =>
-                  onVegetationChange(s, e.target.value as Vegetation | ""),
-                )
-              }
+              value={focus}
+              onChange={(e) => setFocus(e.target.value as Focus | "")}
             >
               <option value="">Unspecified</option>
-              {vegetationOptions.map((opt) => (
+              {focusOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
@@ -607,15 +592,14 @@ function SpotFormFields({
             </select>
           </label>
           <label className="flex flex-1 flex-col gap-1 text-sm">
-            Weed level
+            Setting
             <select
               className="rounded-md border border-neutral-300 px-3 py-2"
-              value={weedLevel}
-              onChange={(e) =>
-                applyEdit((s) => onWeedLevelChange(s, e.target.value as WeedLevel))
-              }
+              value={setting}
+              onChange={(e) => setSetting(e.target.value as Setting | "")}
             >
-              {weedLevelOptions.map((opt) => (
+              <option value="">Unspecified</option>
+              {settingOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
@@ -623,34 +607,29 @@ function SpotFormFields({
             </select>
           </label>
         </div>
-        {overtakenPrompt(editState) && (
-          <div className="flex flex-col gap-1.5 text-xs text-amber-600">
-            <p>{overtakenPrompt(editState)}</p>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() =>
-                  applyEdit((s) => onVegetationChange(s, "herbaceous_weeds"))
-                }
-                className="rounded-md border border-amber-300 px-2 py-1 font-medium hover:bg-amber-50"
-              >
-                Herbaceous weeds
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  applyEdit((s) => onVegetationChange(s, "vigorous_weeds"))
-                }
-                className="rounded-md border border-amber-300 px-2 py-1 font-medium hover:bg-amber-50"
-              >
-                Vigorous weeds
-              </button>
-            </div>
-          </div>
-        )}
-        {weedLevelWarning(editState) && (
-          <p className="text-xs text-amber-600">{weedLevelWarning(editState)}</p>
-        )}
+
+        <label className="flex flex-col gap-1 text-sm">
+          Overgrowth
+          <select
+            className="rounded-md border border-neutral-300 px-3 py-2"
+            value={weedLevel}
+            onChange={(e) => setWeedLevel(e.target.value as WeedLevel)}
+          >
+            {weedLevelOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <fieldset className="flex flex-col gap-1 text-sm">
+          <legend>Bloom months</legend>
+          <BloomMonthsInput value={bloomMonths} onChange={setBloomMonths} />
+          <span className="text-xs text-neutral-500">
+            Which months this spot is known to bloom in. Tap or drag across cells.
+          </span>
+        </fieldset>
       </FormSection>
 
       <FormSection title="Stewardship">

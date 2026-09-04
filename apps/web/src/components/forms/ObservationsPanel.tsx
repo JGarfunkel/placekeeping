@@ -2,12 +2,13 @@
 
 import {
   OBSERVATION_EDIT_WINDOW_MS,
+  type Focus,
   type Observation,
-  type Vegetation,
   type WeedLevel,
 } from "@placekeeping/shared-types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { focusOptions } from "@/components/forms/spotOptions";
 import { resolveObservationPin } from "@/lib/pins/resolveObservationPin";
 import { renderPin } from "@/lib/pins/renderPin";
 import { observationPath, photoPath } from "@/lib/spotPath";
@@ -161,10 +162,12 @@ function ObservationGlyph({ obs }: { obs: Observation }) {
   const spec = resolveObservationPin(obs);
   if (!spec) return null;
 
+  const focusLabel = focusOptions.find((o) => o.value === obs.focus)?.label ?? obs.focus;
+
   return (
     <div
       className="h-[38px] w-7 shrink-0"
-      title={obs.weedLevel ? `${obs.vegetation}, ${obs.weedLevel}` : obs.vegetation ?? undefined}
+      title={obs.weedLevel ? `${focusLabel}, ${obs.weedLevel}` : (focusLabel ?? undefined)}
       dangerouslySetInnerHTML={{ __html: renderPin(spec) }}
     />
   );
@@ -259,7 +262,7 @@ export function ObservationsPanel({
   spotId,
   spotName,
   spotSlug,
-  spotVegetation,
+  spotFocus,
   spotWeedLevel,
   observations,
   observerName,
@@ -278,7 +281,7 @@ export function ObservationsPanel({
     slugLocality: string | null;
     slug: string | null;
   };
-  spotVegetation: Vegetation | null;
+  spotFocus: Focus | null;
   spotWeedLevel: WeedLevel;
   observations: Observation[];
   observerName: string | null;
@@ -408,7 +411,7 @@ export function ObservationsPanel({
         <AddObservationDialog
           spotId={spotId}
           spotName={spotName}
-          spotVegetation={spotVegetation}
+          spotFocus={spotFocus}
           spotWeedLevel={spotWeedLevel}
           observerName={observerName}
           currentStewardId={currentStewardId}

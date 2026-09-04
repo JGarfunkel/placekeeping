@@ -1,27 +1,20 @@
 "use client";
 
-import type { SpotPurpose, Vegetation, WeedLevel } from "@placekeeping/shared-types";
+import type { Focus, Setting, SpotFunction, WeedLevel } from "@placekeeping/shared-types";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { spotPurposeOptions, vegetationOptions } from "@/components/forms/spotOptions";
-import { StewardAssociationPicker } from "@/components/forms/StewardAssociationPicker";
-import { WEED_LEVELS } from "@/taxonomy/weedLevels";
 import {
-  type EditState,
-  type Field,
-  onVegetationChange,
-  onWeedLevelChange,
-  overtakenPrompt,
-  weedLevelWarning,
-} from "@/taxonomy/vegetationWeedSync";
+  focusOptions,
+  settingOptions,
+  spotFunctionOptions,
+} from "@/components/forms/spotOptions";
+import { FormSection } from "@/components/forms/FormSection";
+import { StewardAssociationPicker } from "@/components/forms/StewardAssociationPicker";
+import { SPECIES_BLOOMING_BINS } from "@/taxonomy/speciesBloomingBins";
+import { WEED_LEVELS } from "@/taxonomy/weedLevels";
 
-type SpotType = Exclude<SpotPurpose, "none">;
 type StewardRef = { stewardId: string; name: string };
-
-const spotTypeOptions = spotPurposeOptions.filter(
-  (opt): opt is { value: SpotType; label: string } => opt.value !== "none",
-);
 
 // 4 slider positions map straight to the 4 WeedLevel values now that the
 // taxonomy has exactly that many grades.
@@ -50,10 +43,11 @@ export function QuickAddSpotDialog({
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [purpose, setPurpose] = useState<SpotType>("garden");
-  const [vegetation, setVegetation] = useState<Vegetation | "">("");
+  const [spotFunction, setSpotFunction] = useState<SpotFunction>("cultivated");
+  const [focus, setFocus] = useState<Focus | "">("");
+  const [setting, setSetting] = useState<Setting | "">("");
   const [weedLevel, setWeedLevel] = useState<WeedLevel>("minimal");
-  const [touched, setTouched] = useState<Set<Field>>(new Set());
+  const [speciesBlooming, setSpeciesBlooming] = useState<number | null>(null);
   const [coverPhotoUrl, setCoverPhotoUrl] = useState(initialCoverPhotoUrl ?? "");
   const [coverPhotoObservedAt, setCoverPhotoObservedAt] = useState(
     initialCoverPhotoObservedAt ?? null,
@@ -122,15 +116,9 @@ export function QuickAddSpotDialog({
   }
 
   const weedSlider = WEED_LEVELS.findIndex((l) => l.value === weedLevel);
-
-  function applyEdit(edit: (s: EditState) => EditState) {
-    const next = edit({ vegetation, weedLevel, touched: new Set(touched) });
-    setVegetation(next.vegetation);
-    setWeedLevel(next.weedLevel);
-    setTouched(next.touched);
-  }
-
-  const editState: EditState = { vegetation, weedLevel, touched };
+  const speciesBloomingSlider = SPECIES_BLOOMING_BINS.findIndex(
+    (b) => b.value === speciesBlooming,
+  );
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -146,9 +134,11 @@ export function QuickAddSpotDialog({
           longitude,
           address: address ?? undefined,
           description: description || undefined,
-          purpose,
-          vegetation: vegetation || undefined,
+          purpose: spotFunction,
+          focus: focus || undefined,
+          setting: setting || undefined,
           weedLevel,
+          speciesBlooming: speciesBlooming ?? undefined,
           coverPhotoUrl: coverPhotoUrl || undefined,
           coverPhotoObservedAt: coverPhotoUrl ? (coverPhotoObservedAt ?? undefined) : undefined,
           stewardId: selectedSteward?.stewardId ?? undefined,
@@ -182,7 +172,7 @@ export function QuickAddSpotDialog({
         onClick={(e) => e.stopPropagation()}
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <p className="text-sm font-medium">Add a spot here</p>
+          <p className="text-sm font-medium">Add a spot / observation</p>
           <p className="text-xs text-neutral-500">
             {addressLoading
               ? "Looking up address…"
@@ -213,109 +203,110 @@ export function QuickAddSpotDialog({
           </label>
 
           <fieldset className="flex flex-col gap-1 text-sm">
-            <legend>Type</legend>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-              {spotTypeOptions.map((opt) => (
+            <legend>Function</legend>
+            <div className="grid grid-cols-4 gap-x-3 gap-y-1.5">
+              {spotFunctionOptions.map((opt) => (
                 <label key={opt.value} className="flex items-center gap-1.5">
                   <input
                     type="radio"
                     name="purpose"
-                    checked={purpose === opt.value}
-                    onChange={() => setPurpose(opt.value)}
+                    checked={spotFunction === opt.value}
+                    onChange={() => setSpotFunction(opt.value)}
                   />
                   {opt.label}
                 </label>
               ))}
             </div>
           </fieldset>
-
-          <div className="flex flex-col gap-1 text-sm">
-            Steward
-
-            
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={stewardIsOwner}
-              onChange={(e) => setStewardIsOwner(e.target.checked)}
-            />
-            Steward Is Owner
-          </label>
-
-
-            <StewardAssociationPicker
-              selected={selectedSteward}
-              onSelect={setSelectedSteward}
-            />
+          
+          <div className="flex gap-3">
+            <label className="flex flex-1 flex-col gap-1 text-sm">
+              Focus
+              <select
+                className="rounded-md border border-neutral-300 px-3 py-2"
+                value={focus}
+                onChange={(e) => setFocus(e.target.value as Focus | "")}
+              >
+                <option value="">Unspecified</option>
+                {focusOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex flex-1 flex-col gap-1 text-sm">
+              Setting
+              <select
+                className="rounded-md border border-neutral-300 px-3 py-2"
+                value={setting}
+                onChange={(e) => setSetting(e.target.value as Setting | "")}
+              >
+                <option value="">Unspecified</option>
+                {settingOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
-          <label className="flex flex-col gap-1 text-sm">
-            Vegetation
-            <select
-              className="rounded-md border border-neutral-300 px-3 py-2"
-              value={vegetation}
-              onChange={(e) =>
-                applyEdit((s) =>
-                  onVegetationChange(s, e.target.value as Vegetation | ""),
-                )
-              }
-            >
-              <option value="">Unspecified</option>
-              {vegetationOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </label>
+
+
 
           <div className="flex flex-col gap-1 text-sm">
-            Weed level
+            Overgrowth
             <input
               type="range"
               min={0}
               max={3}
               step={1}
               value={weedSlider}
-              onChange={(e) =>
-                applyEdit((s) =>
-                  onWeedLevelChange(s, WEED_LEVELS[Number(e.target.value)].value),
-                )
-              }
+              onChange={(e) => setWeedLevel(WEED_LEVELS[Number(e.target.value)].value)}
             />
             <div className="flex justify-between text-xs text-neutral-500">
               {weedSliderLabels.map((label) => (
                 <span key={label}>{label}</span>
               ))}
             </div>
-            {overtakenPrompt(editState) && (
-              <div className="flex flex-col gap-1.5 text-xs text-amber-600">
-                <p>{overtakenPrompt(editState)}</p>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      applyEdit((s) => onVegetationChange(s, "herbaceous_weeds"))
-                    }
-                    className="rounded-md border border-amber-300 px-2 py-1 font-medium hover:bg-amber-50"
-                  >
-                    Herbaceous weeds
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      applyEdit((s) => onVegetationChange(s, "vigorous_weeds"))
-                    }
-                    className="rounded-md border border-amber-300 px-2 py-1 font-medium hover:bg-amber-50"
-                  >
-                    Vigorous weeds
-                  </button>
-                </div>
-              </div>
-            )}
-            {weedLevelWarning(editState) && (
-              <p className="text-xs text-amber-600">{weedLevelWarning(editState)}</p>
-            )}
           </div>
+
+          <div className="flex flex-col gap-1 text-sm">
+            Species blooming
+            <input
+              type="range"
+              min={0}
+              max={SPECIES_BLOOMING_BINS.length - 1}
+              step={1}
+              value={speciesBloomingSlider}
+              onChange={(e) =>
+                setSpeciesBlooming(
+                  SPECIES_BLOOMING_BINS[Number(e.target.value)].value,
+                )
+              }
+            />
+            <div className="flex justify-between text-xs text-neutral-500">
+              {SPECIES_BLOOMING_BINS.map((bin) => (
+                <span key={bin.label}>{bin.label}</span>
+              ))}
+            </div>
+          </div>
+
+          <FormSection title="Steward" defaultOpen={false}>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={stewardIsOwner}
+                onChange={(e) => setStewardIsOwner(e.target.checked)}
+              />
+              Steward Is Owner
+            </label>
+
+            <StewardAssociationPicker
+              selected={selectedSteward}
+              onSelect={setSelectedSteward}
+            />
+          </FormSection>
 
           <div className="flex flex-col gap-2 text-sm">
             Cover photo

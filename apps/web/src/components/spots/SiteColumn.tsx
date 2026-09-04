@@ -95,6 +95,8 @@ export function SiteColumn({
                 vegetation: spot.vegetation,
                 purpose: spot.purpose,
                 weedLevel: spot.weedLevel,
+                focus: spot.focus,
+                bloomMonths: spot.bloomMonths,
                 stewardId: spot.stewardId,
                 stewardIsOwner: spot.stewardIsOwner,
                 coverPhotoUrl: spot.coverPhotoUrl,

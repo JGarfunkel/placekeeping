@@ -1,18 +1,11 @@
 "use client";
 
-import type { Observation, Vegetation, WeedLevel } from "@placekeeping/shared-types";
+import type { Focus, Observation, WeedLevel } from "@placekeeping/shared-types";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import {
-  type EditState,
-  type Field,
-  onVegetationChange,
-  onWeedLevelChange,
-  overtakenPrompt,
-  weedLevelWarning,
-} from "@/taxonomy/vegetationWeedSync";
+import { SPECIES_BLOOMING_BINS } from "@/taxonomy/speciesBloomingBins";
 import { WEED_LEVELS } from "@/taxonomy/weedLevels";
-import { vegetationOptions } from "./spotOptions";
+import { focusOptions } from "./spotOptions";
 
 // 4 slider positions map straight to the 4 WeedLevel values -- see the same
 // convention in QuickAddSpotDialog.
@@ -30,10 +23,10 @@ export function ObservationForm({
   spotId,
   observerName,
   observation,
-  // The spot's own current vegetation/weedLevel -- only used to seed the
-  // fields below when this observation doesn't already have its own values
-  // (a fresh create, or a legacy row never backfilled). See schema.ts.
-  spotVegetation = null,
+  // The spot's own current focus/weedLevel -- only used to seed the fields
+  // below when this observation doesn't already have its own values (a
+  // fresh create, or a legacy row never backfilled). See schema.ts.
+  spotFocus = null,
   spotWeedLevel = "minimal",
   // Only meaningful in create mode (see the "Log Stewardship Activity"
   // toggle below) -- editing an existing observation's steward is handled
@@ -46,7 +39,7 @@ export function ObservationForm({
   // When set, the form edits this existing observation (PATCH) instead of
   // creating a new one (POST) -- see EditObservationDialog.
   observation?: Observation;
-  spotVegetation?: Vegetation | null;
+  spotFocus?: Focus | null;
   spotWeedLevel?: WeedLevel;
   currentStewardId?: string | null;
   onSuccess?: () => void;
@@ -56,13 +49,15 @@ export function ObservationForm({
     observation?.observedAt ?? todayDateString(),
   );
   const [notes, setNotes] = useState(observation?.notes ?? "");
-  const [vegetation, setVegetation] = useState<Vegetation | "">(
-    observation?.vegetation ?? spotVegetation ?? "",
+  const [focus, setFocus] = useState<Focus | "">(
+    observation?.focus ?? spotFocus ?? "",
   );
   const [weedLevel, setWeedLevel] = useState<WeedLevel>(
     observation?.weedLevel ?? spotWeedLevel ?? "minimal",
   );
-  const [touched, setTouched] = useState<Set<Field>>(new Set());
+  const [speciesBlooming, setSpeciesBlooming] = useState<number | null>(
+    observation?.speciesBlooming ?? null,
+  );
   const [photoUrls, setPhotoUrls] = useState<string[]>(
     observation?.photoUrls ?? [],
   );
@@ -78,15 +73,9 @@ export function ObservationForm({
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   const weedSlider = WEED_LEVELS.findIndex((l) => l.value === weedLevel);
-
-  function applyEdit(edit: (s: EditState) => EditState) {
-    const next = edit({ vegetation, weedLevel, touched: new Set(touched) });
-    setVegetation(next.vegetation);
-    setWeedLevel(next.weedLevel);
-    setTouched(next.touched);
-  }
-
-  const editState: EditState = { vegetation, weedLevel, touched };
+  const speciesBloomingSlider = SPECIES_BLOOMING_BINS.findIndex(
+    (b) => b.value === speciesBlooming,
+  );
 
   async function becomeSteward() {
     setBecomeStewardError(null);
@@ -149,8 +138,9 @@ export function ObservationForm({
         ? {
             observedAt,
             notes,
-            vegetation: vegetation || undefined,
+            focus: focus || undefined,
             weedLevel,
+            speciesBlooming: speciesBlooming ?? undefined,
             photoUrls,
             inaturalistObsUrl: inaturalistObsUrl || undefined,
           }
@@ -158,8 +148,9 @@ export function ObservationForm({
             observedAt,
             observerName,
             notes: notes || undefined,
-            vegetation: vegetation || undefined,
+            focus: focus || undefined,
             weedLevel,
+            speciesBlooming: speciesBlooming ?? undefined,
             photoUrls,
             inaturalistObsUrl: inaturalistObsUrl || undefined,
             claimStewardship,
@@ -281,16 +272,14 @@ export function ObservationForm({
       </label>
 
       <label className="flex flex-col gap-1 text-sm">
-        Vegetation
+        Focus
         <select
           className="rounded-md border border-neutral-300 px-3 py-2"
-          value={vegetation}
-          onChange={(e) =>
-            applyEdit((s) => onVegetationChange(s, e.target.value as Vegetation | ""))
-          }
+          value={focus}
+          onChange={(e) => setFocus(e.target.value as Focus | "")}
         >
           <option value="">Unspecified</option>
-          {vegetationOptions.map((opt) => (
+          {focusOptions.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
@@ -299,46 +288,42 @@ export function ObservationForm({
       </label>
 
       <div className="flex flex-col gap-1 text-sm">
-        Weed level
+        Overgrowth
         <input
           type="range"
           min={0}
           max={3}
           step={1}
           value={weedSlider}
-          onChange={(e) =>
-            applyEdit((s) => onWeedLevelChange(s, WEED_LEVELS[Number(e.target.value)].value))
-          }
+          onChange={(e) => setWeedLevel(WEED_LEVELS[Number(e.target.value)].value)}
         />
         <div className="flex justify-between text-xs text-neutral-500">
           {weedSliderLabels.map((label) => (
             <span key={label}>{label}</span>
           ))}
         </div>
-        {overtakenPrompt(editState) && (
-          <div className="flex flex-col gap-1.5 text-xs text-amber-600">
-            <p>{overtakenPrompt(editState)}</p>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => applyEdit((s) => onVegetationChange(s, "herbaceous_weeds"))}
-                className="rounded-md border border-amber-300 px-2 py-1 font-medium hover:bg-amber-50"
-              >
-                Herbaceous weeds
-              </button>
-              <button
-                type="button"
-                onClick={() => applyEdit((s) => onVegetationChange(s, "vigorous_weeds"))}
-                className="rounded-md border border-amber-300 px-2 py-1 font-medium hover:bg-amber-50"
-              >
-                Vigorous weeds
-              </button>
-            </div>
-          </div>
-        )}
-        {weedLevelWarning(editState) && (
-          <p className="text-xs text-amber-600">{weedLevelWarning(editState)}</p>
-        )}
+      </div>
+
+      <div className="flex flex-col gap-1 text-sm">
+        Species blooming
+        <input
+          type="range"
+          min={0}
+          max={SPECIES_BLOOMING_BINS.length - 1}
+          step={1}
+          value={speciesBloomingSlider}
+          onChange={(e) =>
+            setSpeciesBlooming(SPECIES_BLOOMING_BINS[Number(e.target.value)].value)
+          }
+        />
+        <div className="flex justify-between text-xs text-neutral-500">
+          {SPECIES_BLOOMING_BINS.map((bin) => (
+            <span key={bin.label}>{bin.label}</span>
+          ))}
+        </div>
+        <span className="text-xs text-neutral-500">
+          Roughly how many different species you saw in bloom on this visit.
+        </span>
       </div>
 
       <label className="flex flex-col gap-1 text-sm">

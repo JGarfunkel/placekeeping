@@ -1,10 +1,13 @@
 import { z } from "zod";
 import {
   addressVisibilitySchema,
+  bloomMonthsSchema,
+  focusSchema,
   parcelStatusSchema,
   placeAccessibilitySchema,
   placeAccessSchema,
-  spotPurposeSchema,
+  settingSchema,
+  spotFunctionSchema,
   vegetationSchema,
   weedLevelSchema,
 } from "./enums";
@@ -35,6 +38,12 @@ export const spotSchema = z.object({
   accessibility: placeAccessibilitySchema,
   vegetation: vegetationSchema.nullable(),
   weedLevel: weedLevelSchema,
+  // Focus/Setting/bloom -- see local/reclassification-plan.md. Deprecates
+  // `vegetation` once every spot is reviewed (local/reclassification-migration.md
+  // Phase 3/4); both are read simultaneously until then.
+  focus: focusSchema.nullable(),
+  setting: settingSchema.nullable(),
+  bloomMonths: bloomMonthsSchema,
   educationalComponent: z.boolean(),
   educationalNotes: z.string().nullable(),
   stewardId: z.string().uuid().nullable(),
@@ -51,7 +60,11 @@ export const spotSchema = z.object({
   // as a steward.
   createdByUserId: z.string().uuid().nullable(),
   siteId: z.number().int().positive().nullable(),
-  purpose: spotPurposeSchema.nullable(),
+  // Relabeled Function in the app; still the `purpose` column/field name --
+  // see local/reclassification-migration.md's Phase 2 (already reflected
+  // here since local dev's DB already carries the new values) and
+  // spotFunctionSchema's own comment in ./enums.
+  purpose: spotFunctionSchema.nullable(),
   access: placeAccessSchema.nullable(),
   description: z.string().nullable(),
   needs: z.string().nullable(),
@@ -75,6 +88,8 @@ export const spotSummarySchema = spotSchema
     vegetation: true,
     purpose: true,
     weedLevel: true,
+    focus: true,
+    bloomMonths: true,
     stewardId: true,
     stewardIsOwner: true,
     coverPhotoUrl: true,
@@ -107,6 +122,9 @@ export const createSpotSchema = z.object({
   sizeSqft: z.number().positive().optional(),
   vegetation: vegetationSchema.optional(),
   weedLevel: weedLevelSchema.default("minimal"),
+  focus: focusSchema.optional(),
+  setting: settingSchema.optional(),
+  bloomMonths: bloomMonthsSchema.optional(),
   educationalComponent: z.boolean().default(false),
   educationalNotes: z.string().optional(),
   stewardId: z.string().uuid().nullable().optional(),
@@ -116,7 +134,7 @@ export const createSpotSchema = z.object({
   stewardIsOwner: z.boolean().optional(),
   stewardName: z.string().optional(),
   siteId: z.number().int().positive().optional(),
-  purpose: spotPurposeSchema.optional(),
+  purpose: spotFunctionSchema.optional(),
   access: placeAccessSchema.optional(),
   description: z.string().optional(),
   needs: z.string().optional(),
@@ -131,6 +149,10 @@ export const createSpotSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Expected a YYYY-MM-DD date")
     .optional(),
+  // Not a spots column -- seeds the initial observation createSpot logs, the
+  // same way coverPhotoUrl does. See QuickAddSpotDialog and
+  // observation.ts's speciesBlooming.
+  speciesBlooming: z.number().int().nonnegative().optional(),
   photoAlbumUrl: z.string().url().optional(),
   inaturalistUrl: z.string().url().optional(),
 });
@@ -158,6 +180,6 @@ export const nearbySpotsQuerySchema = z.object({
   radiusMi: z.coerce.number().positive().max(1250).default(15),
   stewardId: z.string().uuid().optional(),
   unstewarded: z.coerce.boolean().optional(),
-  vegetation: vegetationSchema.optional(),
+  focus: focusSchema.optional(),
 });
 export type NearbySpotsQuery = z.infer<typeof nearbySpotsQuerySchema>;

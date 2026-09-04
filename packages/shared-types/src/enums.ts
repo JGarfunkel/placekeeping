@@ -91,8 +91,22 @@ export const weedLevelValues = ["minimal", "light", "thick", "overtaken"] as con
 export const weedLevelSchema = z.enum(weedLevelValues);
 export type WeedLevel = z.infer<typeof weedLevelSchema>;
 
+// Display-only labels for the Overgrowth signal (see local/reclassification-plan.md).
+// weedLevelValues above is unchanged -- this just renames what each value is
+// called in the app, the same four stored values throughout.
+export const OVERGROWTH_LABELS: Record<WeedLevel, string> = {
+  minimal: "None",
+  light: "Present",
+  thick: "Occluding",
+  overtaken: "Overwhelmed",
+};
+
 // Purpose vocabulary for a spot (the pin) — feeds pin glyph/colour
-// resolution via apps/web/src/lib/pins/resolveSpotPin.ts.
+// resolution via apps/web/src/lib/pins/resolveSpotPin.ts. Relabeled
+// "Function" in the app; see local/reclassification-migration.md for the
+// old->new value mapping (garden->cultivated, wild_area->wild,
+// monument->built, island->edge) applied in Phase 2. Until that ships, the
+// live values are still the old ones.
 export const spotPurposeValues = [
   "garden",
   "monument",
@@ -102,6 +116,73 @@ export const spotPurposeValues = [
 ] as const;
 export const spotPurposeSchema = z.enum(spotPurposeValues);
 export type SpotPurpose = z.infer<typeof spotPurposeSchema>;
+
+// Function vocabulary, post-reclassification (local/reclassification-plan.md).
+// Not wired into spots.purpose yet -- see Phase 2 of the migration doc. Kept
+// here ahead of time so downstream code (pin resolution) can be written
+// against it. Named SpotFunction, not Function -- that name is TypeScript's
+// own built-in callable-type interface.
+export const spotFunctionValues = ["cultivated", "edge", "built", "wild"] as const;
+export const spotFunctionSchema = z.enum(spotFunctionValues);
+export type SpotFunction = z.infer<typeof spotFunctionSchema>;
+
+// Focus: which vegetation layer a spot or observation is dominated by. A
+// spot's `focus` is a single dominant value even though a real spot can
+// carry more than one layer -- the pin only has room for one glyph. An
+// observation's `focus` is its own per-visit read, independent of the
+// spot's. See local/reclassification-plan.md.
+export const focusValues = [
+  "trees",
+  "shrubs",
+  "grasses",
+  "forbs",
+  "ferns",
+  "none",
+] as const;
+export const focusSchema = z.enum(focusValues);
+export type Focus = z.infer<typeof focusSchema>;
+
+// Setting: where a spot physically sits. Spot-only -- unlike focus, this
+// doesn't get a per-observation counterpart, since a spot's setting doesn't
+// change visit to visit. See local/reclassification-plan.md /
+// local/reclassification-migration.md.
+export const settingValues = [
+  "upland",
+  "wetland",
+  "coastal",
+  "alpine",
+  "urban",
+] as const;
+export const settingSchema = z.enum(settingValues);
+export type Setting = z.infer<typeof settingSchema>;
+
+// The months, 1-12, a spot can be in bloom in -- stored on `spots` as
+// `bloom_months`, a smallint[] (see local/reclassification-plan.md's Bloom
+// section). Kept as an ordered list/label map so UI and pin code share one
+// source rather than re-deriving the calendar ordering.
+export const bloomMonthValues = [
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+] as const;
+export type BloomMonth = (typeof bloomMonthValues)[number];
+export const BLOOM_MONTH_LABELS: Record<BloomMonth, string> = {
+  1: "Jan",
+  2: "Feb",
+  3: "Mar",
+  4: "Apr",
+  5: "May",
+  6: "Jun",
+  7: "Jul",
+  8: "Aug",
+  9: "Sep",
+  10: "Oct",
+  11: "Nov",
+  12: "Dec",
+};
+export const bloomMonthsSchema = z
+  .array(z.number().int().min(1).max(12))
+  .refine((months) => new Set(months).size === months.length, {
+    message: "Duplicate month",
+  });
 
 export const placeAccessValues = [
   "public",

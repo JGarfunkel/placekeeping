@@ -4,8 +4,11 @@ import {
   deriveAccessibility,
   statesForPoint,
   type CreateSpotInput,
+  type Focus,
   type NearbySpotsQuery,
+  type Setting,
   type Spot,
+  type SpotFunction,
   type SpotOption,
   type SpotSummary,
   type UpdateSpotInput,
@@ -42,6 +45,9 @@ const fullSpotColumns = {
   sizeSqft: spots.sizeSqft,
   vegetation: spots.vegetation,
   weedLevel: spots.weedLevel,
+  focus: spots.focus,
+  setting: spots.setting,
+  bloomMonths: spots.bloomMonths,
   educationalComponent: spots.educationalComponent,
   educationalNotes: spots.educationalNotes,
   stewardId: spots.stewardId,
@@ -86,6 +92,9 @@ function toSpotDto(row: any): Spot {
     accessibility: deriveAccessibility(row.access),
     vegetation: row.vegetation as Vegetation | null,
     weedLevel: row.weedLevel as WeedLevel,
+    focus: row.focus as Focus | null,
+    setting: row.setting as Setting | null,
+    bloomMonths: row.bloomMonths,
     educationalComponent: row.educationalComponent,
     educationalNotes: row.educationalNotes,
     stewardId: row.stewardId,
@@ -93,7 +102,7 @@ function toSpotDto(row: any): Spot {
     stewardName: row.stewardName,
     createdByUserId: row.createdByUserId,
     siteId: row.siteId,
-    purpose: row.purpose,
+    purpose: row.purpose as SpotFunction | null,
     access: row.access,
     description: row.description,
     needs: row.needs,
@@ -119,8 +128,8 @@ export async function findNearbySpots(
   ];
   if (query.stewardId) conditions.push(eq(spots.stewardId, query.stewardId));
   if (query.unstewarded) conditions.push(isNull(spots.stewardId));
-  if (query.vegetation) {
-    conditions.push(eq(spots.vegetation, query.vegetation));
+  if (query.focus) {
+    conditions.push(eq(spots.focus, query.focus));
   }
 
   const rows = await db
@@ -137,6 +146,8 @@ export async function findNearbySpots(
       vegetation: spots.vegetation,
       purpose: spots.purpose,
       weedLevel: spots.weedLevel,
+      focus: spots.focus,
+      bloomMonths: spots.bloomMonths,
       stewardId: spots.stewardId,
       stewardIsOwner: spots.stewardIsOwner,
       coverPhotoUrl: spots.coverPhotoUrl,
@@ -157,8 +168,10 @@ export async function findNearbySpots(
     longitude: Number(r.longitude),
     accessibility: deriveAccessibility(r.access),
     vegetation: r.vegetation as Vegetation | null,
-    purpose: r.purpose,
+    purpose: r.purpose as SpotFunction | null,
     weedLevel: r.weedLevel as WeedLevel,
+    focus: r.focus as Focus | null,
+    bloomMonths: r.bloomMonths,
     stewardId: r.stewardId,
     stewardIsOwner: r.stewardIsOwner,
     coverPhotoUrl: r.coverPhotoUrl,
@@ -203,6 +216,8 @@ export async function listSpotsBySite(siteId: number): Promise<SpotSummary[]> {
       vegetation: spots.vegetation,
       purpose: spots.purpose,
       weedLevel: spots.weedLevel,
+      focus: spots.focus,
+      bloomMonths: spots.bloomMonths,
       stewardId: spots.stewardId,
       stewardIsOwner: spots.stewardIsOwner,
       coverPhotoUrl: spots.coverPhotoUrl,
@@ -221,8 +236,10 @@ export async function listSpotsBySite(siteId: number): Promise<SpotSummary[]> {
     longitude: Number(r.longitude),
     accessibility: deriveAccessibility(r.access),
     vegetation: r.vegetation as Vegetation | null,
-    purpose: r.purpose,
+    purpose: r.purpose as SpotFunction | null,
     weedLevel: r.weedLevel as WeedLevel,
+    focus: r.focus as Focus | null,
+    bloomMonths: r.bloomMonths,
     stewardId: r.stewardId,
     stewardIsOwner: r.stewardIsOwner,
     coverPhotoUrl: r.coverPhotoUrl,
@@ -245,6 +262,8 @@ export async function listSpotsBySteward(stewardId: string): Promise<SpotSummary
       vegetation: spots.vegetation,
       purpose: spots.purpose,
       weedLevel: spots.weedLevel,
+      focus: spots.focus,
+      bloomMonths: spots.bloomMonths,
       stewardId: spots.stewardId,
       stewardIsOwner: spots.stewardIsOwner,
       coverPhotoUrl: spots.coverPhotoUrl,
@@ -263,8 +282,10 @@ export async function listSpotsBySteward(stewardId: string): Promise<SpotSummary
     longitude: Number(r.longitude),
     accessibility: deriveAccessibility(r.access),
     vegetation: r.vegetation as Vegetation | null,
-    purpose: r.purpose,
+    purpose: r.purpose as SpotFunction | null,
     weedLevel: r.weedLevel as WeedLevel,
+    focus: r.focus as Focus | null,
+    bloomMonths: r.bloomMonths,
     stewardId: r.stewardId,
     stewardIsOwner: r.stewardIsOwner,
     coverPhotoUrl: r.coverPhotoUrl,
@@ -293,6 +314,8 @@ export async function listSpotsByCreator(
       vegetation: spots.vegetation,
       purpose: spots.purpose,
       weedLevel: spots.weedLevel,
+      focus: spots.focus,
+      bloomMonths: spots.bloomMonths,
       stewardId: spots.stewardId,
       stewardIsOwner: spots.stewardIsOwner,
       coverPhotoUrl: spots.coverPhotoUrl,
@@ -312,8 +335,10 @@ export async function listSpotsByCreator(
     longitude: Number(r.longitude),
     accessibility: deriveAccessibility(r.access),
     vegetation: r.vegetation as Vegetation | null,
-    purpose: r.purpose,
+    purpose: r.purpose as SpotFunction | null,
     weedLevel: r.weedLevel as WeedLevel,
+    focus: r.focus as Focus | null,
+    bloomMonths: r.bloomMonths,
     stewardId: r.stewardId,
     stewardIsOwner: r.stewardIsOwner,
     coverPhotoUrl: r.coverPhotoUrl,
@@ -433,6 +458,9 @@ export async function createSpot(
         input.sizeSqft !== undefined ? String(input.sizeSqft) : undefined,
       vegetation: input.vegetation,
       weedLevel: input.weedLevel,
+      focus: input.focus,
+      setting: input.setting,
+      bloomMonths: input.bloomMonths,
       educationalComponent: input.educationalComponent,
       educationalNotes: input.educationalNotes,
       // No implicit self-assignment: a spot with no steward picked stays
@@ -466,15 +494,19 @@ export async function createSpot(
   });
   await adjustTerritoryCounts(created, 1);
 
-  // The cover photo supplied at creation time is always the photo the spot
-  // was created from (see QuickAddSpotDialog / the /spots/new?coverPhotoUrl
-  // flow from UploadPhotoDialog) -- log it as the spot's first observation
-  // rather than letting it exist only as coverPhotoUrl with no sighting
-  // record behind it.
-  if (input.coverPhotoUrl) {
+  // The cover photo and/or species-blooming estimate supplied at creation
+  // time describe the spot's first visit (see QuickAddSpotDialog / the
+  // /spots/new?coverPhotoUrl flow from UploadPhotoDialog) -- log them as the
+  // spot's first observation rather than letting the photo exist only as
+  // coverPhotoUrl, or the count get dropped, with no sighting record behind it.
+  if (input.coverPhotoUrl || input.speciesBlooming !== undefined) {
     await createObservation(
       row.spotId,
-      { photoUrls: [input.coverPhotoUrl], observedAt: input.coverPhotoObservedAt },
+      {
+        photoUrls: input.coverPhotoUrl ? [input.coverPhotoUrl] : [],
+        observedAt: input.coverPhotoObservedAt,
+        speciesBlooming: input.speciesBlooming,
+      },
       creatorUserId,
     );
   }

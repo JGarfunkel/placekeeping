@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   bigserial,
   boolean,
+  check,
   customType,
   date,
   index,
@@ -12,6 +13,7 @@ import {
   pgTable,
   primaryKey,
   serial,
+  smallint,
   text,
   timestamp,
   uniqueIndex,
@@ -31,19 +33,14 @@ export const stewardMemberRoleEnum = pgEnum("steward_member_role", [
   "member",
 ]);
 
-// vegetation and weed_level are intentionally plain text, not pgEnum: the
-// taxonomy is still being actively reshaped, and the set of valid values is
-// enforced at the application boundary by the Zod schemas in
-// @placekeeping/shared-types. A DB-level enum would mean every rename or
-// re-grading needs a type-recreate migration for no added safety.
-
-export const spotPurposeEnum = pgEnum("spot_purpose", [
-  "garden",
-  "monument",
-  "island",
-  "wild_area",
-  "none",
-]);
+// vegetation, weed_level, and (as of the reclassification migration) purpose
+// are intentionally plain text, not pgEnum: the taxonomy is still being
+// actively reshaped, and the set of valid values is enforced at the
+// application boundary by the Zod schemas in @placekeeping/shared-types. A
+// DB-level enum would mean every rename or re-grading needs a type-recreate
+// migration for no added safety. purpose was a native `spot_purpose` enum
+// until local/reclassification-migration.md's Phase 0 converted it to text
+// for the same reason -- see spotPurposeSchema in shared-types/src/enums.ts.
 
 export const placeAccessEnum = pgEnum("place_access", [
   "public",
@@ -483,8 +480,26 @@ export const spots = pgTable(
     postalCity: text("postal_city"),
     county: text("county"),
     sizeSqft: numeric("size_sqft", { precision: 12, scale: 2 }),
+    // Deprecated -- being replaced by focus/setting below. Kept (and still
+    // written) until every spot is reviewed; see
+    // local/reclassification-migration.md.
     vegetation: text("vegetation"),
     weedLevel: text("weed_level").notNull().default("minimal"),
+    // Focus/Setting/Bloom: see local/reclassification-plan.md. `focus` is the
+    // spot's single dominant vegetation layer (nullable/unreviewed until
+    // Phase 3 of the migration sets it); `setting` is where the spot
+    // physically sits. Both plain text, same convention as vegetation/
+    // weedLevel above.
+    focus: text("focus"),
+    setting: text("setting"),
+    // Months, 1-12, the spot is known to bloom in -- see
+    // local/reclassification-plan.md's Bloom section. Revised rarely, same
+    // tier as the biodiversity estimate; not the per-visit species_blooming
+    // count on observations below.
+    bloomMonths: smallint("bloom_months")
+      .array()
+      .notNull()
+      .default(sql`'{}'::smallint[]`),
     educationalComponent: boolean("educational_component")
       .notNull()
       .default(false),
@@ -528,7 +543,11 @@ export const spots = pgTable(
     siteId: integer("site_id").references(() => sites.siteId, {
       onDelete: "set null",
     }),
-    purpose: spotPurposeEnum("purpose"),
+    // Relabeled Function in the app; converted from the native `spot_purpose`
+    // enum to text in local/reclassification-migration.md's Phase 0. Values
+    // are still the old purpose vocabulary until that migration's Phase 2 --
+    // see spotPurposeSchema / spotFunctionSchema in shared-types/src/enums.ts.
+    purpose: text("purpose"),
     access: placeAccessEnum("access"),
     description: text("description"),
     needs: text("needs"),
@@ -566,6 +585,11 @@ export const spots = pgTable(
     uniqueIndex("spots_slug_idx")
       .on(table.slugState, table.slugLocality, table.slug)
       .where(sql`${table.slug} IS NOT NULL`),
+    index("spots_bloom_months_gin").using("gin", table.bloomMonths),
+    check(
+      "spots_bloom_months_check",
+      sql`${table.bloomMonths} <@ ARRAY[1,2,3,4,5,6,7,8,9,10,11,12]::smallint[]`,
+    ),
   ],
 );
 
@@ -595,6 +619,14 @@ export const observations = pgTable(
     // comment above spots.vegetation.
     vegetation: text("vegetation"),
     weedLevel: text("weed_level"),
+    // This visit's own Focus read, independent of spots.focus -- replaces
+    // `vegetation` above once existing rows are backfilled (see
+    // local/reclassification-migration.md's Observations section).
+    focus: text("focus"),
+    // Per-visit estimated count of species in bloom -- record only, doesn't
+    // feed the pin (distinct from spots.bloom_* above, which is the spot's
+    // static bloom duration). See local/reclassification-plan.md.
+    speciesBlooming: integer("species_blooming"),
     // Snapshot of spots.stewardId as of this observation -- null both for
     // "spot was unstewarded at the time" and "predates spots.stewardStart,
     // can't tell." Drives the observation-card glyph's solid/outline fill,

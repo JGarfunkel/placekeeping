@@ -77,7 +77,7 @@ describeIfDb("scoreboard counts (adjustTerritoryCounts via createSpot/updateSpot
       municipality: `us/${stateSlug}/${slugify(municipality)}`,
       postalCity: `us/${stateSlug}/${slugify(postalCity)}`,
     };
-    const category = "unstewarded-garden"; // no steward, purpose "garden"
+    const category = "unstewarded-cultivated"; // no steward, purpose "cultivated"
 
     const before = {
       country: await countFor(paths.country, category),
@@ -100,7 +100,7 @@ describeIfDb("scoreboard counts (adjustTerritoryCounts via createSpot/updateSpot
         useMunicipalityForSlug: false,
         weedLevel: "minimal",
         educationalComponent: false,
-        purpose: "garden",
+        purpose: "cultivated",
       },
       null,
     );
@@ -147,14 +147,14 @@ describeIfDb("scoreboard counts (adjustTerritoryCounts via createSpot/updateSpot
         useMunicipalityForSlug: true,
         weedLevel: "minimal",
         educationalComponent: false,
-        purpose: "wild_area",
+        purpose: "wild",
       },
       null,
     );
     createdSpotIds.push(spot.spotId);
 
-    const unstewardedCategory = "unstewarded-wild_area";
-    const stewardedCategory = "stewarded-wild_area";
+    const unstewardedCategory = "unstewarded-wild";
+    const stewardedCategory = "stewarded-wild";
 
     for (const path of [countryPath, statePath, municipalityPath]) {
       expect(await countFor(path, unstewardedCategory)).toBe(1);

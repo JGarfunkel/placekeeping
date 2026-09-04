@@ -1,121 +1,71 @@
 # Placekeeping pins
 
-Three fields resolve to one pin: `purpose`, `vegetation`, `weed_level` — plus whether a steward exists.
+Five fields resolve to one pin: `purpose` (Function), `focus` (Focus), `weed_level` (Overgrowth), the six `bloom_*` windows, plus whether a steward exists. See `local/reclassification-plan.md` for the design and `local/reclassification-migration.md` for how the DB gets there. This replaces the old three-field (`purpose`/`vegetation`/`weed_level`) scheme; see git history for that version of this file if you need it.
 
 ## The rules
 
 | channel | carries | values |
-|---|---|---|
-| glyph | what is growing — including which *kind* of weed | 12 glyphs |
-| color | type | green · pink · grey |
-| fill | does anyone tend it | solid · outline |
-| dot | how much of it there is | none · hollow ring · solid disc · double ring |
+| --- | --- | --- |
+| shape | Function -- what kind of place this is | round (cultivated) · flat-top (edge) · square (built) · 5-spike crown (wild) |
+| glyph | Focus -- the dominant vegetation layer | 6 Focus values, `none` draws no glyph |
+| fill | Stewardship -- does anyone tend it | solid · outline |
+| ring | Overgrowth -- how much smother there is | none (no ring) · present · occluding · overwhelmed, thickening inward |
+| pink marks | Bloom -- how long/how much is blooming | on the glyph, forbs/shrubs/trees only |
 
-**Glyph.** `vegetation` wins whenever it's set to anything but `none` — including on a
-monument or traffic island, since what's actually growing there is more informative than a
-fixed obelisk or bare curb. `monument`, `garden`, and `island` each supply their own glyph
-only as a fallback, for when there's nothing growing to draw instead. `island` is drawn as a
-hollow circle.
+**Shape.** `resolveSpotPin`/`resolveObservationPin` map `purpose` to a `SpotFunction` (`toSpotFunction` in `resolveSpotPin.ts`) — this mapping is the same one `local/reclassification-migration.md`'s Phase 2 SQL applies, run at read time so pin code doesn't have to wait on that cutover, and it's idempotent (safe whether `purpose` still holds the old values or the new ones). `PIN_PATHS` in `renderPin.ts` has one path per `SpotFunction`, built from a shared base circle and taper so all four stay the same overall size/anchor.
 
-**Color.** Purpose only: green for `wild_area`, pink for `garden`, grey for `monument` and
-`island` alike — both read as civic/built rather than living vegetation, so `island` reuses
-monument's grey instead of adding a 4th hue to re-validate (see Colors below). Condition
-plays no part — a weedy garden is still pink, a weedy wild area is still green; weediness
-lives entirely in the dot now.
+**Glyph.** Focus alone decides the glyph now — unlike the old scheme, Function supplies no glyph fallback at all (it's pure shape). `FOCUS_GLYPH_ID` in `resolvePin.ts` maps each Focus to a glyph-sprite id; `trees`/`grasses`/`forbs` reuse existing artwork under their old vegetation-keyed ids (`woodland`/`grassland`/`pollinator`), `ferns`/`shrubs` are new. `focus: none` draws nothing.
 
-**Dot.** Not suppressed when the glyph is already a weed — the glyph says WHICH weed, the dot
-says HOW MUCH. A pin with a light ring means brambles coming in at the edge; the same pin with
-the overtaken mark means a wall of it. `weed_level` drives it: hollow ring for light, solid disc
-for thick, a double ring for overtaken. The dot is a fixed near-black on every pin, independent
-of the pin's own color or ink — see Colors below for why.
+**Fill.** Unchanged from the old scheme: solid for stewarded (or `stewardIsOwner`), outline for adoptable.
 
-## Where weeds live
+**Ring.** Not suppressed when there's also a glyph — same reasoning the old dot used (the glyph says what's growing, the ring says how overgrown). Drawn as a stroke on the same path as the pin body, so it follows whichever shape is active; `renderRing` in `renderPin.ts`. `weed_level` itself is unchanged — same four stored values as always (`minimal`/`light`/`thick`/`overtaken`); only the *labels* moved to the Overgrowth wording, in `apps/web/src/taxonomy/weedLevels.ts`. See `local/reclassification-migration.md`'s Overgrowth section.
 
-Two orthogonal fields. `vegetation` answers *what is growing*, including which kind of weed;
-`weed_level` (`minimal` · `light` · `thick` · `overtaken`) answers *how much of it there is*.
+**Bloom.** Only forbs, shrubs, and trees ever carry it (see `local/reclassification-plan.md`'s Bloom section). Forbs paint pink directly onto the `g-pollinator` glyph's own petals, one per two-month window that's blooming: a second, pink-colored copy of the same `<use>` is layered on top of the base icon, clipped to a 60-degree wedge per window (`POLLINATOR_WEDGE_PATHS` in `renderPin.ts`, traced from the icon's actual path data so the wedges land on the real petals rather than a separately-centered shape). Off-season windows draw nothing -- the base icon's own ink color already reads as "not blooming" there. Shrubs and trees get a ring of small pink marks around the glyph, one per bloom window -- presence/rough-count only, not the full forbs duration display. `bloomSpecFromWindows` in `resolvePin.ts` turns the six raw booleans into a `BloomSpec | null`; `renderBloom` in `renderPin.ts` picks the rendering by glyph id.
 
-Use `herbaceous_weeds` / `vigorous_weeds` as the **vegetation** only when weeds are essentially
-all that is there — past a point weeds stop being a problem *on* the vegetation and become the
-vegetation. Otherwise record what the place actually is and put the problem in `weed_level`.
+## Where things live
 
-A pollinator garden with bindweed is `vegetation: pollinator, weed_level: light` — still a
-pollinator garden. A riverbank that is now solid knotweed is `vegetation: vigorous_weeds`. The
-first keeps its identity; the second has lost it.
+Two fields on `spots` are being phased out together, on the same schedule (`local/reclassification-migration.md`): `vegetation` (replaced by `focus`) and, less directly, `purpose`'s old value set (replaced in place, not a new column). `observations` gets its own `focus` the same way, replacing `observations.vegetation`; `observations.setting` was deliberately never added since setting doesn't change visit to visit.
 
-No token appears in both fields' vocabularies — `vigorous` describes the plants (a vegetation
-value), `light`/`thick` describe the quantity (weed_level values). Choosing a weed vegetation
-defaults `weed_level` to `thick` (a helpful default, not an enforced rule — see
-`apps/web/src/taxonomy/vegetationWeedSync.ts`). `isPlace()` rejects `wild_area` + `none`: no
-designated use and nothing growing is not a place.
+A per-visit `species_blooming` count also exists (`observations.species_blooming`) but never feeds the pin -- it's a distinct richness signal, see `local/reclassification-plan.md`'s Observation section.
 
 ## Files
 
 ```
-resolvePin.ts       fields -> PinSpec. The whole decision, ~30 lines.
-renderPin.ts        PinSpec -> SVG string. Composes body + <use> glyph + dot.
-glyph-sprite.svg    all 12 glyphs as <symbol>, currentColor
-glyph/              the same glyphs individually, for legends and filters
-sample/             17 representative pins, pre-rendered
-manifest.json       colors, glyph ids, and what each sample resolves to
+resolvePin.ts          Function/Focus/Overgrowth/Bloom -> PinSpec. Local types only (SpotFunction/Focus/Overgrowth/BloomSpec), decoupled from the DB-facing shared-types package.
+resolveSpotPin.ts       DB-shaped spot row -> PinSpec | null. Bridges old `purpose` values and null `focus` -- see toSpotFunction/toFocus.
+resolveObservationPin.ts  DB-shaped observation row -> PinSpec | null. No Function of its own (fixed to "cultivated" as a neutral stand-in); no bloom.
+renderPin.ts            PinSpec -> SVG string. Composes trim + body + ring + glyph + bloom.
+glyph-sprite.svg        all glyphs as <symbol>, currentColor
+glyph/                  the same glyphs individually, for legends and filters
+sample/, manifest.json  STALE -- describe the pre-reclassification 3-field scheme. Not read by any app code (grep confirms). Regenerate from the live /dev/pins page (PinMatrix) rather than trusting these until then.
 ```
 
-Do **not** pre-render the full matrix — 12 glyphs × 3 colors × 2 fills × 3 dot states is well
-over a hundred files, most never used. Compose at runtime: the body is one path, the glyph is a
-`<use>`, the dot is a circle.
+Do **not** pre-render the full matrix as static files — visit `/dev/pins` in a running dev server instead (`PinMatrix.tsx`), which renders every Focus x Function combination live off the real `resolvePin`/`renderPin` code, so it can never drift from what's actually shipped.
 
 ## Geometry
 
-Pins are `viewBox="-2 -2 28 38"`. **The tip is at (12, 33)** in path coordinates — (14, 35) in
-image-pixel coordinates, since the viewBox origin sits at (-2, -2). Use the pixel form as the map
-anchor so the point lands on the coordinate, not the pin centre.
+Pins are `viewBox="-2 -2 28 38"`. **The tip is at (12, 33)** in path coordinates — (14, 35) in image-pixel coordinates, since the viewBox origin sits at (-2, -2). Use the pixel form as the map anchor so the point lands on the coordinate, not the pin centre.
 
 ```js
 L.icon({ iconUrl: url, iconSize: [28, 38], iconAnchor: [14, 35], popupAnchor: [0, -30] })
 ```
 
-The canvas is bigger than the path itself (which still spans the original 24×34 region) so the
-gold trim ring — see Colors below — has margin to sit outside the pin's own border without
-getting clipped by the SVG viewport. Path, glyph, and dot coordinates are all still written in
-the original 0–24 / 0–34 space; only the `<svg>` wrapper's viewBox/width/height moved.
+All four `PIN_PATHS` share a base circle (center (12, 11.5), radius 10.5) and the same lower taper down to the tip (`TAPER_RIGHT`/`TAPER_LEFT` in `renderPin.ts`) — they differ only in how the rim is drawn between the leftmost and rightmost points, over the top. This keeps every shape the same overall size and map anchor.
 
-## The one irregular glyph
-
-`herbaceous_weeds` is a **15 × 22** box, not 15 × 15, so the dandelion stem reaches into the pin
-wedge. It needs its own placement: `scale(19/22)` with the head centre landing at y 10.2. Drop it
-into the square path and the stem disappears. `glyphTransform()` in `renderPin.ts` handles it.
+The canvas is bigger than the path itself (which still spans the original 24×34 region) so the gold trim ring — see Colors below — has margin to sit outside the pin's own border without getting clipped by the SVG viewport.
 
 ## Colors
 
-| token | fill | stroke | when |
-|---|---|---|---|
-| green | `#2f6b4f` | `#234f3b` | wild area |
-| pink | `#b5296b` | `#8a1f52` | garden |
-| grey | `#5c5347` | `#443d34` | monument, traffic island |
+Unlike the old scheme, color no longer carries Function/category at all — that moved to shape. Every pin body is the same fixed green (`PIN_BODY_COLOR` in `resolvePin.ts`, the same green "wild area" pins used before, so the basemap-legibility work below still applies). Two accent hues layer on top:
 
-Grey is warm-stone, not neutral, on purpose. An earlier neutral/cool-leaning grey (tried both
-here and in the blue detour below) collapses toward green under deuteranopia — simulated ΔE
-dropped to ~8, matching the ΔE 4.8 that ruled grey out the first time this was tried. Shifting
-the grey warm moves it off that red-green confusion line: simulated ΔE holds at ~21 against
-green, white glyph ink gets 7.54:1, and it clears 5.76:1 against the muted-basemap fill.
+| token | value | when |
+| --- | --- | --- |
+| body | `#2f6b4f` fill / `#234f3b` stroke | every pin |
+| Overgrowth ring | `#c8781f` | `weed_level` above `minimal` |
+| Bloom pink | `#b5296b` | a bloom window is true, on forbs/shrubs/trees only |
 
-Weed condition used to live in this channel too (an `orange` fired whenever the vegetation glyph
-itself was a weed) but that conflated two independent signals — a stewarded weedy site and an
-unstewarded one both went orange for different reasons. Condition now lives only in the dot,
-which is why the dot is a fixed near-black rather than taking the pin's own color: it has to
-read as a severity mark against green, pink, *and* grey alike, not blend into whichever one it's
-drawn over.
-
-There was a brief detour to blue (with monument recolored to a stone grey to avoid colliding
-with it) to solve green blending into aerial-imagery tree canopy. That was reverted: instead the
-app's default basemap changed from aerial imagery to a muted CARTO layer (see
-`components/map/baseLayers.ts`) where green has no such problem, and every pin — regardless of
-color — got a thin gold trim ring (`#e8b64a`, `TRIM_WIDTH` in `renderPin.ts`) drawn just outside
-its own border. The trim is what keeps green legible on aerial imagery for anyone who switches to
-it. It's drawn on the same path as the body, one layer further out, with `stroke-linejoin="round"`
-so it doesn't spike at the pin's bottom point — see Geometry above for why the canvas grew to fit
-it.
+Every pin — regardless of the above — also gets a thin gold trim ring (`#e8b64a`, `TRIM_WIDTH` in `renderPin.ts`) drawn just outside its own border, which is what keeps it legible against aerial-imagery tree canopy on the basemaps that offer it (see `components/map/baseLayers.ts`). It's drawn on the same path as the body, one layer further out, with `stroke-linejoin="round"` so it doesn't spike at the pin's bottom point.
 
 ## Licensing
 
-Maki and Temaki are CC0; the NPS Symbol Library is US government public domain. Neither requires
-attribution. `herbaceous_weeds` and `vigorous_weeds` were drawn for this project on Maki's 15px grid.
+Maki and Temaki are CC0; the NPS Symbol Library is US government public domain. Neither requires attribution. `herbaceous_weeds` and `vigorous_weeds` were drawn for this project on Maki's 15px grid, same as `ferns` and `shrubs`.

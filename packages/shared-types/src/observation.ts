@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { vegetationSchema, weedLevelSchema } from "./enums";
+import { focusSchema, vegetationSchema, weedLevelSchema } from "./enums";
 
 // One row per photo attached to an observation (packages/db/src/schema.ts's
 // `photos` table) -- the addressable id behind an observation/photo
@@ -25,6 +25,16 @@ export const observationSchema = z.object({
   // or any caller that doesn't record them.
   vegetation: vegetationSchema.nullable(),
   weedLevel: weedLevelSchema.nullable(),
+  // This visit's own Focus read, independent of spots.focus -- see
+  // local/reclassification-plan.md. Replaces `vegetation` once every spot's
+  // history is backfilled (local/reclassification-migration.md's
+  // Observations section); both are read simultaneously until then.
+  focus: focusSchema.nullable(),
+  // Per-visit estimated count of species in bloom (0, 1, 2, 3, 4+ are
+  // input/display bins, not the stored format -- see local/reclassification-plan.md's
+  // Observation section and SPECIES_BLOOMING_BINS, shared by ObservationForm
+  // and QuickAddSpotDialog). Record only, doesn't feed the pin.
+  speciesBlooming: z.number().int().nonnegative().nullable(),
   // Snapshot of the spot's stewardId as of this observation -- set by
   // createObservation, not user-editable. Null means "unstewarded at the
   // time" or "predates spots.stewardStart, can't tell" -- see schema.ts.
@@ -48,6 +58,8 @@ export const createObservationSchema = z.object({
   notes: z.string().optional(),
   vegetation: vegetationSchema.optional(),
   weedLevel: weedLevelSchema.optional(),
+  focus: focusSchema.optional(),
+  speciesBlooming: z.number().int().nonnegative().optional(),
   photoUrls: z.array(z.string().url()).default([]),
   inaturalistObsUrl: z.string().url().optional(),
   // "Log stewardship activity" at creation time, in one step instead of
@@ -75,6 +87,8 @@ export const updateObservationSchema = z.object({
   notes: z.string().optional(),
   vegetation: vegetationSchema.optional(),
   weedLevel: weedLevelSchema.optional(),
+  focus: focusSchema.optional(),
+  speciesBlooming: z.number().int().nonnegative().optional(),
   photoUrls: z.array(z.string().url()).optional(),
   inaturalistObsUrl: z.string().url().optional(),
 });

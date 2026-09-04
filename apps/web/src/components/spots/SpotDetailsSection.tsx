@@ -1,26 +1,33 @@
 "use client";
 
-import type { Spot, SpotPurpose, Vegetation, WeedLevel } from "@placekeeping/shared-types";
+import type {
+  Focus,
+  Setting,
+  Spot,
+  SpotFunction,
+  WeedLevel,
+} from "@placekeeping/shared-types";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useState } from "react";
+import { BloomMonthsInput, formatBloomMonths } from "@/components/forms/BloomMonthsField";
 import { FormSection } from "@/components/forms/FormSection";
-import { spotPurposeOptions, vegetationOptions, weedLevelOptions } from "@/components/forms/spotOptions";
-import { WEED_LEVELS } from "@/taxonomy/weedLevels";
 import {
-  type EditState,
-  type Field as SyncField,
-  onVegetationChange,
-  onWeedLevelChange,
-  overtakenPrompt,
-  weedLevelWarning,
-} from "@/taxonomy/vegetationWeedSync";
+  focusOptions,
+  settingOptions,
+  spotFunctionOptions,
+  weedLevelOptions,
+} from "@/components/forms/spotOptions";
+import { WEED_LEVELS } from "@/taxonomy/weedLevels";
 
-const spotPurposeLabels: Record<string, string> = Object.fromEntries(
-  spotPurposeOptions.map((opt) => [opt.value, opt.label]),
+const spotFunctionLabels: Record<string, string> = Object.fromEntries(
+  spotFunctionOptions.map((opt) => [opt.value, opt.label]),
 );
-const vegetationLabels: Record<string, string> = Object.fromEntries(
-  vegetationOptions.map((opt) => [opt.value, opt.label]),
+const focusLabels: Record<string, string> = Object.fromEntries(
+  focusOptions.map((opt) => [opt.value, opt.label]),
+);
+const settingLabels: Record<string, string> = Object.fromEntries(
+  settingOptions.map((opt) => [opt.value, opt.label]),
 );
 const weedLevelLabels: Record<string, string> = Object.fromEntries(
   weedLevelOptions.map((opt) => [opt.value, opt.label]),
@@ -46,34 +53,28 @@ export function SpotDetailsSection({
 }) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
-  const [purpose, setPurpose] = useState<SpotPurpose>(spot.purpose ?? "none");
-  const [vegetation, setVegetation] = useState<Vegetation | "">(spot.vegetation ?? "");
+  const [spotFunction, setSpotFunction] = useState<SpotFunction | "">(spot.purpose ?? "");
+  const [focus, setFocus] = useState<Focus | "">(spot.focus ?? "");
+  const [setting, setSetting] = useState<Setting | "">(spot.setting ?? "");
   const [sizeSqft, setSizeSqft] = useState(
     spot.sizeSqft != null ? String(spot.sizeSqft) : "",
   );
   const [weedLevel, setWeedLevel] = useState<WeedLevel>(spot.weedLevel);
-  const [touched, setTouched] = useState<Set<SyncField>>(new Set());
+  const [bloomMonths, setBloomMonths] = useState<number[]>(spot.bloomMonths);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   function startEditing() {
-    setPurpose(spot.purpose ?? "none");
-    setVegetation(spot.vegetation ?? "");
+    setSpotFunction(spot.purpose ?? "");
+    setFocus(spot.focus ?? "");
+    setSetting(spot.setting ?? "");
     setSizeSqft(spot.sizeSqft != null ? String(spot.sizeSqft) : "");
     setWeedLevel(spot.weedLevel);
-    setTouched(new Set());
+    setBloomMonths(spot.bloomMonths);
     setError(null);
     setIsEditing(true);
   }
 
-  function applyEdit(edit: (s: EditState) => EditState) {
-    const next = edit({ vegetation, weedLevel, touched: new Set(touched) });
-    setVegetation(next.vegetation);
-    setWeedLevel(next.weedLevel);
-    setTouched(next.touched);
-  }
-
-  const editState: EditState = { vegetation, weedLevel, touched };
   const weedSlider = WEED_LEVELS.findIndex((l) => l.value === weedLevel);
 
   async function handleSave(e: React.FormEvent) {
@@ -85,10 +86,12 @@ export function SpotDetailsSection({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          purpose,
-          vegetation: vegetation || undefined,
+          purpose: spotFunction || undefined,
+          focus: focus || undefined,
+          setting: setting || undefined,
           sizeSqft: sizeSqft ? Number(sizeSqft) : undefined,
           weedLevel,
+          bloomMonths,
         }),
       });
 
@@ -129,13 +132,14 @@ export function SpotDetailsSection({
       {isEditing ? (
         <form onSubmit={handleSave} className="flex flex-col gap-3">
           <label className="flex flex-col gap-1 text-sm">
-            Type
+            Function
             <select
               className="rounded-md border border-neutral-300 px-3 py-2"
-              value={purpose}
-              onChange={(e) => setPurpose(e.target.value as SpotPurpose)}
+              value={spotFunction}
+              onChange={(e) => setSpotFunction(e.target.value as SpotFunction | "")}
             >
-              {spotPurposeOptions.map((opt) => (
+              <option value="">Unspecified</option>
+              {spotFunctionOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
@@ -143,25 +147,38 @@ export function SpotDetailsSection({
             </select>
           </label>
 
-          <label className="flex flex-col gap-1 text-sm">
-            Vegetation
-            <select
-              className="rounded-md border border-neutral-300 px-3 py-2"
-              value={vegetation}
-              onChange={(e) =>
-                applyEdit((s) =>
-                  onVegetationChange(s, e.target.value as Vegetation | ""),
-                )
-              }
-            >
-              <option value="">Unspecified</option>
-              {vegetationOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="flex gap-3">
+            <label className="flex flex-1 flex-col gap-1 text-sm">
+              Focus
+              <select
+                className="rounded-md border border-neutral-300 px-3 py-2"
+                value={focus}
+                onChange={(e) => setFocus(e.target.value as Focus | "")}
+              >
+                <option value="">Unspecified</option>
+                {focusOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex flex-1 flex-col gap-1 text-sm">
+              Setting
+              <select
+                className="rounded-md border border-neutral-300 px-3 py-2"
+                value={setting}
+                onChange={(e) => setSetting(e.target.value as Setting | "")}
+              >
+                <option value="">Unspecified</option>
+                {settingOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
 
           <label className="flex flex-col gap-1 text-sm">
             Size (sq ft)
@@ -175,53 +192,29 @@ export function SpotDetailsSection({
           </label>
 
           <div className="flex flex-col gap-1 text-sm">
-            Weed level
+            Overgrowth
             <input
               type="range"
               min={0}
               max={3}
               step={1}
               value={weedSlider}
-              onChange={(e) =>
-                applyEdit((s) =>
-                  onWeedLevelChange(s, WEED_LEVELS[Number(e.target.value)].value),
-                )
-              }
+              onChange={(e) => setWeedLevel(WEED_LEVELS[Number(e.target.value)].value)}
             />
             <div className="flex justify-between text-xs text-neutral-500">
               {weedSliderLabels.map((label) => (
                 <span key={label}>{label}</span>
               ))}
             </div>
-            {overtakenPrompt(editState) && (
-              <div className="flex flex-col gap-1.5 text-xs text-amber-600">
-                <p>{overtakenPrompt(editState)}</p>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      applyEdit((s) => onVegetationChange(s, "herbaceous_weeds"))
-                    }
-                    className="rounded-md border border-amber-300 px-2 py-1 font-medium hover:bg-amber-50"
-                  >
-                    Herbaceous weeds
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      applyEdit((s) => onVegetationChange(s, "vigorous_weeds"))
-                    }
-                    className="rounded-md border border-amber-300 px-2 py-1 font-medium hover:bg-amber-50"
-                  >
-                    Vigorous weeds
-                  </button>
-                </div>
-              </div>
-            )}
-            {weedLevelWarning(editState) && (
-              <p className="text-xs text-amber-600">{weedLevelWarning(editState)}</p>
-            )}
           </div>
+
+          <fieldset className="flex flex-col gap-1 text-sm">
+            <legend>Bloom months</legend>
+            <BloomMonthsInput value={bloomMonths} onChange={setBloomMonths} />
+            <span className="text-xs text-neutral-500">
+              Which months this spot is known to bloom in. Tap or drag across cells.
+            </span>
+          </fieldset>
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 
@@ -245,17 +238,19 @@ export function SpotDetailsSection({
         </form>
       ) : (
         <dl className="flex flex-col gap-3">
-          <Field label="Type" value={spot.purpose ? spotPurposeLabels[spot.purpose] : null} />
           <Field
-            label="Vegetation"
-            value={spot.vegetation ? vegetationLabels[spot.vegetation] : null}
+            label="Function"
+            value={spot.purpose ? spotFunctionLabels[spot.purpose] : null}
           />
+          <Field label="Focus" value={spot.focus ? focusLabels[spot.focus] : null} />
+          <Field label="Setting" value={spot.setting ? settingLabels[spot.setting] : null} />
           <Field
             label="Size"
             value={spot.sizeSqft != null ? `${spot.sizeSqft.toLocaleString()} sq ft` : null}
           />
-          <Field label="Weed level" value={weedLevelLabels[spot.weedLevel]} />
-          {!spot.purpose && !spot.vegetation && spot.sizeSqft == null && (
+          <Field label="Overgrowth" value={weedLevelLabels[spot.weedLevel]} />
+          <Field label="Bloom months" value={formatBloomMonths(spot.bloomMonths)} />
+          {!spot.purpose && !spot.focus && !spot.setting && spot.sizeSqft == null && (
             <p className="text-sm text-neutral-500">No details added yet.</p>
           )}
         </dl>

@@ -5,7 +5,8 @@ import type { SpotSummary } from "@placekeeping/shared-types";
 import Link from "next/link";
 import { useState } from "react";
 import { resolvePin } from "@/lib/pins/resolvePin";
-import { DEFAULT_PIN_SVG, renderPin } from "@/lib/pins/renderPin";
+import { toSpotFunction } from "@/lib/pins/resolveSpotPin";
+import { renderPin } from "@/lib/pins/renderPin";
 
 // categoryKey (packages/core/src/territory.ts) is "stewarded"/"unstewarded"
 // plus purpose, e.g. "stewarded-wild_area" -> { status: "stewarded", purpose: "wild_area" }.
@@ -20,20 +21,20 @@ function formatCategory(key: string): string {
   return `${status === "stewarded" ? "Stewarded" : "Unstewarded"} ${label}`;
 }
 
-// The scoreboard only knows purpose, not vegetation. Monument's and island's
-// glyphs never depend on vegetation, and garden's falls back to its own
-// glyph when vegetation is "none" (see resolvePin.ts), so passing
-// vegetation: "none" here still gets each its real pin. wild_area/none has
-// no such fallback and gets the same default marker the map itself uses
-// when there's no vegetation-derived glyph to draw.
+// The scoreboard only knows purpose, not focus -- a category spans every
+// focus within it, so there's no single glyph to pick (same reasoning the
+// old "wild_area/none gets the default marker" fallback used, just now
+// applied uniformly). Every category still gets a real, distinct pin now,
+// though: Function drives the pin's shape, not a glyph, so toSpotFunction
+// (the same old-purpose -> new-Function mapping resolveSpotPin uses) is
+// enough on its own to render a meaningful shape+fill icon with no glyph.
 function categoryIcon(key: string): string {
   const { status, purpose } = parseCategory(key);
-  if (purpose !== "garden" && purpose !== "monument" && purpose !== "island") return DEFAULT_PIN_SVG;
   return renderPin(
     resolvePin({
-      purpose: purpose as "garden" | "monument" | "island",
-      vegetation: "none",
-      weedLevel: "minimal",
+      spotFunction: toSpotFunction(purpose),
+      focus: "none",
+      overgrowth: "minimal",
       stewardId: status === "stewarded" ? "steward" : null,
       stewardIsOwner: false,
     }),

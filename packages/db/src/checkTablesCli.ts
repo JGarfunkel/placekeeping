@@ -9,7 +9,12 @@ async function main() {
   }
 
   console.table(
-    report.tables.map((t) => ({ table: t.table, ok: t.ok, error: t.error ?? "" })),
+    report.tables.map((t) => ({
+      table: t.table,
+      ok: t.ok,
+      error: t.error ?? "",
+      missingColumns: t.missingColumns?.join(", ") ?? "",
+    })),
   );
 
   const failed = report.tables.filter((t) => !t.ok);

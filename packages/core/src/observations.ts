@@ -1,6 +1,7 @@
 import { db, observations, photos, spots, users } from "@placekeeping/db";
 import type {
   CreateObservationInput,
+  Focus,
   Observation,
   UpdateObservationInput,
   Vegetation,
@@ -22,6 +23,8 @@ function toObservationDto(row: typeof observations.$inferSelect): Observation {
     notes: row.notes,
     vegetation: row.vegetation as Vegetation | null,
     weedLevel: row.weedLevel as WeedLevel | null,
+    focus: row.focus as Focus | null,
+    speciesBlooming: row.speciesBlooming,
     stewardId: row.stewardId,
     photoUrls: row.photoUrls,
     inaturalistObsUrl: row.inaturalistObsUrl,
@@ -177,6 +180,8 @@ export async function createObservation(
       notes: input.notes,
       vegetation: input.vegetation ?? null,
       weedLevel: input.weedLevel ?? null,
+      focus: input.focus ?? null,
+      speciesBlooming: input.speciesBlooming ?? null,
       stewardId,
       photoUrls: input.photoUrls,
       inaturalistObsUrl: input.inaturalistObsUrl,
@@ -245,6 +250,8 @@ export async function updateObservation(
       notes: input.notes ?? existing.notes,
       vegetation: input.vegetation ?? existing.vegetation,
       weedLevel: input.weedLevel ?? existing.weedLevel,
+      focus: input.focus ?? existing.focus,
+      speciesBlooming: input.speciesBlooming ?? existing.speciesBlooming,
       photoUrls: nextPhotoUrls,
       inaturalistObsUrl: input.inaturalistObsUrl ?? existing.inaturalistObsUrl,
     })

@@ -32,7 +32,7 @@ type SearchParams = {
   radiusMi?: string;
   stewardId?: string;
   unstewarded?: string;
-  vegetation?: string;
+  focus?: string;
 };
 
 export default async function HomePage({
@@ -70,7 +70,7 @@ export default async function HomePage({
       radiusMi,
       stewardId: params.stewardId,
       unstewarded: params.unstewarded === "true",
-      vegetation: params.vegetation as never,
+      focus: params.focus as never,
     }),
     getAuthContext(),
   ]);

@@ -1,21 +1,8 @@
 "use client";
 
-import type { Vegetation } from "@placekeeping/shared-types";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
-
-const vegetationOptions: { value: Vegetation; label: string }[] = [
-  { value: "vegetable_herb", label: "Vegetable / herb" },
-  { value: "ornamental", label: "Ornamental" },
-  { value: "pollinator", label: "Pollinator" },
-  { value: "wetland", label: "Wetland" },
-  { value: "woodland", label: "Woodland" },
-  { value: "grassland", label: "Grassland" },
-  { value: "mowed_lawn", label: "Mowed lawn" },
-  { value: "herbaceous_weeds", label: "Herbaceous weeds" },
-  { value: "vigorous_weeds", label: "Vigorous weeds" },
-  { value: "none", label: "None" },
-];
+import { focusOptions } from "@/components/forms/spotOptions";
 
 const radiusOptions = [5, 10, 15, 25, 50, 150];
 
@@ -82,14 +69,14 @@ export function SpotFilters() {
       </label>
 
       <label className="flex items-center gap-1.5">
-        Vegetation
+        Focus
         <select
           className="rounded-md border border-neutral-300 px-2 py-1"
-          value={searchParams.get("vegetation") ?? ""}
-          onChange={(e) => updateParam("vegetation", e.target.value || null)}
+          value={searchParams.get("focus") ?? ""}
+          onChange={(e) => updateParam("focus", e.target.value || null)}
         >
           <option value="">Any</option>
-          {vegetationOptions.map((opt) => (
+          {focusOptions.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>

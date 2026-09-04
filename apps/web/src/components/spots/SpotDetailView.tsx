@@ -11,7 +11,7 @@ import type { Observation, Spot } from "@placekeeping/shared-types";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { ObservationsPanel } from "@/components/forms/ObservationsPanel";
-import { vegetationOptions } from "@/components/forms/spotOptions";
+import { focusOptions } from "@/components/forms/spotOptions";
 import { getSiteColumnData } from "@/lib/siteColumnData";
 import { DeleteSpotButton } from "./DeleteSpotButton";
 import { FillGeoDetailsButton } from "./FillGeoDetailsButton";
@@ -21,8 +21,8 @@ import { SpotDetailsSection } from "./SpotDetailsSection";
 import { SpotTitleEditor } from "./SpotTitleEditor";
 import { StewardshipSection } from "./StewardshipSection";
 
-const vegetationLabels: Record<string, string> = Object.fromEntries(
-  vegetationOptions.map((opt) => [opt.value, opt.label]),
+const focusLabels: Record<string, string> = Object.fromEntries(
+  focusOptions.map((opt) => [opt.value, opt.label]),
 );
 
 // Renders a territory-page link when a path can be built, plain text
@@ -262,9 +262,9 @@ export async function SpotDetailView({
               </p>
             )}
             <div className="mt-2 flex flex-wrap gap-2 text-xs">
-              {spot.vegetation && (
+              {spot.focus && (
                 <span className="rounded-full bg-neutral-100 px-2 py-0.5">
-                  {vegetationLabels[spot.vegetation] ?? spot.vegetation}
+                  {focusLabels[spot.focus] ?? spot.focus}
                 </span>
               )}
               <span className="rounded-full bg-neutral-100 px-2 py-0.5">
@@ -331,7 +331,7 @@ export async function SpotDetailView({
             slugLocality: spot.slugLocality,
             slug: spot.slug,
           }}
-          spotVegetation={spot.vegetation}
+          spotFocus={spot.focus}
           spotWeedLevel={spot.weedLevel}
           observations={observations}
           observerName={observerName}
