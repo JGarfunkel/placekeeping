@@ -53,11 +53,11 @@ export const spotFunctionOptions: { value: SpotFunction; label: string }[] = [
 
 // Keeper-facing labels from local/reclassification-plan.md's Focus table.
 export const focusOptions: { value: Focus; label: string }[] = [
-  { value: "trees", label: "Trees" },
-  { value: "shrubs", label: "Shrubs" },
-  { value: "grasses", label: "Grasses" },
   { value: "forbs", label: "Flowering herbaceous" },
+  { value: "shrubs", label: "Shrubs" },
+  { value: "trees", label: "Trees" },
   { value: "ferns", label: "Ferns or mosses" },
+  { value: "grasses", label: "Grasses" },
   { value: "none", label: "None" },
 ];
 
