@@ -66,17 +66,29 @@ export function HeaderMenu({
         <Link href="/about" className={itemClass} onClick={onNavigate}>
           About
         </Link>
-        <Link href="/about/usage" className={itemClass} onClick={onNavigate}>
-          Usage
-        </Link>
-        <Link href="/about/guidelines" className={itemClass} onClick={onNavigate}>
-          Guidelines
-        </Link>
         <Link href="/about/origins" className={itemClass} onClick={onNavigate}>
           Origins
         </Link>
         <Link href="/about/examples" className={itemClass} onClick={onNavigate}>
           Examples
+        </Link>
+        <Link href="/about/guidelines" className={itemClass} onClick={onNavigate}>
+          Guidelines
+        </Link>
+        <Link href="/about/becoming" className={itemClass} onClick={onNavigate}>
+          Become a Placekeeper
+        </Link>
+        <Link href="/about/partnership" className={itemClass} onClick={onNavigate}>
+          Become a Partner
+        </Link>
+        <Link href="/about/usage" className={itemClass} onClick={onNavigate}>
+          Usage
+        </Link>
+        <Link href="/about/classification" className={itemClass} onClick={onNavigate}>
+          Classification
+        </Link>
+        <Link href="/about/faq" className={itemClass} onClick={onNavigate}>
+          FAQ
         </Link>
       </>
     );

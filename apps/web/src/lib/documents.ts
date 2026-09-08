@@ -17,10 +17,14 @@ export async function readDocumentHtml(slug: string): Promise<string> {
 export const aboutDocs = {
   guidelines: "Guidelines",
   origins: "Origins",
+  becoming: "Become a Placekeeper",
+  partnership: "Become a Partner",
   philosophy: "Site Philosophy",
   theory: "Theory",
   usage: "Usage",
   examples: "Examples",
+  classification: "Classification",
+  faq: "FAQ",
 } as const;
 
 export type AboutDocSlug = keyof typeof aboutDocs;
