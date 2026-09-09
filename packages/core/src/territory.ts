@@ -673,13 +673,19 @@ export async function resolveMunicipality(
   const cached = await getCachedByPath(requestedPath);
   if (cached) return cached;
 
-  const { name, qualifier } = stripQualifier(mc);
+  const stripped = stripQualifier(mc);
+  const qualifier = stripped.qualifier;
+  const stateConfig = getStateConfig(stateCode);
+  // A colloquial name (e.g. NY's "The Bronx") that never matches a GIS
+  // layer's NAME field literally -- swapped for the name that does before
+  // any candidate search below. See StateConfig.localityAliases.
+  const name = stateConfig?.localityAliases?.[stripped.name] ?? stripped.name;
 
   // Civil-boundary lookup (city/town/village/county) first, unless the
   // qualifier explicitly asks for the ZIP fallback -- only states with a
   // `civilBoundaries` config entry have this data source. Any other state
   // (or an unresolved name) falls through to the nationwide ZIP lookup below.
-  const civilBoundaries = getStateConfig(stateCode)?.civilBoundaries;
+  const civilBoundaries = stateConfig?.civilBoundaries;
   let winner: Candidate | MunicipalityAmbiguity | null = null;
   if (civilBoundaries && qualifier !== "zip" && qualifier !== "cdp") {
     const candidates = await findCandidates(name, civilBoundaries);
@@ -729,16 +735,15 @@ export async function resolveMunicipality(
 
 // ---- Progressive per-category spot counts ---------------------------------
 //
-// Unlike boundary resolution above, this never calls an external GIS
-// service -- it's derived entirely from the spot's own stored fields (plus,
-// for the postalCity case-2-vs-3 check below, a read of our own DB), so it
-// can run eagerly on every create/update/delete (see adjustTerritoryCounts
-// callers in spots.ts) without coupling a spot save to an external
-// service's uptime. Trade-off: a municipality-level path is keyed by the
-// spot's own (geocoded, but not GIS-disambiguated) text, e.g. "ossining",
-// which may not match the GIS-canonical path a page visit later resolves to
-// (e.g. "ossining-town") if the spelling doesn't exactly match the GIS
-// layer's NAME field. Known gap, not reconciled yet.
+// adjustTerritoryCounts resolves every entry against the same live GIS
+// services boundary resolution above uses (see tryResolve/tryResolveMunicipality
+// below), so a spot save lands its count on the same canonical, type-suffixed
+// path a page visit would (e.g. "ossining-town", not "ossining") -- avoiding
+// the "two rows for one place" split that used to happen when a spot save
+// bumped the raw, GIS-undisambiguated text before anyone had ever visited
+// that territory's page. A resolution that's ambiguous, unmatched, or hits a
+// network error falls back to bumping the raw path instead, so a spot save
+// never fails or blocks on ArcGIS being slow/unreachable.
 
 export interface SpotTerritoryFields {
   state: string | null;
@@ -922,10 +927,53 @@ export async function bumpTerritoryCount(
     });
 }
 
+// Wraps a live resolver call for use inside adjustTerritoryCounts -- unlike
+// a page visit (where a failed GIS lookup just means a slower page), a spot
+// save must never fail because ArcGIS is unreachable, so any error here
+// gets swallowed and treated the same as "didn't resolve" (falls back to
+// the raw, unsuffixed path below).
+async function tryResolve<T>(fn: () => Promise<T>): Promise<T | null> {
+  try {
+    return await fn();
+  } catch (err) {
+    debugLog("[territory] live GIS resolution failed during spot save, falling back:", err);
+    return null;
+  }
+}
+
+async function tryResolveMunicipality(
+  stateSlug: string,
+  slug: string,
+): Promise<TerritoryResolution | null> {
+  const result = await tryResolve(() => resolveMunicipality("us", stateSlug, slug));
+  return result && !("ambiguous" in result) ? result : null;
+}
+
+function resolvedEntry(resolution: TerritoryResolution): TerritoryPathEntry {
+  return {
+    path: resolution.path,
+    level: resolution.level,
+    placeholderName: resolution.name,
+    county: resolution.county,
+    type: resolution.type,
+  };
+}
+
 // Call with delta=+1 on create, -1 on delete, and both -1 (old fields) then
 // +1 (new fields) on update -- always calling both rather than diffing
 // first keeps this simple and correct even when nothing territory-relevant
 // changed (paths match, the -1/+1 nets to the same value either way).
+//
+// Resolves every entry against the live GIS services (same
+// resolveCountry/resolveState/resolveMunicipality calls a page visit or
+// backfillSubdivisions.ts would make) before bumping, landing counts
+// directly on the canonical, type-suffixed path (e.g. "woodstock-town")
+// instead of the spot's raw, unresolved text (e.g. "woodstock") -- this is
+// what fixes the "two rows for one place" split described in the module
+// comment above: resolution now upserts the geometry/externalId row first
+// (via cacheResolution, inside the resolver), and the count bump below
+// lands on that same row. A resolution that fails, is ambiguous, or hits a
+// network error falls back to the old raw-path behavior (see tryResolve).
 export async function adjustTerritoryCounts(
   spot: SpotTerritoryFields,
   delta: number,
@@ -944,16 +992,45 @@ export async function adjustTerritoryCounts(
 
   const toBump = await Promise.all(
     entries.map(async (entry) => {
-      if (!entry.isPostalCandidate) return entry;
-      const knownType = await getKnownMunicipalityType(entry.path);
-      const include = shouldIncludePostalCandidate(knownType);
-      debugLog(
-        "[territory] postalCity candidate:",
-        entry.path,
-        "knownType:", knownType,
-        "included:", include,
-      );
-      return include ? entry : null;
+      if (entry.level === 0) {
+        const resolution = await tryResolve(() => resolveCountry("us"));
+        return resolution ? resolvedEntry(resolution) : entry;
+      }
+
+      if (entry.level === 1) {
+        const stateSlug = entry.path.split("/")[1];
+        const resolution = await tryResolve(() => resolveState("us", stateSlug));
+        return resolution ? resolvedEntry(resolution) : entry;
+      }
+
+      // Level 2 (county/municipality/postalCity) -- county's path is
+      // already canonical (countyPathSegment always appends "-county"), but
+      // still worth resolving live to fill in externalId/geometry eagerly.
+      // Municipality/postalCity paths are raw slugs that may not match the
+      // GIS-canonical suffixed path, which is the actual duplicate-row bug.
+      const stateSlug = entry.path.split("/")[1];
+      const slug = entry.path.split("/").slice(2).join("/");
+      const resolution = await tryResolveMunicipality(stateSlug, slug);
+
+      if (entry.isPostalCandidate) {
+        // Prefer the type just resolved live over the DB's previously
+        // cached knowledge -- only fall back to the DB check when live
+        // resolution didn't produce an answer (network error, or a
+        // territory nobody's ever GIS-resolved before at all).
+        const knownType =
+          (resolution?.type as MunicipalityType | null) ??
+          (await getKnownMunicipalityType(entry.path));
+        const include = shouldIncludePostalCandidate(knownType);
+        debugLog(
+          "[territory] postalCity candidate:",
+          entry.path,
+          "knownType:", knownType,
+          "included:", include,
+        );
+        if (!include) return null;
+      }
+
+      return resolution ? resolvedEntry(resolution) : entry;
     }),
   );
 

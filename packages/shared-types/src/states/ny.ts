@@ -391,6 +391,16 @@ export const NY_STATE_CONFIG: StateConfig = {
       },
     ],
   },
+  // NYC's boroughs are coextensive with their counties (confirmed live: the
+  // county layer above has a "Bronx" row, GNIS_ID 974101 -- no separate CDP,
+  // unlike other NY locales), but "The Bronx" is the name people actually
+  // use in addresses and geocoded text -- the only one of the 5 boroughs
+  // idiomatically said/written with a leading "The". Without this, a spot
+  // whose postalCity/municipality is "The Bronx" never matches the county
+  // layer's bare "Bronx" and falls back to an unresolved raw path.
+  localityAliases: {
+    "the-bronx": "Bronx",
+  },
   parcels: {
     queryUrl:
       "https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Tax_Parcels_Public/FeatureServer/1/query",

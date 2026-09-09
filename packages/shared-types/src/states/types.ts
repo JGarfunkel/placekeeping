@@ -137,4 +137,12 @@ export interface StateConfig {
   civilBoundaries?: CivilBoundariesConfig;
   // Only set for a state with a tax-parcel GIS source.
   parcels?: ParcelServiceConfig;
+  // Colloquial locality names that never match a GIS layer's NAME field
+  // literally, mapped to the name that actually does -- e.g. NY's "The
+  // Bronx" (common in addresses/geocoding) vs. the county layer's "Bronx".
+  // Keyed by the slugified alias (lowercase, dash-separated, same form
+  // resolveMunicipality's `mc` route segment takes -- e.g. "the-bronx"), not
+  // the display name. Applied in resolveMunicipality (territory.ts) after
+  // stripQualifier, before the GIS candidate search.
+  localityAliases?: Record<string, string>;
 }
