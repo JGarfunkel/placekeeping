@@ -56,14 +56,22 @@ export function SubdivisionSearch() {
   }, [query, open, searchAll]);
 
   function handleSelect(result: SubdivisionSearchResult) {
-    const params = new URLSearchParams(searchParams.toString());
+    // Now rendered in the root header, so it's reachable from pages (spot
+    // detail, territory) that don't read lat/lng/zoom off their own query
+    // string -- pushing onto `pathname` there would just change the URL
+    // with no visible effect. Only the home map page reads those params, so
+    // a search from anywhere else navigates there instead; from the home
+    // page itself, stay put and keep merging in its existing filter params
+    // (stewardId/unstewarded/focus) same as before.
+    const onHome = pathname === "/";
+    const params = new URLSearchParams(onHome ? searchParams.toString() : undefined);
     params.set("lat", String(result.centerLat));
     params.set("lng", String(result.centerLng));
     params.set("zoom", String(result.zoom));
     params.delete("radiusMi");
     setQuery(formatLabel(result));
     setOpen(false);
-    router.push(`${pathname}?${params.toString()}`);
+    router.push(`/?${params.toString()}`);
   }
 
   return (
