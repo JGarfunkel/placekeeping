@@ -1,7 +1,6 @@
 import {
   findNearbySpots,
   getTerritoryCounts,
-  getUserByUserId,
   listSubdivisions,
 } from "@placekeeping/core";
 import type {
@@ -10,7 +9,6 @@ import type {
 } from "@placekeeping/core";
 import Link from "next/link";
 import { MapView } from "@/components/map/MapView";
-import { UploadPhotoButton } from "@/components/photos/UploadPhotoButton";
 import { TerritorySidePanel } from "@/components/spots/TerritorySidePanel";
 import { getAuthContext } from "@/lib/session";
 
@@ -37,14 +35,6 @@ export async function TerritoryView({
     getTerritoryCounts(resolution.path),
     getAuthContext(),
   ]);
-  // The logged-in caller's own public handle, shown as the attribution on
-  // any observation they log from this page -- see users.username in
-  // schema.ts (never the private `name` here, since this is visible to
-  // other users on the spot's observation list).
-  const observerUser = authContext
-    ? await getUserByUserId(authContext.userId)
-    : null;
-  const observerName = observerUser?.username ?? null;
 
   // This territory's own category breakdown -- only meaningful as a
   // scoreboard at the finest grain (no subdivisions to rank instead), but
@@ -62,12 +52,9 @@ export async function TerritoryView({
       <div className="flex flex-col gap-4 lg:pr-6">
         <div className="flex items-baseline justify-between">
           <h1 className="text-2xl font-semibold">{resolution.name}</h1>
-          <div className="flex items-baseline gap-4">
-            <UploadPhotoButton observerName={observerName} />
-            <Link href="/" className="text-sm underline">
-              Full map
-            </Link>
-          </div>
+          <Link href="/" className="text-sm underline">
+            Full map
+          </Link>
         </div>
 
         <MapView
