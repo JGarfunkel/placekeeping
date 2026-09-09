@@ -1,13 +1,11 @@
-import { findNearbySpots, getUserByUserId } from "@placekeeping/core";
+import { findNearbySpots } from "@placekeeping/core";
 import { isDatabaseConnectionError } from "@placekeeping/db";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { DatabaseWarningBanner } from "@/components/DatabaseWarningBanner";
 import { SpotFilters } from "@/components/SpotFilters";
-import { SubdivisionSearch } from "@/components/SubdivisionSearch";
 import { MapLegend } from "@/components/map/MapLegend";
 import { MapView } from "@/components/map/MapView";
-import { UploadPhotoButton } from "@/components/photos/UploadPhotoButton";
 import { MAP_VIEW_COOKIE_NAME, parseMapViewCookie } from "@/lib/mapView";
 import { DEFAULT_PIN_SVG, renderPin } from "@/lib/pins/renderPin";
 import { resolveSpotPin } from "@/lib/pins/resolveSpotPin";
@@ -89,28 +87,10 @@ export default async function HomePage({
 
   const spots = spotsResult.status === "fulfilled" ? spotsResult.value : [];
   const authContext = authResult.status === "fulfilled" ? authResult.value : null;
-  // The logged-in caller's own public handle, shown as the attribution on
-  // any observation they log from this page -- see users.username in
-  // schema.ts (never the private `name` here, since this is visible to
-  // other users on the spot's observation list).
-  const observerUser = authContext
-    ? await getUserByUserId(authContext.userId)
-    : null;
-  const observerName = observerUser?.username ?? null;
 
   return (
     <main className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-8">
       {dbUnavailable && <DatabaseWarningBanner />}
-
-      <div className="flex flex-wrap items-center gap-3">
-        <SubdivisionSearch />
-
-        {authContext && (
-          <div className="text-sm text-neutral-500">
-            <UploadPhotoButton observerName={observerName} /> or click map to add
-          </div>
-        )}
-      </div>
 
       <div className="flex flex-col gap-4 md:flex-row">
         <div className="md:w-2/3">

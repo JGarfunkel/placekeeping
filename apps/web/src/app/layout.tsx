@@ -1,4 +1,4 @@
-import { getAppSettings, type AuthContext } from "@placekeeping/core";
+import { getAppSettings, getUserByUserId, type AuthContext } from "@placekeeping/core";
 import { isDatabaseConnectionError } from "@placekeeping/db";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Source_Serif_4 } from "next/font/google";
@@ -11,8 +11,10 @@ import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import { DatabaseWarningBanner } from "@/components/DatabaseWarningBanner";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { HeaderMenu } from "@/components/nav/HeaderMenu";
+import { UploadPhotoButton } from "@/components/photos/UploadPhotoButton";
 import { PauseBanner } from "@/components/PauseBanner";
 import { RegisterServiceWorker } from "@/components/RegisterServiceWorker";
+import { SubdivisionSearch } from "@/components/SubdivisionSearch";
 import { getAuthContext } from "@/lib/session";
 
 const geistSans = Geist({
@@ -63,6 +65,13 @@ export default async function RootLayout({
     dbUnavailable = true;
   }
 
+  // The logged-in caller's own public handle, shown as the attribution on
+  // any observation they log via the header's upload button -- see
+  // users.username in schema.ts (never the private `name` here, since this
+  // is visible to other users on a spot's observation list).
+  const observerUser = authContext ? await getUserByUserId(authContext.userId) : null;
+  const observerName = observerUser?.username ?? null;
+
   return (
     <html
       lang="en"
@@ -74,7 +83,7 @@ export default async function RootLayout({
         {dbUnavailable && <DatabaseWarningBanner />}
         {!dbUnavailable && writesPaused && <PauseBanner />}
         <AnnouncementBanner />
-        <header className="relative z-[1100] flex items-center justify-between border-b border-neutral-200 bg-white px-6 py-3 text-sm">
+        <header className="relative z-[1100] flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200 bg-white px-6 py-3 text-sm">
           <Link href="/" className="flex items-center">
             {/* eslint-disable-next-line @next/next/no-img-element -- static SVG, no optimization needed */}
             <img
@@ -84,10 +93,19 @@ export default async function RootLayout({
               height={33}
             />
           </Link>
-          <HeaderMenu
-            isAuthenticated={authContext !== null}
-            isSystemAdmin={authContext?.isSystemAdmin ?? false}
-          />
+
+          <div>
+                        {authContext && <UploadPhotoButton observerName={observerName} />}
+          </div>
+          <div className="order-last w-full md:order-none md:w-auto md:flex-1 md:px-6 md:[&>div]:mx-auto">
+            <SubdivisionSearch />
+          </div>
+          <div className="flex items-center gap-3">
+            <HeaderMenu
+              isAuthenticated={authContext !== null}
+              isSystemAdmin={authContext?.isSystemAdmin ?? false}
+            />
+          </div>
         </header>
         <div className="flex flex-1 flex-col">{children}</div>
         <RegisterServiceWorker />
