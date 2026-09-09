@@ -14,6 +14,7 @@ import {
 } from "@/components/spots/ParcelPicker";
 import { multiPolygonToPolygonPaths } from "@/lib/geo/parcelGeometry";
 import { spotPath } from "@/lib/spotPath";
+import { AddSpotButton } from "./AddSpotButton";
 import { ReassignParcelControl } from "./ReassignParcelControl";
 import { SiteDetailsEditor } from "./SiteDetailsEditor";
 
@@ -158,9 +159,12 @@ export function SiteMapAndParcels({
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold text-neutral-900">
-          Spots ({memberSpots.length})
-        </h3>
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold text-neutral-900">
+            Spots ({memberSpots.length})
+          </h3>
+          {canEditSite && <AddSpotButton siteId={site.siteId} center={center} />}
+        </div>
         {memberSpots.length === 0 ? (
           <p className="text-sm text-neutral-500">No spots linked yet.</p>
         ) : (
