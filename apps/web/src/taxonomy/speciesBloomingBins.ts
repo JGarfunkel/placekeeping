@@ -7,7 +7,6 @@
 // ObservationForm and QuickAddSpotDialog (see SPECIES_BLOOMING_BINS.findIndex
 // usage in both).
 export const SPECIES_BLOOMING_BINS: { value: number | null; label: string }[] = [
-  { value: null, label: "Not recorded" },
   { value: 0, label: "0" },
   { value: 1, label: "1" },
   { value: 2, label: "2" },
