@@ -1,4 +1,5 @@
 import { config as loadDotenv } from "dotenv";
+import path from "node:path";
 import { defineConfig } from "vitest/config";
 
 // packages/core/src/territory.ts imports the shared `db` client, which
@@ -10,7 +11,10 @@ import { defineConfig } from "vitest/config";
 loadDotenv({ path: ".env.local" });
 
 export default defineConfig({
+  resolve: {
+    alias: { "@": path.resolve(__dirname, "apps/web/src") },
+  },
   test: {
-    include: ["apps/*/src/**/*.test.ts", "packages/*/src/**/*.test.ts"],
+    include: ["apps/*/src/**/*.test.{ts,tsx}", "packages/*/src/**/*.test.ts"],
   },
 });

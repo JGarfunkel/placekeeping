@@ -153,6 +153,7 @@ export function QuickAddSpotDialog({
         );
       }
       const { spot } = await res.json();
+      onClose();
       router.push(`/spots/${spot.spotId}`);
       router.refresh();
     } catch (err) {
