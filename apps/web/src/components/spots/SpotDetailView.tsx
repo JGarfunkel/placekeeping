@@ -9,6 +9,7 @@ import {
 import type { AuthContext } from "@placekeeping/core";
 import type { Observation, Spot } from "@placekeeping/shared-types";
 import Link from "next/link";
+import { PlaySlideshowLink } from "@/components/slideshow/PlaySlideshowLink";
 import type { ReactNode } from "react";
 import { ObservationsPanel } from "@/components/forms/ObservationsPanel";
 import { focusOptions } from "@/components/forms/spotOptions";
@@ -138,6 +139,12 @@ export async function SpotDetailView({
         .flatMap((o) => o.photos ?? [])
         .find((p) => p.photoId === highlightPhotoId) ?? null)
     : null;
+
+  // The slideshow glyph only appears once there's enough to play: more than
+  // 5 observations with photos and more than 10 photos in total.
+  const observationsWithPhotos = observations.filter((o) => (o.photos?.length ?? 0) > 0);
+  const photoCount = observationsWithPhotos.reduce((n, o) => n + (o.photos?.length ?? 0), 0);
+  const showSlideshow = observationsWithPhotos.length > 5 && photoCount > 10;
 
   // Individual-ownership only (the caller's personal steward) -- for the
   // "(you)" label in StewardshipSection. Group stewardship goes through
@@ -277,6 +284,9 @@ export async function SpotDetailView({
                 <DeleteSpotButton spotId={spot.spotId} spotName={spot.name} />
               )}
             </div>
+            {showSlideshow && (
+              <PlaySlideshowLink href={`/slideshow/spot/${spot.spotId}`} className="mt-2 mr-3" />
+            )}
             {canManageParcel && (
               <Link
                 href={`/spots/${spot.spotId}/edit`}

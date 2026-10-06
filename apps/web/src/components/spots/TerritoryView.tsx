@@ -8,6 +8,7 @@ import type {
   TerritoryResolution,
 } from "@placekeeping/core";
 import Link from "next/link";
+import { PlaySlideshowLink } from "@/components/slideshow/PlaySlideshowLink";
 import { MapView } from "@/components/map/MapView";
 import { TerritorySidePanel } from "@/components/spots/TerritorySidePanel";
 import { getAuthContext } from "@/lib/session";
@@ -52,9 +53,12 @@ export async function TerritoryView({
       <div className="flex flex-col gap-4 lg:pr-6">
         <div className="flex items-baseline justify-between">
           <h1 className="text-2xl font-semibold">{resolution.name}</h1>
-          <Link href="/" className="text-sm underline">
-            Full map
-          </Link>
+          <div className="flex items-baseline gap-4 text-sm">
+            <PlaySlideshowLink href={`/slideshow/${resolution.path}`} />
+            <Link href="/" className="underline">
+              Full map
+            </Link>
+          </div>
         </div>
 
         <MapView

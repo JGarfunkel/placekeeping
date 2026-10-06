@@ -15,6 +15,8 @@ export * from "./photoStorage";
 export * from "./photos";
 export * from "./remoteLog";
 export * from "./sites";
+export * from "./slideshow";
+export * from "./slideshowScope";
 export * from "./slug";
 export * from "./stewardMembers";
 export * from "./stewards";

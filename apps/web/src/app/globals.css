@@ -27,3 +27,8 @@ body {
   background: none;
   border: none;
 }
+
+/* The slideshow is full-screen; hide the root layout's header while it plays. */
+html[data-slideshow] body > header {
+  display: none;
+}
