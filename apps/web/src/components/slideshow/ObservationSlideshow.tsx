@@ -2,6 +2,7 @@
 
 import type { Slide, SlideshowPage } from "@placekeeping/core";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { computeCaptionTimeline, EXIT_FADE_MS, ENTER_MS, STAGGER_MS } from "@/lib/slideshow/captionTimeline";
 import {
@@ -84,6 +85,7 @@ export function ObservationSlideshow({
   initialPage: SlideshowPage;
   seed: string;
 }) {
+  const router = useRouter();
   const [options, setOptions] = useState(initialOptions);
   const [seed, setSeed] = useState(initialSeed);
   const [slides, setSlides] = useState<Slide[]>(initialPage.slides);
@@ -407,8 +409,13 @@ export function ObservationSlideshow({
       swipedRef.current = false;
       return;
     }
-    if (controlsShown && playing && !overlayOpen) setControlsVisible(false);
-    else poke();
+    // Single click pauses (never toggles, so the first click of a double-click
+    // can't un-pause); double click opens the spot page.
+    setPlaying(false);
+    poke();
+  };
+  const onStageDoubleClick = () => {
+    router.push(slide.spotPath);
   };
 
   // ---- Render ------------------------------------------------------------------------
@@ -502,7 +509,7 @@ export function ObservationSlideshow({
       onTouchEnd={onTouchEnd}
     >
       {/* Photo stage */}
-      <div className="absolute inset-0" onClick={onStageClick}>
+      <div className="absolute inset-0" onClick={onStageClick} onDoubleClick={onStageDoubleClick}>
         {prevSlide && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -592,8 +599,8 @@ export function ObservationSlideshow({
       </div>
 
       {/* Progress */}
-      <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20" aria-hidden="true">
-        <div ref={progressRef} className="h-full origin-left bg-white" style={{ transform: "scaleX(0)" }} />
+      <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white/5" aria-hidden="true">
+        <div ref={progressRef} className="h-full origin-left bg-white/40"style={{ transform: "scaleX(0)" }} />
       </div>
 
       {settingsOpen && (
