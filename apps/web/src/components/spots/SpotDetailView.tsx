@@ -13,6 +13,7 @@ import { PlaySlideshowLink } from "@/components/slideshow/PlaySlideshowLink";
 import type { ReactNode } from "react";
 import { ObservationsPanel } from "@/components/forms/ObservationsPanel";
 import { focusOptions } from "@/components/forms/spotOptions";
+import { imageUrl as gsvImageUrl } from "@/lib/gsv";
 import { getSiteColumnData } from "@/lib/siteColumnData";
 import { DeleteSpotButton } from "./DeleteSpotButton";
 import { FillGeoDetailsButton } from "./FillGeoDetailsButton";
@@ -170,7 +171,21 @@ export async function SpotDetailView({
   const canManageParcel = !!authContext && canManageSpot(authContext, spot);
   const canEditSite =
     !!authContext && !!linkedSite && canManageSite(authContext, linkedSite);
-  const hasObservations = observations.length > 0;
+  // Street View pointers carry no one's own record, so they don't count
+  // against deleting the spot.
+  const hasObservations = observations.some((o) => o.source === "keeper");
+  // Server-issued thumbnail URLs for Street View rows (they embed the API
+  // key, so they're built here rather than in the client panel). A missing
+  // key just leaves the card without an image instead of failing the page.
+  const gsvImageUrls: Record<string, string> = {};
+  for (const o of observations) {
+    if (o.source !== "gsv" || !o.gsvRef) continue;
+    try {
+      gsvImageUrls[o.observationId] = gsvImageUrl(o.gsvRef);
+    } catch {
+      // GSV_API_KEY unset
+    }
+  }
   const canDeleteSpot =
     canManageParcel && (!hasObservations || authContext?.isSystemAdmin === true);
 
@@ -344,6 +359,7 @@ export async function SpotDetailView({
           spotFocus={spot.focus}
           spotWeedLevel={spot.weedLevel}
           observations={observations}
+          gsvImageUrls={gsvImageUrls}
           observerName={observerName}
           currentUserId={authContext?.userId ?? null}
           currentStewardId={authContext?.stewardId ?? null}

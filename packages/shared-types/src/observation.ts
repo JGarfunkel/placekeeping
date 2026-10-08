@@ -12,6 +12,21 @@ export const photoSchema = z.object({
 });
 export type Photo = z.infer<typeof photoSchema>;
 
+// Pointer to a Google Street View frame -- see observations.gsvRef in
+// packages/db/src/schema.ts. No imagery is stored, only what's needed to
+// rebuild the frame URL.
+export const gsvRefSchema = z.object({
+  panoId: z.string().min(1),
+  captureDate: z.string().regex(/^\d{4}-\d{2}$/), // "YYYY-MM"
+  panoLat: z.number(),
+  panoLng: z.number(),
+  heading: z.number(),
+  pitch: z.number(),
+  fov: z.number(),
+  addedBy: z.string().uuid(),
+});
+export type GsvRef = z.infer<typeof gsvRefSchema>;
+
 export const observationSchema = z.object({
   observationId: z.string().uuid(),
   spotId: z.number().int().positive(),
@@ -45,6 +60,10 @@ export const observationSchema = z.object({
   // Observation values built elsewhere (create/update responses etc.).
   photos: z.array(photoSchema).optional(),
   inaturalistObsUrl: z.string().url().nullable(),
+  // 'keeper' for a person's own visit, 'gsv' for a Street View frame pointer
+  // (gsvRef is non-null exactly when source is 'gsv').
+  source: z.enum(["keeper", "gsv"]),
+  gsvRef: gsvRefSchema.nullable(),
   createdAt: z.string().datetime(),
 });
 export type Observation = z.infer<typeof observationSchema>;
@@ -110,3 +129,35 @@ export const photoUploadResponseSchema = z.object({
   location: z.object({ lat: z.number(), lng: z.number() }).nullable(),
 });
 export type PhotoUploadResponse = z.infer<typeof photoUploadResponseSchema>;
+
+export const gsvResolveRequestSchema = z.object({
+  url: z.string().min(1).max(2000),
+});
+
+export const GSV_MAX_COMMIT_ITEMS = 20;
+export const gsvCommitRequestSchema = z.object({
+  items: z
+    .array(
+      z.object({
+        panoId: z.string().min(1).max(200),
+        heading: z.number(),
+        pitch: z.number(),
+        fov: z.number(),
+      }),
+    )
+    .min(1)
+    .max(GSV_MAX_COMMIT_ITEMS),
+});
+export type GsvCommitRequest = z.infer<typeof gsvCommitRequestSchema>;
+
+export type GsvCandidate = {
+  panoId: string;
+  captureDate: string;
+  lat: number;
+  lng: number;
+  heading: number;
+  pitch: number;
+  fov: number;
+  imageUrl: string;
+  alreadyAdded: boolean;
+};

@@ -641,12 +641,38 @@ export const observations = pgTable(
       .notNull()
       .default(sql`'{}'::text[]`),
     inaturalistObsUrl: text("inaturalist_obs_url"),
+    // Nullable to keep the migration cheap on existing rows: NULL means
+    // 'keeper', so readers must test `source IS DISTINCT FROM 'gsv'`, never
+    // `source = 'keeper'`. 'keeper' (a person's own visit, the default) or 'gsv' (a pointer to a
+    // Google Street View frame, backdated to its capture month). Plain text
+    // rather than pgEnum, same convention as vegetation/weedLevel above. GSV
+    // rows have null observerId/observerName/stewardId and empty photoUrls --
+    // who attached the frame is recorded as gsvRef.addedBy. No Google imagery
+    // is ever stored, only the pano ID and view parameters.
+    source: text("source").default("keeper"),
+    gsvRef: jsonb("gsv_ref").$type<{
+      panoId: string;
+      captureDate: string; // "YYYY-MM" as Google reports it
+      panoLat: number;
+      panoLng: number;
+      heading: number;
+      pitch: number;
+      fov: number;
+      addedBy: string; // users.userId of the person who attached it
+    } | null>(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
   },
   (table) => [
     index("observations_spot_id_idx").on(table.spotId, table.observedAt),
+    uniqueIndex("observations_gsv_pano_uniq")
+      .on(table.spotId, sql`(${table.gsvRef}->>'panoId')`)
+      .where(sql`${table.source} = 'gsv'`),
+    check(
+      "observations_gsv_ref_chk",
+      sql`(COALESCE(${table.source}, 'keeper') = 'gsv') = (${table.gsvRef} IS NOT NULL)`,
+    ),
   ],
 );
 

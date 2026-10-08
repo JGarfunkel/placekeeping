@@ -1,17 +1,21 @@
 import { db, observations, photos, spots, users } from "@placekeeping/db";
 import type {
   CreateObservationInput,
+  GsvRef,
   Focus,
   Observation,
   UpdateObservationInput,
   Vegetation,
   WeedLevel,
 } from "@placekeeping/shared-types";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { diffFields, logEvent, snapshotToChanges } from "./events";
 import { checkPhotoUrls, getModerationMode } from "./photoModeration";
 import { isOwnStorageUrl, ownStorageKey } from "./photoStorage";
 import { listPhotosForObservations } from "./photos";
+
+// NULL source (rows predating the column) counts as a keeper observation.
+const isKeeper = sql`${observations.source} IS DISTINCT FROM 'gsv'`;
 
 function toObservationDto(row: typeof observations.$inferSelect): Observation {
   return {
@@ -28,6 +32,8 @@ function toObservationDto(row: typeof observations.$inferSelect): Observation {
     stewardId: row.stewardId,
     photoUrls: row.photoUrls,
     inaturalistObsUrl: row.inaturalistObsUrl,
+    source: row.source === "gsv" ? "gsv" : "keeper",
+    gsvRef: row.gsvRef,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -78,7 +84,9 @@ export async function listObservationsByObserver(
     })
     .from(observations)
     .innerJoin(spots, eq(observations.spotId, spots.spotId))
-    .where(eq(observations.observerId, observerId))
+    .where(
+      and(eq(observations.observerId, observerId), isKeeper),
+    )
     .orderBy(desc(observations.observedAt))
     .limit(limit);
   return rows.map((row) => ({ ...row, createdAt: row.createdAt.toISOString() }));
@@ -105,6 +113,7 @@ export async function listRecentObservations(limit = 10): Promise<
     .from(observations)
     .innerJoin(spots, eq(observations.spotId, spots.spotId))
     .leftJoin(users, eq(users.userId, observations.observerId))
+    .where(isKeeper)
     .orderBy(desc(observations.createdAt))
     .limit(limit);
   return rows.map((row) => ({ ...row, createdAt: row.createdAt.toISOString() }));
@@ -112,11 +121,12 @@ export async function listRecentObservations(limit = 10): Promise<
 
 // Cheaper than listObservationsForSpot when only presence matters -- used to
 // gate spot deletion (only an admin may delete a spot that has observations).
+// Street View pointers don't count: they carry no one's own record.
 export async function spotHasObservations(spotId: number): Promise<boolean> {
   const [row] = await db
     .select({ observationId: observations.observationId })
     .from(observations)
-    .where(eq(observations.spotId, spotId))
+    .where(and(eq(observations.spotId, spotId), isKeeper))
     .limit(1);
   return !!row;
 }
@@ -289,4 +299,85 @@ export async function updateObservation(
   }
 
   return updated;
+}
+
+// Street View pointer observations -- deliberately not routed through
+// createObservation, which snapshots spots.stewardId and moderates photo
+// URLs; a GSV row has no steward, no observer and no photos (see
+// observations.source in schema.ts). Rows already attached to this spot for
+// the same pano are skipped by the unique index. Returns how many were
+// actually inserted.
+export async function createGsvObservations(
+  spotId: number,
+  refs: GsvRef[],
+): Promise<number> {
+  if (refs.length === 0) return 0;
+  const rows = await db
+    .insert(observations)
+    .values(
+      refs.map((ref) => ({
+        spotId,
+        observedAt: `${ref.captureDate}-01`,
+        source: "gsv",
+        gsvRef: ref,
+        photoUrls: [],
+      })),
+    )
+    .onConflictDoNothing()
+    .returning();
+
+  for (const row of rows) {
+    await logEvent({
+      entityType: "observation",
+      entityId: row.observationId,
+      action: "create",
+      userId: row.gsvRef?.addedBy ?? null,
+      changes: snapshotToChanges(
+        toObservationDto(row) as unknown as Record<string, unknown>,
+        "create",
+      ),
+    });
+  }
+  return rows.length;
+}
+
+export async function listGsvPanoIdsForSpot(spotId: number): Promise<Set<string>> {
+  const rows = await db
+    .select({ gsvRef: observations.gsvRef })
+    .from(observations)
+    .where(and(eq(observations.spotId, spotId), eq(observations.source, "gsv")));
+  return new Set(rows.flatMap((r) => (r.gsvRef ? [r.gsvRef.panoId] : [])));
+}
+
+// Removes a Street View pointer row only -- a keeper observation is never
+// deleted through this path. Returns false if no such GSV row exists on the
+// spot. Callers must have already checked the actor is an admin.
+export async function deleteGsvObservation(
+  spotId: number,
+  observationId: string,
+  actorUserId: string | null,
+): Promise<boolean> {
+  const [row] = await db
+    .delete(observations)
+    .where(
+      and(
+        eq(observations.observationId, observationId),
+        eq(observations.spotId, spotId),
+        eq(observations.source, "gsv"),
+      ),
+    )
+    .returning();
+  if (!row) return false;
+
+  await logEvent({
+    entityType: "observation",
+    entityId: observationId,
+    action: "delete",
+    userId: actorUserId,
+    changes: snapshotToChanges(
+      toObservationDto(row) as unknown as Record<string, unknown>,
+      "delete",
+    ),
+  });
+  return true;
 }

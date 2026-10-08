@@ -13,6 +13,7 @@ import { resolveObservationPin } from "@/lib/pins/resolveObservationPin";
 import { renderPin } from "@/lib/pins/renderPin";
 import { observationPath, photoPath } from "@/lib/spotPath";
 import { AddObservationDialog } from "./AddObservationDialog";
+import { GsvAddPanel } from "./GsvAddPanel";
 import { EditObservationDialog } from "./EditObservationDialog";
 
 // obs.photos (from listObservationsForSpot's join against the `photos`
@@ -158,6 +159,104 @@ function PhotoThumbnail({
   );
 }
 
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+function formatCaptureMonth(captureDate: string): string {
+  const [year, month] = captureDate.split("-");
+  const name = MONTH_NAMES[Number(month) - 1];
+  return name ? `${name} ${year}` : captureDate;
+}
+
+// A Street View pointer row: no observer, no steward glyph, no classification
+// chips -- just the frame, its capture month and Google's attribution. Must
+// branch before any of the stewardId-driven glyph logic.
+function GsvObservationCard({
+  obs,
+  imageUrl,
+  spotSlug,
+  highlighted,
+  spotId,
+  isSystemAdmin,
+}: {
+  obs: Observation;
+  imageUrl: string | null;
+  spotSlug: Parameters<typeof observationPath>[0];
+  highlighted: boolean;
+  spotId: number;
+  isSystemAdmin: boolean;
+}) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function remove() {
+    if (!window.confirm("Remove this Street View photo from the spot?")) return;
+    setError(null);
+    setDeleting(true);
+    try {
+      const res = await fetch(
+        `/api/spots/${spotId}/observations/${obs.observationId}`,
+        { method: "DELETE" },
+      );
+      if (!res.ok) throw new Error("Failed to delete");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+      setDeleting(false);
+    }
+  }
+  if (!obs.gsvRef) return null;
+  const title = `Google Street View, ${formatCaptureMonth(obs.gsvRef.captureDate)}`;
+  return (
+    <li
+      id={`obs-${obs.observationId}`}
+      className={`rounded-md border p-4 transition-colors ${
+        highlighted ? "border-amber-400 bg-amber-50" : "border-neutral-200"
+      }`}
+    >
+      <div className="flex items-center justify-between text-sm text-neutral-500">
+        <span className="text-lg font-bold text-neutral-700">{title}</span>
+        <div className="flex items-center gap-2">
+          <PermalinkIcon
+            path={observationPath(spotSlug, obs.observationId)}
+            label="Observation permalink"
+          />
+          {isSystemAdmin && (
+            <button
+              type="button"
+              onClick={remove}
+              disabled={deleting}
+              aria-label="Delete Street View photo"
+              title="Delete Street View photo"
+              className="text-neutral-400 hover:text-red-600 disabled:opacity-50"
+            >
+              🗑
+            </button>
+          )}
+        </div>
+      </div>
+      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {obs.notes && <p className="mt-1 text-sm">{obs.notes}</p>}
+      {imageUrl && (
+        <button type="button" onClick={() => setOpen(true)} className="mt-2 block w-full">
+          <img
+            src={imageUrl}
+            alt={title}
+            loading="lazy"
+            className="w-full rounded-md border border-neutral-200 object-cover"
+          />
+        </button>
+      )}
+      <p className="mt-1 text-xs text-neutral-500">Imagery © Google</p>
+      {open && imageUrl && <PhotoLightbox url={imageUrl} onClose={() => setOpen(false)} />}
+    </li>
+  );
+}
+
 function ObservationGlyph({ obs }: { obs: Observation }) {
   const spec = resolveObservationPin(obs);
   if (!spec) return null;
@@ -265,6 +364,7 @@ export function ObservationsPanel({
   spotFocus,
   spotWeedLevel,
   observations,
+  gsvImageUrls = {},
   observerName,
   currentUserId,
   currentStewardId,
@@ -284,6 +384,8 @@ export function ObservationsPanel({
   spotFocus: Focus | null;
   spotWeedLevel: WeedLevel;
   observations: Observation[];
+  // Server-built thumbnail URLs for source === "gsv" rows, by observationId.
+  gsvImageUrls?: Record<string, string>;
   observerName: string | null;
   currentUserId: string | null;
   currentStewardId: string | null;
@@ -334,7 +436,27 @@ export function ObservationsPanel({
             </button>
           </li>
         )}
+        {observerName && (
+          <li>
+            <GsvAddPanel spotId={spotId} />
+          </li>
+        )}
         {observations.map((obs) => {
+          if (obs.source === "gsv") {
+            return (
+              <GsvObservationCard
+                key={obs.observationId}
+                obs={obs}
+                imageUrl={gsvImageUrls[obs.observationId] ?? null}
+                spotSlug={spotSlug}
+                spotId={spotId}
+                isSystemAdmin={isSystemAdmin}
+                highlighted={
+                  obs.observationId === highlightObservationId && highlightActive
+                }
+              />
+            );
+          }
           const isHighlighted = obs.observationId === highlightObservationId;
           return (
             <li
