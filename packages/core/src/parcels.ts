@@ -13,7 +13,7 @@ import type {
 import { DEFAULT_STATE_CODE, getStateConfig, statesForPoint } from "@placekeeping/shared-types";
 import { and, desc, eq, ne, sql } from "drizzle-orm";
 import { debugLog } from "./debug";
-import { logRemoteCall } from "./remoteLog";
+import { logRemoteCall, REMOTE_CALL_TIMEOUT_MS } from "./remoteLog";
 import { toSiteDto } from "./sites";
 
 // The configured state's tax-parcel service endpoint, falling back to
@@ -366,7 +366,9 @@ async function fetchNearbyParcelsForState(
   url.searchParams.set("resultRecordCount", String(NEARBY_LIMIT));
   url.searchParams.set("f", "geojson");
 
-  const response = await logRemoteCall("arcgis", `nearby-parcels:${stateCode}`, () => fetch(url));
+  const response = await logRemoteCall("arcgis", `nearby-parcels:${stateCode}`, () =>
+    fetch(url, { signal: AbortSignal.timeout(REMOTE_CALL_TIMEOUT_MS) }),
+  );
   if (!response.ok) {
     throw new Error(`ArcGIS parcel query failed (${stateCode}): ${response.status}`);
   }
@@ -484,7 +486,9 @@ export async function fetchParcelOwner(
   url.searchParams.set("returnGeometry", "false");
   url.searchParams.set("f", "json");
 
-  const response = await logRemoteCall("arcgis", "owner-lookup", () => fetch(url));
+  const response = await logRemoteCall("arcgis", "owner-lookup", () =>
+    fetch(url, { signal: AbortSignal.timeout(REMOTE_CALL_TIMEOUT_MS) }),
+  );
   if (!response.ok) {
     throw new Error(`ArcGIS owner query failed: ${response.status}`);
   }

@@ -9,7 +9,7 @@ import type {
 import { getStateConfig, STATE_CONFIGS } from "@placekeeping/shared-types";
 import { and, eq, ilike, inArray, isNotNull, like, sql } from "drizzle-orm";
 import { debugLog } from "./debug";
-import { logRemoteCall } from "./remoteLog";
+import { logRemoteCall, REMOTE_CALL_TIMEOUT_MS } from "./remoteLog";
 
 // Municipal-level (county/city/town/village) territory resolution only
 // works for states with a `civilBoundaries` entry in the per-state config
@@ -235,7 +235,9 @@ async function queryArcGis<TProps>(
   url.searchParams.set("outSR", "4326");
   url.searchParams.set("f", "geojson");
 
-  const response = await logRemoteCall("arcgis", serviceUrl, () => fetch(url));
+  const response = await logRemoteCall("arcgis", serviceUrl, () =>
+    fetch(url, { signal: AbortSignal.timeout(REMOTE_CALL_TIMEOUT_MS) }),
+  );
   if (!response.ok) {
     throw new Error(`ArcGIS query failed (${serviceUrl}): ${response.status}`);
   }
@@ -660,6 +662,51 @@ async function findCdpWinner(stateCode: string, name: string): Promise<Candidate
   return null;
 }
 
+// Finds already-GIS-resolved level-2 rows named `<name>-<type>` for this
+// state. Returns a resolution only when exactly one such row exists, or an
+// explicit qualifier picks exactly one -- stored rows carry no population, so
+// the multi-row tie-breakers in pickWinner can't be trusted here. Placeholder
+// rows (spot-count-only, no center) are skipped via rowToResolution.
+async function resolveFromStoredBoundaries(
+  stateCode: string,
+  name: string,
+  qualifier: MunicipalityType | null,
+): Promise<TerritoryResolution | null> {
+  const slug = slugifyMuniName(name);
+  if (!slug) return null;
+  const rows = await db
+    .select({
+      level: subdivisions.level,
+      path: subdivisions.path,
+      name: subdivisions.name,
+      county: subdivisions.county,
+      type: subdivisions.type,
+      externalId: subdivisions.externalId,
+      centerLat: subdivisions.centerLat,
+      centerLng: subdivisions.centerLng,
+      zoom: subdivisions.zoom,
+    })
+    .from(subdivisions)
+    .where(
+      and(
+        eq(subdivisions.level, 2),
+        inArray(
+          subdivisions.path,
+          QUALIFIER_TYPES.filter((type) => !qualifier || type === qualifier).map(
+            (type) => `us/${stateCode}/${slug}-${type}`,
+          ),
+        ),
+        isNotNull(subdivisions.centerLat),
+        isNotNull(subdivisions.centerLng),
+        isNotNull(subdivisions.zoom),
+      ),
+    );
+  if (rows.length !== 1) return null;
+  const resolution = rowToResolution(rows[0]);
+  if (resolution) resolutionCache.set(resolution.path, resolution);
+  return resolution;
+}
+
 export async function resolveMunicipality(
   cc: string,
   sc: string,
@@ -675,6 +722,17 @@ export async function resolveMunicipality(
 
   const stripped = stripQualifier(mc);
   const qualifier = stripped.qualifier;
+
+  // Before any GIS round-trip: the URL slug is often a bare alias
+  // ("mount-kisco") for a canonical row we already store
+  // ("mount-kisco-town"). Resolve it from our own boundary rows when that's
+  // unambiguous; anything murky falls through to GIS as before.
+  const local = await resolveFromStoredBoundaries(stateCode, stripped.name, qualifier);
+  if (local) {
+    resolutionCache.set(requestedPath, local);
+    return local;
+  }
+
   const stateConfig = getStateConfig(stateCode);
   // A colloquial name (e.g. NY's "The Bronx") that never matches a GIS
   // layer's NAME field literally -- swapped for the name that does before

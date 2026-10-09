@@ -1,6 +1,6 @@
 import { Webhook } from "svix";
 import { sendForwardedInboundEmail } from "./email";
-import { logRemoteCall } from "./remoteLog";
+import { logRemoteCall, REMOTE_CALL_TIMEOUT_MS } from "./remoteLog";
 
 /**
  * Handles mail sent to a Resend "receiving" address (see Resend dashboard >
@@ -53,6 +53,7 @@ async function fetchReceivedEmail(emailId: string): Promise<ReceivedEmail> {
   return logRemoteCall("resend", "emails.receiving.get", async () => {
     const response = await fetch(`https://api.resend.com/emails/receiving/${emailId}`, {
       headers: { Authorization: `Bearer ${requireEnv("RESEND_API_KEY")}` },
+      signal: AbortSignal.timeout(REMOTE_CALL_TIMEOUT_MS),
     });
     if (!response.ok) {
       const body = await response.text().catch(() => "");

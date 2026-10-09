@@ -119,6 +119,9 @@ async function putObject(key: string, bytes: Buffer, contentType: string): Promi
             CacheControl: CACHE_CONTROL,
           }),
         ),
+        // Uploads move real bytes, so they get more headroom than the
+        // default 10s used for lookups.
+        30_000,
       );
       return;
     case "local":
