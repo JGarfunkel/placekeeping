@@ -4,6 +4,7 @@ import {
   OBSERVATION_EDIT_WINDOW_MS,
   type Focus,
   type Observation,
+  type Photo,
   type WeedLevel,
 } from "@placekeeping/shared-types";
 import { useRouter } from "next/navigation";
@@ -19,14 +20,16 @@ import { EditObservationDialog } from "./EditObservationDialog";
 // obs.photos (from listObservationsForSpot's join against the `photos`
 // table) gives each photo a stable id for permalinks/highlighting. Falls
 // back to plain photoUrls (photoId: null, no deep-link icon) for any
-// Observation that wasn't loaded through that join.
+// Observation that wasn't loaded through that join. `url` is the original
+// (lightbox); `thumbUrl` is the small copy for the grid, which equals `url`
+// when a photo has no derived copies.
 function photosForObservation(
   obs: Observation,
-): Array<{ photoId: string | null; url: string }> {
+): Array<{ photoId: string | null; url: string; thumbUrl: string }> {
   if (obs.photos && obs.photos.length > 0) {
-    return obs.photos.map((p) => ({ photoId: p.photoId, url: p.url }));
+    return obs.photos.map((p) => ({ photoId: p.photoId, url: p.urls.original, thumbUrl: p.urls.thumb }));
   }
-  return obs.photoUrls.map((url) => ({ photoId: null, url }));
+  return obs.photoUrls.map((url) => ({ photoId: null, url, thumbUrl: url }));
 }
 
 // Mirrors auth.canEditObservation server-side -- the server is the real
@@ -94,12 +97,15 @@ function PermalinkIcon({ path, label }: { path: string; label: string }) {
 // actually fills the visible height area, matching a landscape photo's
 // visual weight. Orientation isn't known until the image loads, so it
 // starts landscape-styled and switches once naturalWidth/Height are in.
-function FeaturedPhoto({ url }: { url: string }) {
+function FeaturedPhoto({ photo }: { photo: Photo }) {
   const [isPortrait, setIsPortrait] = useState(false);
+  const size = photo.sizes.medium;
 
   return (
     <img
-      src={url}
+      src={photo.urls.medium}
+      width={size?.w}
+      height={size?.h}
       alt="Featured observation photo"
       onLoad={(e) =>
         setIsPortrait(e.currentTarget.naturalHeight > e.currentTarget.naturalWidth)
@@ -116,15 +122,20 @@ function FeaturedPhoto({ url }: { url: string }) {
 function PhotoThumbnail({
   photoId,
   url,
+  thumbUrl,
   linkPath,
   highlighted = false,
 }: {
   photoId: string | null;
   url: string;
+  thumbUrl: string;
   linkPath: string | null;
   highlighted?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
+  // If the thumb object is unreachable, fall back to the original before
+  // giving up on the photo entirely.
+  const [thumbFailed, setThumbFailed] = useState(false);
   const [open, setOpen] = useState(false);
 
   if (failed) {
@@ -140,12 +151,16 @@ function PhotoThumbnail({
       <div className="relative" id={photoId ? `photo-${photoId}` : undefined}>
         <button type="button" onClick={() => setOpen(true)}>
           <img
-            src={url}
+            src={thumbFailed ? url : thumbUrl}
             alt="Observation photo"
+            loading="lazy"
             className={`h-24 w-24 rounded-md border object-cover ${
               highlighted ? "border-amber-400 ring-2 ring-amber-400" : "border-neutral-200"
             }`}
-            onError={() => setFailed(true)}
+            onError={() => {
+              if (!thumbFailed && thumbUrl !== url) setThumbFailed(true);
+              else setFailed(true);
+            }}
           />
         </button>
         {linkPath && (
@@ -399,7 +414,7 @@ export function ObservationsPanel({
   // Set when this panel is rendered from a photo permalink -- rendered as a
   // big in-page image above the list (see FeaturedPhoto), instead of the
   // matching thumbnail's lightbox auto-opening as a floating overlay.
-  featuredPhoto?: { photoId: string; url: string } | null;
+  featuredPhoto?: Photo | null;
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingObservation, setEditingObservation] = useState<Observation | null>(
@@ -422,7 +437,7 @@ export function ObservationsPanel({
     <div className="flex flex-col gap-4">
       <h2 className="text-lg font-medium">Observations</h2>
 
-      {featuredPhoto && <FeaturedPhoto url={featuredPhoto.url} />}
+      {featuredPhoto && <FeaturedPhoto photo={featuredPhoto} />}
 
       <ul className="flex flex-col gap-4">
         {observerName && (
@@ -507,11 +522,12 @@ export function ObservationsPanel({
                 if (obsPhotos.length === 0) return null;
                 return (
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {obsPhotos.map(({ photoId, url }) => (
+                    {obsPhotos.map(({ photoId, url, thumbUrl }) => (
                       <PhotoThumbnail
                         key={photoId ?? url}
                         photoId={photoId}
                         url={url}
+                        thumbUrl={thumbUrl}
                         linkPath={photoId ? photoPath(spotSlug, obs.observationId, photoId) : null}
                         highlighted={!!photoId && photoId === highlightPhotoId}
                       />

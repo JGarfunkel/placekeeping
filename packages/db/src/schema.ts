@@ -728,9 +728,26 @@ export const photos = pgTable(
       { onDelete: "set null" },
     ),
     moderationStatus: photoModerationStatusEnum("moderation_status").notNull(),
+    // Dimensions/bytes of the stored original plus the derived medium and
+    // thumb WebP copies (see local/photo-updates.md). Null for pasted
+    // external URLs and for native rows not yet regenerated -- readers fall
+    // back to `url`. A non-null value means all three objects exist.
+    variants: jsonb("variants").$type<PhotoVariants | null>(),
+    originalFilename: text("original_filename"),
+    sizeBytes: integer("size_bytes"),
+    // Set when the stored bytes change after upload (admin replace or
+    // regenerate). Keys are reused, so photoSrc appends it as a ?v= cache
+    // buster.
+    replacedAt: timestamp("replaced_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
   },
   (table) => [index("photos_observation_id_idx").on(table.observationId)],
 );
+
+export type PhotoVariants = {
+  original: { w: number; h: number; bytes: number; mime: string };
+  medium?: { w: number; h: number; bytes: number };
+  thumb?: { w: number; h: number; bytes: number };
+};

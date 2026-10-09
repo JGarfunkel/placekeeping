@@ -1,6 +1,6 @@
 "use client";
 
-import type { SpotOption, SpotSummary } from "@placekeeping/shared-types";
+import type { PhotoUploadMeta, SpotOption, SpotSummary } from "@placekeeping/shared-types";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -28,6 +28,9 @@ export function UploadPhotoDialog({
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [loginRequired, setLoginRequired] = useState(false);
+  // Variant metadata POST /api/photos returned for the uploaded file, echoed
+  // back when attaching it to a spot so the photos row gets its variants.
+  const [uploadMeta, setUploadMeta] = useState<PhotoUploadMeta | null>(null);
 
   async function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -50,11 +53,13 @@ export function UploadPhotoDialog({
           typeof body?.error === "string" ? body.error : "Failed to upload photo",
         );
       }
-      const { url, observedAt, location } = body as {
+      const { url, meta, observedAt, location } = body as {
         url: string;
+        meta?: PhotoUploadMeta;
         observedAt: string | null;
         location: { lat: number; lng: number } | null;
       };
+      setUploadMeta(meta ?? null);
       if (location) {
         setStep({ kind: "nearby", url, observedAt, lat: location.lat, lng: location.lng });
       } else {
@@ -73,6 +78,7 @@ export function UploadPhotoDialog({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         photoUrls: [url],
+        photoMeta: uploadMeta ? { [url]: uploadMeta } : undefined,
         observedAt: observedAt ?? undefined,
         observerName: observerName ?? undefined,
       }),

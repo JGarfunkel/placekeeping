@@ -1,3 +1,4 @@
+export * from "./adminPhotos";
 export * from "./appSettings";
 export * from "./auth";
 export * from "./debug";

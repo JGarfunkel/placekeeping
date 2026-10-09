@@ -92,6 +92,17 @@ export default async function AdminPage() {
           <WritesPauseToggle initialPaused={settings.writesPaused} />
         </section>
       </div>
+      <section className="flex items-center justify-between rounded-md border border-neutral-200 p-4">
+        <div className="flex flex-col gap-1">
+          <h2 className="font-medium">Photos</h2>
+          <p className="text-sm text-neutral-600">
+            Every photo in the system: replace files, regenerate thumbnails.
+          </p>
+        </div>
+        <Link href="/admin/photos" className="text-sm underline">
+          Manage photos &rarr;
+        </Link>
+      </section>
       <section className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <h2 className="font-medium">Recent activity</h2>

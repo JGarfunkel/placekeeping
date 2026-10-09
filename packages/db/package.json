@@ -20,7 +20,9 @@
     "backfill-observation-vegetation": "dotenv -e ../../.env -- tsx src/backfillObservationVegetation.ts",
     "backfill-observation-vegetation:proddb": "dotenv -e ../../.env.proddb -- tsx src/backfillObservationVegetation.ts",
     "backfill-bloom-months": "dotenv -e ../../.env -- tsx src/backfillBloomMonths.ts",
-    "generate-reclassification-data": "dotenv -e ../../.env -- tsx src/generateReclassificationUpdates.ts",
+    "rewrite-photo-base-url": "dotenv -e ../../.env -- tsx src/rewritePhotoBaseUrl.ts",
+    "rewrite-photo-base-url:proddb": "dotenv -e ../../.env.proddb -- tsx src/rewritePhotoBaseUrl.ts",
+    "generate-reclassification-data":"dotenv -e ../../.env -- tsx src/generateReclassificationUpdates.ts",
     "generate-reclassification-data:proddb": "dotenv -e ../../.env.proddb -- tsx src/generateReclassificationUpdates.ts"
   },
   "dependencies": {

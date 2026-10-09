@@ -15,7 +15,7 @@ export function buildObservationOgContent(spot: Spot, obs: Observation): OgConte
   return {
     title: `${spot.name} — ${obs.observedAt}`,
     description: describeObservation(spot, obs),
-    imageUrl: obs.photos?.[0]?.url ?? obs.photoUrls[0] ?? spot.coverPhotoUrl,
+    imageUrl: obs.photos?.[0]?.urls.medium ?? obs.photoUrls[0] ?? spot.coverPhotoUrl,
     path: observationPath(spot, obs.observationId),
     type: "article",
   };
@@ -29,7 +29,7 @@ export function buildPhotoOgContent(
   return {
     title: `${spot.name} — ${obs.observedAt}`,
     description: describeObservation(spot, obs),
-    imageUrl: photo.url,
+    imageUrl: photo.urls.medium,
     path: photoPath(spot, obs.observationId, photo.photoId),
     type: "article",
   };

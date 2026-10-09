@@ -3,6 +3,7 @@ import { STATE_CONFIGS } from "@placekeeping/shared-types";
 import { and, asc, desc, eq, ne, or, sql, type SQL } from "drizzle-orm";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import type { SlideshowScope } from "./slideshowScope";
+import { photoSrc } from "./photos";
 
 export const SLIDESHOW_ORDERS = ["newest", "oldest", "random", "spot"] as const;
 export type SlideshowOrder = (typeof SLIDESHOW_ORDERS)[number];
@@ -143,7 +144,9 @@ export async function listSlides(
   const slides: Slide[] = rows.map((row) => ({
     observationId: row.observations.observationId,
     photoId: row.photos.photoId,
-    photoUrl: row.photos.url,
+    // Full-size original (the slideshow is the one place that wants it); photoSrc
+    // adds the ?v= cache buster after an admin replace.
+    photoUrl: photoSrc(row.photos, "original"),
     spotId: row.spots.spotId,
     spotName: row.spots.name,
     spotPath: slugPath(row.spots),

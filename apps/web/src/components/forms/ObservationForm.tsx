@@ -1,6 +1,11 @@
 "use client";
 
-import type { Focus, Observation, WeedLevel } from "@placekeeping/shared-types";
+import type {
+  Focus,
+  Observation,
+  PhotoUploadMeta,
+  WeedLevel,
+} from "@placekeeping/shared-types";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SPECIES_BLOOMING_BINS } from "@/taxonomy/speciesBloomingBins";
@@ -61,6 +66,10 @@ export function ObservationForm({
   const [photoUrls, setPhotoUrls] = useState<string[]>(
     observation?.photoUrls ?? [],
   );
+  // Variant metadata from POST /api/photos for photos uploaded in this
+  // session, keyed by url, echoed back on save so the photos rows get their
+  // variants. Photos already on the observation have none here.
+  const [photoMeta, setPhotoMeta] = useState<Record<string, PhotoUploadMeta>>({});
   const [inaturalistObsUrl, setInaturalistObsUrl] = useState(
     observation?.inaturalistObsUrl ?? "",
   );
@@ -118,6 +127,7 @@ export function ObservationForm({
         );
       }
       setPhotoUrls((prev) => [...prev, body.url]);
+      if (body.meta) setPhotoMeta((prev) => ({ ...prev, [body.url]: body.meta }));
       if (body.observedAt) setObservedAt(body.observedAt);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "Failed to upload photo");
@@ -142,6 +152,7 @@ export function ObservationForm({
             weedLevel,
             speciesBlooming: speciesBlooming ?? undefined,
             photoUrls,
+            photoMeta,
             inaturalistObsUrl: inaturalistObsUrl || undefined,
           }
         : {
@@ -152,6 +163,7 @@ export function ObservationForm({
             weedLevel,
             speciesBlooming: speciesBlooming ?? undefined,
             photoUrls,
+            photoMeta,
             inaturalistObsUrl: inaturalistObsUrl || undefined,
             claimStewardship,
           };

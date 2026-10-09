@@ -4,13 +4,85 @@ import { focusSchema, vegetationSchema, weedLevelSchema } from "./enums";
 // One row per photo attached to an observation (packages/db/src/schema.ts's
 // `photos` table) -- the addressable id behind an observation/photo
 // permalink, unlike the plain URLs in observationSchema.photoUrls below.
+const imageSizeSchema = z.object({
+  w: z.number().int().positive(),
+  h: z.number().int().positive(),
+  bytes: z.number().int().nonnegative(),
+});
+
+// Stored original plus derived medium/thumb WebP copies -- see
+// photos.variants in packages/db/src/schema.ts.
+export const photoVariantsSchema = z.object({
+  original: imageSizeSchema.extend({ mime: z.string().min(1) }),
+  medium: imageSizeSchema.optional(),
+  thumb: imageSizeSchema.optional(),
+});
+export type PhotoVariants = z.infer<typeof photoVariantsSchema>;
+
 export const photoSchema = z.object({
   photoId: z.string().uuid(),
   observationId: z.string().uuid(),
+  // The original, as stored (and as dual-written into observations.photoUrls).
   url: z.string().url(),
+  // Ready-to-use src per variant, built server-side (core photoSrc): falls
+  // back to `url` when the photo has no derived copies, and carries a ?v=
+  // cache buster after an admin replace.
+  urls: z.object({
+    original: z.string().url(),
+    medium: z.string().url(),
+    thumb: z.string().url(),
+  }),
+  // Pixel size of each src above when known, to reserve space before load.
+  // Null when the photo has no stored dimensions (legacy / external).
+  sizes: z.object({
+    original: z.object({ w: z.number(), h: z.number() }).nullable(),
+    medium: z.object({ w: z.number(), h: z.number() }).nullable(),
+    thumb: z.object({ w: z.number(), h: z.number() }).nullable(),
+  }),
   createdAt: z.string().datetime(),
 });
 export type Photo = z.infer<typeof photoSchema>;
+
+// One row of the admin photo manager (/admin/photos): a photo joined to its
+// observation, spot and uploader. Filtering/sorting/grouping happen client
+// side over the full list (see apps/web/src/lib/adminPhotoView.ts).
+export type AdminPhotoRow = {
+  photoId: string;
+  observationId: string;
+  spotId: number;
+  spotName: string;
+  uploaderId: string | null;
+  uploaderName: string | null;
+  createdAt: string;
+  replacedAt: string | null;
+  storageKey: string | null;
+  source: "native" | "external";
+  // n/a for external-URL photos, which have no objects of ours.
+  variantStatus: "ready" | "missing" | "n/a";
+  originalW: number | null;
+  originalH: number | null;
+  sizeBytes: number | null;
+  originalFilename: string | null;
+  moderationStatus: string;
+  variants: PhotoVariants | null;
+  thumbUrl: string;
+  mediumUrl: string;
+  originalUrl: string;
+};
+
+// What POST /api/photos reports about a stored upload. The client echoes it
+// back alongside the photo url when saving an observation, because the
+// `photos` row is written later by createObservation/updateObservation,
+// which only otherwise receive the url. The server re-validates it (own
+// storage url, all three objects exist) before trusting it.
+export const photoUploadMetaSchema = z.object({
+  variants: photoVariantsSchema,
+  originalFilename: z.string().max(255).nullable().optional(),
+  sizeBytes: z.number().int().positive(),
+});
+export type PhotoUploadMeta = z.infer<typeof photoUploadMetaSchema>;
+// Keyed by photo url.
+export const photoMetaMapSchema = z.record(z.string().url(), photoUploadMetaSchema);
 
 // Pointer to a Google Street View frame -- see observations.gsvRef in
 // packages/db/src/schema.ts. No imagery is stored, only what's needed to
@@ -80,6 +152,7 @@ export const createObservationSchema = z.object({
   focus: focusSchema.optional(),
   speciesBlooming: z.number().int().nonnegative().optional(),
   photoUrls: z.array(z.string().url()).default([]),
+  photoMeta: photoMetaMapSchema.optional(),
   inaturalistObsUrl: z.string().url().optional(),
   // "Log stewardship activity" at creation time, in one step instead of
   // create-then-claim -- see claimObservationStewardship. Ignored server-side
@@ -109,6 +182,7 @@ export const updateObservationSchema = z.object({
   focus: focusSchema.optional(),
   speciesBlooming: z.number().int().nonnegative().optional(),
   photoUrls: z.array(z.string().url()).optional(),
+  photoMeta: photoMetaMapSchema.optional(),
   inaturalistObsUrl: z.string().url().optional(),
 });
 export type UpdateObservationInput = z.infer<typeof updateObservationSchema>;
@@ -125,6 +199,9 @@ export type PhotoMetadata = z.infer<typeof photoMetadataSchema>;
 
 export const photoUploadResponseSchema = z.object({
   url: z.string().url(),
+  // Absent when the caller asked for a single display copy (see
+  // POST /api/photos `variant`): no photos row follows for those uploads.
+  meta: photoUploadMetaSchema.optional(),
   observedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
   location: z.object({ lat: z.number(), lng: z.number() }).nullable(),
 });

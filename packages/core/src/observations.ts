@@ -11,8 +11,8 @@ import type {
 import { and, desc, eq, sql } from "drizzle-orm";
 import { diffFields, logEvent, snapshotToChanges } from "./events";
 import { checkPhotoUrls, getModerationMode } from "./photoModeration";
-import { isOwnStorageUrl, ownStorageKey } from "./photoStorage";
-import { listPhotosForObservations } from "./photos";
+import { isOwnStorageUrl } from "./photoStorage";
+import { listPhotosForObservations, photoStorageFields } from "./photos";
 
 // NULL source (rows predating the column) counts as a keeper observation.
 const isKeeper = sql`${observations.source} IS DISTINCT FROM 'gsv'`;
@@ -205,13 +205,15 @@ export async function createObservation(
     const moderationStatus: "skipped" | "approved" =
       getModerationMode() === "none" ? "skipped" : "approved";
     await db.insert(photos).values(
-      input.photoUrls.map((url) => ({
-        observationId: row.observationId,
-        url,
-        storageKey: ownStorageKey(url),
-        uploadedByUserId: userId,
-        moderationStatus,
-      })),
+      await Promise.all(
+        input.photoUrls.map(async (url) => ({
+          observationId: row.observationId,
+          url,
+          ...(await photoStorageFields(url, input.photoMeta?.[url])),
+          uploadedByUserId: userId,
+          moderationStatus,
+        })),
+      ),
     );
   }
 
@@ -272,13 +274,15 @@ export async function updateObservation(
     const moderationStatus: "skipped" | "approved" =
       getModerationMode() === "none" ? "skipped" : "approved";
     await db.insert(photos).values(
-      addedUrls.map((url) => ({
-        observationId,
-        url,
-        storageKey: ownStorageKey(url),
-        uploadedByUserId: userId,
-        moderationStatus,
-      })),
+      await Promise.all(
+        addedUrls.map(async (url) => ({
+          observationId,
+          url,
+          ...(await photoStorageFields(url, input.photoMeta?.[url])),
+          uploadedByUserId: userId,
+          moderationStatus,
+        })),
+      ),
     );
   }
 

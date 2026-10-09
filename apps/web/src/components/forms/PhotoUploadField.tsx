@@ -40,6 +40,8 @@ export function PhotoUploadField({
     try {
       const formData = new FormData();
       formData.append("file", file);
+      // A single display image: serve the ~800px copy, not the original.
+      formData.append("variant", "medium");
       const res = await fetch("/api/photos", { method: "POST", body: formData });
       const body = await res.json().catch(() => null);
       if (!res.ok) {

@@ -26,7 +26,7 @@ export function SpotForm({
   initialCoverPhotoObservedAt,
 }: {
   existing?: Spot;
-  observationPhotos?: { url: string; observedAt: string }[];
+  observationPhotos?: { url: string; thumbUrl?: string; observedAt: string }[];
   currentSteward?: StewardRef | null;
   initialCoverPhotoUrl?: string;
   initialCoverPhotoObservedAt?: string;
@@ -53,7 +53,7 @@ function SpotFormFields({
   initialCoverPhotoObservedAt,
 }: {
   existing?: Spot;
-  observationPhotos: { url: string; observedAt: string }[];
+  observationPhotos: { url: string; thumbUrl?: string; observedAt: string }[];
   currentSteward: StewardRef | null;
   initialCoverPhotoUrl?: string;
   initialCoverPhotoObservedAt?: string;
@@ -320,7 +320,7 @@ function SpotFormFields({
                       className="rounded-md ring-offset-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
                     >
                       <img
-                        src={photo.url}
+                        src={photo.thumbUrl ?? photo.url}
                         alt={`Observation photo from ${photo.observedAt}`}
                         className="h-20 w-20 rounded-md border border-neutral-200 object-cover hover:opacity-80"
                       />

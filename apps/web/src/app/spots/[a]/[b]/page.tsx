@@ -60,7 +60,13 @@ export default async function SpotsDepth2Page({
     const seenPhotoUrls = new Set<string>();
     const observationPhotos = observations
       .flatMap((obs) =>
-        obs.photoUrls.map((url) => ({ url, observedAt: obs.observedAt })),
+        obs.photos && obs.photos.length > 0
+          ? obs.photos.map((p) => ({
+              url: p.url, // stored value: no ?v= cache buster
+              thumbUrl: p.urls.thumb,
+              observedAt: obs.observedAt,
+            }))
+          : obs.photoUrls.map((url) => ({ url, observedAt: obs.observedAt })),
       )
       .filter(({ url }) => {
         if (seenPhotoUrls.has(url)) return false;
