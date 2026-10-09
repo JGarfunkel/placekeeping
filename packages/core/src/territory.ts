@@ -211,11 +211,16 @@ function boundsFromGeometry(geometry: { coordinates: unknown }): {
   const centerLng = (minLng + maxLng) / 2;
   const latSpan = maxLat - minLat;
   const lngSpan = (maxLng - minLng) * Math.cos((centerLat * Math.PI) / 180);
-  const span = Math.max(latSpan, lngSpan, 0.0005);
+  return { centerLat, centerLng, zoom: zoomForSpanDegrees(Math.max(latSpan, lngSpan)) };
+}
+
+// Approximate "fit a territory spanning this many degrees" zoom, shared by
+// boundsFromGeometry and the Gazetteer importer (seedSubdivisionCenters.ts).
+export function zoomForSpanDegrees(spanDegrees: number): number {
+  const span = Math.max(spanDegrees, 0.0005);
   // +2 over the naive "fit the envelope exactly" value -- that bare fit
   // reads as noticeably too zoomed-out in practice (confirmed on /us/ny).
-  const zoom = Math.min(16, Math.max(3, Math.floor(Math.log2(360 / span)) + 2));
-  return { centerLat, centerLng, zoom };
+  return Math.min(16, Math.max(3, Math.floor(Math.log2(360 / span)) + 2));
 }
 
 export interface ArcGisFeature<TProps> {
@@ -541,7 +546,7 @@ function toOptions(
   return candidates.map((c) => ({ name: c.name, type: c.type, county: c.county }));
 }
 
-function slugifyMuniName(name: string): string {
+export function slugifyMuniName(name: string): string {
   return name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
@@ -662,11 +667,13 @@ async function findCdpWinner(stateCode: string, name: string): Promise<Candidate
   return null;
 }
 
-// Finds already-GIS-resolved level-2 rows named `<name>-<type>` for this
-// state. Returns a resolution only when exactly one such row exists, or an
-// explicit qualifier picks exactly one -- stored rows carry no population, so
-// the multi-row tie-breakers in pickWinner can't be trusted here. Placeholder
-// rows (spot-count-only, no center) are skipped via rowToResolution.
+// Finds already-resolved level-2 rows (GIS-resolved, or seeded by
+// seedSubdivisionCenters.ts) named `<name>-<type>` for this state. A single
+// match wins outright; several are run through pickWinner, but only its
+// population-free rules (town beats village, city beats same-county town)
+// are trusted -- stored rows carry no population, so any outcome that would
+// need one comes back ambiguous and is left to GIS. Placeholder rows
+// (spot-count-only, no center) are skipped via the isNotNull filters.
 async function resolveFromStoredBoundaries(
   stateCode: string,
   name: string,
@@ -701,8 +708,24 @@ async function resolveFromStoredBoundaries(
         isNotNull(subdivisions.zoom),
       ),
     );
-  if (rows.length !== 1) return null;
-  const resolution = rowToResolution(rows[0]);
+  if (rows.length === 0) return null;
+
+  let row = rows[0];
+  if (rows.length > 1) {
+    const candidates: Candidate[] = rows.map((r) => ({
+      type: r.type as MunicipalityType,
+      name: r.name,
+      county: r.county,
+      population: null,
+      externalId: r.externalId,
+      geometry: { type: "Point", coordinates: [] },
+    }));
+    const winner = pickWinner(candidates, qualifier);
+    if (!winner || "ambiguous" in winner) return null;
+    row = rows.find((r) => r.type === winner.type && r.name === winner.name) ?? rows[0];
+  }
+
+  const resolution = rowToResolution(row);
   if (resolution) resolutionCache.set(resolution.path, resolution);
   return resolution;
 }

@@ -7,6 +7,8 @@
   "types": "src/index.ts",
   "scripts": {
     "backfill-subdivisions": "dotenv -e ../../.env -- tsx src/backfillSubdivisions.ts",
+    "seed-subdivision-centers": "dotenv -e ../../.env -- tsx src/seedSubdivisionCenters.ts",
+    "seed-subdivision-centers:proddb": "dotenv -e ../../.env.proddb -- tsx src/seedSubdivisionCenters.ts",
     "backfill-subdivisions:proddb": "dotenv -e ../../.env.proddb -- tsx src/backfillSubdivisions.ts",
     "backfill-observation-photos": "dotenv -e ../../.env -- tsx src/backfillObservationPhotos.ts",
     "normalize-spot-location-fields": "dotenv -e ../../.env -- tsx src/normalizeSpotLocationFields.ts",

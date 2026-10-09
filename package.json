@@ -20,6 +20,8 @@
     "db:check": "npm run check -w packages/db",
     "db:check:proddb": "npm run check:proddb -w packages/db",
     "db:backfill-subdivisions": "npm run backfill-subdivisions -w packages/core",
+    "db:seed-subdivision-centers": "npm run seed-subdivision-centers -w packages/core",
+    "db:seed-subdivision-centers:proddb": "npm run seed-subdivision-centers:proddb -w packages/core",
     "db:backfill-subdivisions:proddb": "npm run backfill-subdivisions:proddb -w packages/core",
     "db:backfill-observation-photos": "npm run backfill-observation-photos -w packages/core",
     "db:normalize-spot-location-fields": "npm run normalize-spot-location-fields -w packages/core",
