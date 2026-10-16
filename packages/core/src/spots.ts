@@ -504,6 +504,10 @@ export async function createSpot(
       row.spotId,
       {
         photoUrls: input.coverPhotoUrl ? [input.coverPhotoUrl] : [],
+        photoMeta:
+          input.coverPhotoUrl && input.coverPhotoMeta
+            ? { [input.coverPhotoUrl]: input.coverPhotoMeta }
+            : undefined,
         observedAt: input.coverPhotoObservedAt,
         speciesBlooming: input.speciesBlooming,
       },
@@ -530,6 +534,7 @@ export async function updateSpot(
     sizeSqft,
     county: rawCounty,
     coverPhotoObservedAt: _coverPhotoObservedAt,
+    coverPhotoMeta: _coverPhotoMeta,
     slug: _rawSlug,
     ...rest
   } = input;

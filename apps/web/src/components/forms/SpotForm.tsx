@@ -1,6 +1,12 @@
 "use client";
 
-import type { Focus, Setting, Spot, WeedLevel } from "@placekeeping/shared-types";
+import type {
+  Focus,
+  PhotoUploadMeta,
+  Setting,
+  Spot,
+  WeedLevel,
+} from "@placekeeping/shared-types";
 import { APIProvider, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -24,12 +30,14 @@ export function SpotForm({
   currentSteward = null,
   initialCoverPhotoUrl,
   initialCoverPhotoObservedAt,
+  initialCoverPhotoMeta,
 }: {
   existing?: Spot;
   observationPhotos?: { url: string; thumbUrl?: string; observedAt: string }[];
   currentSteward?: StewardRef | null;
   initialCoverPhotoUrl?: string;
   initialCoverPhotoObservedAt?: string;
+  initialCoverPhotoMeta?: PhotoUploadMeta;
 }) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -40,6 +48,7 @@ export function SpotForm({
       currentSteward={currentSteward}
       initialCoverPhotoUrl={initialCoverPhotoUrl}
       initialCoverPhotoObservedAt={initialCoverPhotoObservedAt}
+      initialCoverPhotoMeta={initialCoverPhotoMeta}
     />
   );
   return apiKey ? <APIProvider apiKey={apiKey}>{form}</APIProvider> : form;
@@ -51,12 +60,14 @@ function SpotFormFields({
   currentSteward,
   initialCoverPhotoUrl,
   initialCoverPhotoObservedAt,
+  initialCoverPhotoMeta,
 }: {
   existing?: Spot;
   observationPhotos: { url: string; thumbUrl?: string; observedAt: string }[];
   currentSteward: StewardRef | null;
   initialCoverPhotoUrl?: string;
   initialCoverPhotoObservedAt?: string;
+  initialCoverPhotoMeta?: PhotoUploadMeta;
 }) {
   const router = useRouter();
   const geocodingLib = useMapsLibrary("geocoding");
@@ -215,6 +226,12 @@ function SpotFormFields({
         website: website || undefined,
         coverPhotoUrl: coverPhotoUrl || undefined,
         coverPhotoObservedAt: coverPhotoUrl ? coverPhotoObservedAt : undefined,
+        // Only valid for the photo it came from; a picked replacement is an
+        // existing observation photo that already has its own row.
+        coverPhotoMeta:
+          !existing && coverPhotoUrl && coverPhotoUrl === initialCoverPhotoUrl
+            ? initialCoverPhotoMeta
+            : undefined,
         photoAlbumUrl: photoAlbumUrl || undefined,
         inaturalistUrl: inaturalistUrl || undefined,
       };

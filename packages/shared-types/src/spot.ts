@@ -11,6 +11,7 @@ import {
   vegetationSchema,
   weedLevelSchema,
 } from "./enums";
+import { photoUploadMetaSchema } from "./observation";
 
 export const spotSchema = z.object({
   spotId: z.number().int().positive(),
@@ -149,6 +150,10 @@ export const createSpotSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Expected a YYYY-MM-DD date")
     .optional(),
+  // Variant metadata POST /api/photos returned for coverPhotoUrl, so the
+  // initial observation's photos row gets its variants (see
+  // photoStorageFields). Ignored unless coverPhotoUrl is also set.
+  coverPhotoMeta: photoUploadMetaSchema.optional(),
   // Not a spots column -- seeds the initial observation createSpot logs, the
   // same way coverPhotoUrl does. See QuickAddSpotDialog and
   // observation.ts's speciesBlooming.

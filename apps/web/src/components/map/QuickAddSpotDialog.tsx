@@ -1,6 +1,12 @@
 "use client";
 
-import type { Focus, Setting, SpotFunction, WeedLevel } from "@placekeeping/shared-types";
+import type {
+  Focus,
+  PhotoUploadMeta,
+  Setting,
+  SpotFunction,
+  WeedLevel,
+} from "@placekeeping/shared-types";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -26,6 +32,7 @@ export function QuickAddSpotDialog({
   siteId,
   initialCoverPhotoUrl,
   initialCoverPhotoObservedAt,
+  initialCoverPhotoMeta,
   onClose,
 }: {
   latitude: number;
@@ -33,6 +40,7 @@ export function QuickAddSpotDialog({
   siteId?: number;
   initialCoverPhotoUrl?: string;
   initialCoverPhotoObservedAt?: string | null;
+  initialCoverPhotoMeta?: PhotoUploadMeta | null;
   onClose: () => void;
 }) {
   const router = useRouter();
@@ -51,6 +59,11 @@ export function QuickAddSpotDialog({
   const [coverPhotoUrl, setCoverPhotoUrl] = useState(initialCoverPhotoUrl ?? "");
   const [coverPhotoObservedAt, setCoverPhotoObservedAt] = useState(
     initialCoverPhotoObservedAt ?? null,
+  );
+  // Variant metadata from POST /api/photos for coverPhotoUrl, echoed back on
+  // save so the photos row gets its variants.
+  const [coverPhotoMeta, setCoverPhotoMeta] = useState<PhotoUploadMeta | null>(
+    initialCoverPhotoMeta ?? null,
   );
   const [selectedSteward, setSelectedSteward] = useState<StewardRef | null>(null);
   const [stewardIsOwner, setStewardIsOwner] = useState(false);
@@ -107,6 +120,7 @@ export function QuickAddSpotDialog({
         );
       }
       setCoverPhotoUrl(body.url);
+      setCoverPhotoMeta(body.meta ?? null);
       setCoverPhotoObservedAt(body.observedAt ?? null);
     } catch (err) {
       setPhotoError(err instanceof Error ? err.message : "Failed to upload photo");
@@ -141,6 +155,7 @@ export function QuickAddSpotDialog({
           speciesBlooming: speciesBlooming ?? undefined,
           coverPhotoUrl: coverPhotoUrl || undefined,
           coverPhotoObservedAt: coverPhotoUrl ? (coverPhotoObservedAt ?? undefined) : undefined,
+          coverPhotoMeta: coverPhotoUrl ? (coverPhotoMeta ?? undefined) : undefined,
           stewardId: selectedSteward?.stewardId ?? undefined,
           stewardIsOwner,
           siteId,
@@ -322,6 +337,7 @@ export function QuickAddSpotDialog({
                   type="button"
                   onClick={() => {
                     setCoverPhotoUrl("");
+                    setCoverPhotoMeta(null);
                     setCoverPhotoObservedAt(null);
                   }}
                   aria-label="Remove cover photo"

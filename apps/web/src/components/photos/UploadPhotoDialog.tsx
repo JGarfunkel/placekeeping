@@ -107,6 +107,7 @@ export function UploadPhotoDialog({
         longitude={step.lng}
         initialCoverPhotoUrl={step.url}
         initialCoverPhotoObservedAt={step.observedAt}
+        initialCoverPhotoMeta={uploadMeta}
         onClose={onClose}
       />
     );
@@ -193,6 +194,7 @@ export function UploadPhotoDialog({
             onCreateNew={() => {
               const params = new URLSearchParams({ coverPhotoUrl: step.url });
               if (step.observedAt) params.set("coverPhotoObservedAt", step.observedAt);
+              if (uploadMeta) params.set("coverPhotoMeta", JSON.stringify(uploadMeta));
               router.push(`/spots/new?${params.toString()}`);
               onClose();
             }}
