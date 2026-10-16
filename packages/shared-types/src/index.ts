@@ -9,3 +9,5 @@ export * from "./steward";
 export * from "./stewardMember";
 export * from "./territory";
 export * from "./user";
+export * from "./careEvent";
+export * from "./task";

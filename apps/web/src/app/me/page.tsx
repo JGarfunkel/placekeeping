@@ -1,5 +1,6 @@
 import {
   getStewardByStewardId,
+  listAsanaIdentitiesForUser,
   getUserByUserId,
   listStewardsForUser,
 } from "@placekeeping/core";
@@ -7,13 +8,20 @@ import { levelLabel } from "@placekeeping/shared-types";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BecomeStewardButton } from "@/components/forms/BecomeStewardButton";
+import { AsanaConnectCard } from "@/components/integrations/AsanaConnectCard";
 import { LogoutButton } from "@/components/forms/LogoutButton";
 import { ProfilePhotoForm } from "@/components/forms/ProfilePhotoForm";
 import { ResendVerificationButton } from "@/components/forms/ResendVerificationButton";
 import { UsernameForm } from "@/components/forms/UsernameForm";
+import { isAsanaEnabled } from "@/lib/asana";
 import { requireAuthContext } from "@/lib/session";
 
-export default async function MyProfilePage() {
+export default async function MyProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ asana?: string }>;
+}) {
+  const { asana } = await searchParams;
   const authContext = await requireAuthContext();
   const user = await getUserByUserId(authContext.userId);
   if (!user) notFound();
@@ -22,6 +30,7 @@ export default async function MyProfilePage() {
     ? await getStewardByStewardId(authContext.stewardId)
     : null;
   const groups = await listStewardsForUser(authContext.userId);
+  const asanaIdentities = await listAsanaIdentitiesForUser(authContext.userId);
 
   return (
     <main className="mx-auto flex max-w-xl flex-col gap-6 px-6 py-8">
@@ -85,6 +94,10 @@ export default async function MyProfilePage() {
             ))}
           </ul>
         </div>
+      )}
+
+      {isAsanaEnabled() && (
+        <AsanaConnectCard identities={asanaIdentities} status={asana ?? null} />
       )}
 
       {user.isSystemAdmin && (

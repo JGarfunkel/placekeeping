@@ -4,6 +4,7 @@ import {
   countyPathSegment,
   getStewardByStewardId,
   getUserByUserId,
+  isTaskMember,
   slugify,
 } from "@placekeeping/core";
 import type { AuthContext } from "@placekeeping/core";
@@ -11,6 +12,9 @@ import type { Observation, Spot } from "@placekeeping/shared-types";
 import Link from "next/link";
 import { PlaySlideshowLink } from "@/components/slideshow/PlaySlideshowLink";
 import type { ReactNode } from "react";
+import { EventList } from "@/components/events/EventList";
+import { SpotTasks } from "@/components/tasks/SpotTasks";
+import { AsanaSpotSection } from "@/components/integrations/AsanaSpotSection";
 import { ObservationsPanel } from "@/components/forms/ObservationsPanel";
 import { focusOptions } from "@/components/forms/spotOptions";
 import { imageUrl as gsvImageUrl } from "@/lib/gsv";
@@ -186,6 +190,7 @@ export async function SpotDetailView({
       // GSV_API_KEY unset
     }
   }
+  const canCreateTasks = !!authContext && isTaskMember(authContext);
   const canDeleteSpot =
     canManageParcel && (!hasObservations || authContext?.isSystemAdmin === true);
 
@@ -344,6 +349,17 @@ export async function SpotDetailView({
           />
 
           <SpotDetailsSection spot={spot} canEdit={canManageParcel} />
+
+          <EventList target={{ spotId: spot.spotId }} authContext={authContext} />
+
+          <SpotTasks spotId={spot.spotId} authContext={authContext} />
+
+          <AsanaSpotSection
+            spot={spot}
+            observations={observations}
+            authContext={authContext}
+            canManageSpot={canManageParcel}
+          />
         </>
       }
       observations={
@@ -364,6 +380,7 @@ export async function SpotDetailView({
           currentUserId={authContext?.userId ?? null}
           currentStewardId={authContext?.stewardId ?? null}
           isSystemAdmin={authContext?.isSystemAdmin ?? false}
+          canCreateTasks={canCreateTasks}
           highlightObservationId={highlightObservationId}
           highlightPhotoId={highlightPhotoId}
           featuredPhoto={featuredPhoto}

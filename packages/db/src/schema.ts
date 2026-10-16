@@ -751,3 +751,442 @@ export type PhotoVariants = {
   medium?: { w: number; h: number; bytes: number };
   thumb?: { w: number; h: number; bytes: number };
 };
+
+// A Placekeeping user's linked account in an external work-management system
+// (Asana first -- see local/asana-integration.md). One user can link several
+// remote workspaces, and one remote account can be linked by several users.
+// `system` is plain text validated in app code (not a pgEnum) so adding
+// Trello/GitHub later needs no migration. Tokens are AES-GCM encrypted by
+// @placekeeping/core before they reach this table; never store plaintext.
+export const externalIdentities = pgTable(
+  "external_identities",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.userId, { onDelete: "cascade" }),
+    system: text("system").notNull(),
+    remoteWorkspaceId: text("remote_workspace_id").notNull(),
+    remoteWorkspaceName: text("remote_workspace_name"),
+    remoteUserId: text("remote_user_id").notNull(),
+    remoteUserName: text("remote_user_name"),
+    encryptedAccessToken: text("encrypted_access_token").notNull(),
+    encryptedRefreshToken: text("encrypted_refresh_token"),
+    accessTokenExpiresAt: timestamp("access_token_expires_at", {
+      withTimezone: true,
+    }),
+    // "active" | "revoked" -- app-level, like `system`.
+    status: text("status").notNull().default("active"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("external_identities_unique_idx").on(
+      table.userId,
+      table.system,
+      table.remoteWorkspaceId,
+      table.remoteUserId,
+    ),
+    index("external_identities_user_idx").on(table.userId),
+  ],
+);
+
+// Binds a site (or a single spot, overriding its site's binding) to a
+// container in an external system -- an Asana project, for now. Exactly one
+// of siteId/spotId/stewardId is set (scope is implied by which). See
+// local/asana-integration.md.
+export const integrationBindings = pgTable(
+  "integration_bindings",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    siteId: integer("site_id").references(() => sites.siteId, {
+      onDelete: "cascade",
+    }),
+    spotId: integer("spot_id").references(() => spots.spotId, {
+      onDelete: "cascade",
+    }),
+    // A steward-level binding is the default for every spot that steward
+    // holds; a site or spot binding overrides it (spot > site > steward).
+    stewardId: uuid("steward_id").references(() => stewards.stewardId, {
+      onDelete: "cascade",
+    }),
+    system: text("system").notNull(),
+    remoteWorkspaceId: text("remote_workspace_id").notNull(),
+    remoteProjectId: text("remote_project_id").notNull(),
+    remoteProjectName: text("remote_project_name"),
+    remoteSectionId: text("remote_section_id"),
+    configuredBy: uuid("configured_by").references(() => users.userId, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("integration_bindings_site_idx")
+      .on(table.siteId, table.system)
+      .where(sql`${table.siteId} IS NOT NULL`),
+    uniqueIndex("integration_bindings_spot_idx")
+      .on(table.spotId, table.system)
+      .where(sql`${table.spotId} IS NOT NULL`),
+    uniqueIndex("integration_bindings_steward_idx")
+      .on(table.stewardId, table.system)
+      .where(sql`${table.stewardId} IS NOT NULL`),
+    check(
+      "integration_bindings_scope_chk",
+      sql`(${table.siteId} IS NOT NULL)::int + (${table.spotId} IS NOT NULL)::int + (${table.stewardId} IS NOT NULL)::int = 1`,
+    ),
+  ],
+);
+
+// A pointer from a Placekeeping row to a thing in an external system, plus a
+// small cache of its title/status (refreshed on page load). `targetId` is
+// text, like events.entityId, to hold integer spot ids and uuid observation
+// ids uniformly; `targetType` is "spot" | "site" | "observation".
+export const externalLinks = pgTable(
+  "external_links",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    targetType: text("target_type").notNull(),
+    targetId: text("target_id").notNull(),
+    system: text("system").notNull(),
+    remoteType: text("remote_type").notNull(),
+    remoteId: text("remote_id").notNull(),
+    remoteUrl: text("remote_url").notNull(),
+    cachedTitle: text("cached_title"),
+    // "open" | "done"
+    cachedStatus: text("cached_status"),
+    cachedAt: timestamp("cached_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.userId, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("external_links_target_idx").on(table.targetType, table.targetId),
+    uniqueIndex("external_links_remote_idx").on(
+      table.system,
+      table.remoteType,
+      table.remoteId,
+      table.targetType,
+      table.targetId,
+    ),
+  ],
+);
+
+// A repeating task template for an external task system (Asana). Scoped like
+// integration_bindings: exactly one of stewardId/siteId/spotId, and a steward
+// or site template fans out to one task per spot in scope. A scheduler
+// (POST /api/cron/recurring-tasks) creates each occurrence `leadDays` before
+// its due date, as `configuredBy`, using that user's stored token.
+// `unit` is "week" | "month" | "year" and `status` is "active" | "paused",
+// both validated in app code. Due dates are anchorDate + k * interval units
+// (k = occurrenceCount), so month-end clamping never drifts.
+export const recurringTasks = pgTable(
+  "recurring_tasks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    stewardId: uuid("steward_id").references(() => stewards.stewardId, {
+      onDelete: "cascade",
+    }),
+    siteId: integer("site_id").references(() => sites.siteId, {
+      onDelete: "cascade",
+    }),
+    spotId: integer("spot_id").references(() => spots.spotId, {
+      onDelete: "cascade",
+    }),
+    system: text("system").notNull(),
+    title: text("title").notNull(),
+    notes: text("notes").notNull().default(""),
+    unit: text("unit").notNull(),
+    interval: integer("interval").notNull().default(1),
+    anchorDate: date("anchor_date").notNull(),
+    leadDays: integer("lead_days").notNull().default(30),
+    // Due date of the next occurrence not yet generated.
+    nextDueOn: date("next_due_on").notNull(),
+    occurrenceCount: integer("occurrence_count").notNull().default(0),
+    status: text("status").notNull().default("active"),
+    pausedReason: text("paused_reason"),
+    configuredBy: uuid("configured_by").references(() => users.userId, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("recurring_tasks_due_idx").on(table.status, table.nextDueOn),
+    index("recurring_tasks_steward_idx").on(table.stewardId),
+    index("recurring_tasks_site_idx").on(table.siteId),
+    index("recurring_tasks_spot_idx").on(table.spotId),
+    check(
+      "recurring_tasks_scope_chk",
+      sql`(${table.siteId} IS NOT NULL)::int + (${table.spotId} IS NOT NULL)::int + (${table.stewardId} IS NOT NULL)::int = 1`,
+    ),
+    check("recurring_tasks_interval_chk", sql`${table.interval} >= 1`),
+    check("recurring_tasks_lead_chk", sql`${table.leadDays} >= 0`),
+  ],
+);
+
+// One row per (template, spot, due date): the idempotency ledger. Rows are
+// inserted before any task is created ("pending"), so a re-run never creates
+// a duplicate; failures stay "failed" and are retried up to a cap.
+// `status`: "pending" | "created" | "failed" | "skipped" (spot not bound).
+export const recurringTaskOccurrences = pgTable(
+  "recurring_task_occurrences",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    recurringTaskId: uuid("recurring_task_id")
+      .notNull()
+      .references(() => recurringTasks.id, { onDelete: "cascade" }),
+    spotId: integer("spot_id")
+      .notNull()
+      .references(() => spots.spotId, { onDelete: "cascade" }),
+    dueOn: date("due_on").notNull(),
+    status: text("status").notNull().default("pending"),
+    attempts: integer("attempts").notNull().default(0),
+    lastError: text("last_error"),
+    externalLinkId: uuid("external_link_id").references(() => externalLinks.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("recurring_task_occurrences_uniq").on(
+      table.recurringTaskId,
+      table.spotId,
+      table.dueOn,
+    ),
+    index("recurring_task_occurrences_status_idx").on(table.status),
+  ],
+);
+
+// A scheduled maintenance event on a site or a spot (UI copy: "event" or
+// "workday"). Named care_events because `events` is the audit log. Exactly one
+// of siteId/spotId is set, so deletes cascade. eventType, status and
+// visibility are text validated in Zod (see shared-types careEvent.ts), not
+// pg enums. Control/planting columns (control_method, authorization_id,
+// aftercare, dig-safe) arrive with their gates in a later migration.
+export const careEvents = pgTable(
+  "care_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    siteId: integer("site_id").references(() => sites.siteId, {
+      onDelete: "cascade",
+    }),
+    spotId: integer("spot_id").references(() => spots.spotId, {
+      onDelete: "cascade",
+    }),
+    title: text("title").notNull(),
+    description: text("description").notNull().default(""),
+    eventType: text("event_type").notNull().default("cleanup"),
+    startAt: timestamp("start_at", { withTimezone: true }).notNull(),
+    endAt: timestamp("end_at", { withTimezone: true }).notNull(),
+    timeZone: text("time_zone").notNull(),
+    locationText: text("location_text").notNull().default(""),
+    // An outside page for the event (a sign-up sheet, a partner's listing).
+    // http(s) only, set by managers; shown as an external link.
+    url: text("url"),
+    // planned | held | canceled
+    status: text("status").notNull().default("planned"),
+    // managers | members | public
+    visibility: text("visibility").notNull().default("public"),
+    signupOpen: boolean("signup_open").notNull().default(true),
+    signupDeadline: timestamp("signup_deadline", { withTimezone: true }),
+    whatToBring: text("what_to_bring").notNull().default(""),
+    notesForVolunteers: text("notes_for_volunteers").notNull().default(""),
+    cancelReason: text("cancel_reason"),
+    createdBy: uuid("created_by").references(() => users.userId, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("care_events_site_idx").on(table.siteId, table.startAt),
+    index("care_events_spot_idx").on(table.spotId, table.startAt),
+    index("care_events_start_idx").on(table.startAt),
+    check(
+      "care_events_target_chk",
+      sql`(${table.siteId} IS NOT NULL)::int + (${table.spotId} IS NOT NULL)::int = 1`,
+    ),
+    check("care_events_end_chk", sql`${table.endAt} > ${table.startAt}`),
+  ],
+);
+
+// One row per (event, user). `confirmedAt` stays null until the emailed link
+// is used; unconfirmed rows are purged after 48h and never counted publicly.
+// `status` is going | canceled, `role` is lead | volunteer.
+export const careEventParticipants = pgTable(
+  "care_event_participants",
+  {
+    eventId: uuid("event_id")
+      .notNull()
+      .references(() => careEvents.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.userId, { onDelete: "cascade" }),
+    status: text("status").notNull().default("going"),
+    role: text("role").notNull().default("volunteer"),
+    attended: boolean("attended"),
+    confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
+    acknowledgedAt: timestamp("acknowledged_at", { withTimezone: true }),
+    // The part of the event this person is coming for, as normalized text in
+    // the event's local time zone: "HHMM-HHMM" 24-hour, e.g. "0900-1100".
+    // null = the whole event. Validated in app code.
+    timeslot: text("timeslot"),
+    reminderSentAt: timestamp("reminder_sent_at", { withTimezone: true }),
+    // sha256 of the emailed confirmation token (guest sign-up); null once used.
+    confirmationTokenHash: text("confirmation_token_hash"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.eventId, table.userId] }),
+    index("care_event_participants_user_idx").on(table.userId),
+    uniqueIndex("care_event_participants_token_idx").on(table.confirmationTokenHash),
+  ],
+);
+
+// Fixed-window request counters for abuse control (see core/rateLimit.ts).
+// Postgres rather than process memory because Cloud Run runs several
+// instances. `key` is "<bucket>:<subject>" (subjects that are emails are
+// hashed before they get here). Old windows are purged by the care-events
+// maintenance job.
+export const rateLimits = pgTable(
+  "rate_limits",
+  {
+    key: text("key").notNull(),
+    windowStart: timestamp("window_start", { withTimezone: true }).notNull(),
+    count: integer("count").notNull().default(0),
+  },
+  (table) => [
+    primaryKey({ columns: [table.key, table.windowStart] }),
+    index("rate_limits_window_idx").on(table.windowStart),
+  ],
+);
+
+// Native tasks: small, always attached to a place (a site, spot, observation
+// or care event -- exactly one, so deletes cascade). Visible to verified
+// members and managers only. `status` is open | in_progress | done | dropped
+// and `sourceType` (optional) is "observation" | "suggestion", both validated
+// in app code. Spots/sites bound to Asana keep their tasks in Asana instead
+// (see external_links); these rows then remain as read-only history.
+export const tasks = pgTable(
+  "tasks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    siteId: integer("site_id").references(() => sites.siteId, {
+      onDelete: "cascade",
+    }),
+    spotId: integer("spot_id").references(() => spots.spotId, {
+      onDelete: "cascade",
+    }),
+    observationId: uuid("observation_id").references(
+      () => observations.observationId,
+      { onDelete: "cascade" },
+    ),
+    eventId: uuid("event_id").references(() => careEvents.id, {
+      onDelete: "cascade",
+    }),
+    title: text("title").notNull(),
+    description: text("description").notNull().default(""),
+    status: text("status").notNull().default("open"),
+    dueOn: date("due_on"),
+    assigneeUserId: uuid("assignee_user_id").references(() => users.userId, {
+      onDelete: "set null",
+    }),
+    createdBy: uuid("created_by").references(() => users.userId, {
+      onDelete: "set null",
+    }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    completedBy: uuid("completed_by").references(() => users.userId, {
+      onDelete: "set null",
+    }),
+    sourceType: text("source_type"),
+    sourceId: text("source_id"),
+    // Mirror state for the Asana project this task's place is bound to
+    // (native is the source of truth; the Asana task is a copy, recorded as
+    // an external_links row with target_type "task"). null = not mirrored
+    // (no binding); "pending" = needs a push; "synced"; "failed" = retried
+    // by the task-sync job until `externalSyncAttempts` runs out. Validated
+    // in app code.
+    externalSyncStatus: text("external_sync_status"),
+    externalSyncError: text("external_sync_error"),
+    externalSyncAttempts: integer("external_sync_attempts").notNull().default(0),
+    // When the two sides last agreed; a pull only applies Asana-side edits
+    // made after this, and only if the task has not changed natively since.
+    externalSyncedAt: timestamp("external_synced_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("tasks_sync_idx").on(table.externalSyncStatus, table.externalSyncedAt),
+    index("tasks_site_idx").on(table.siteId),
+    index("tasks_spot_idx").on(table.spotId),
+    index("tasks_observation_idx").on(table.observationId),
+    index("tasks_event_idx").on(table.eventId),
+    index("tasks_assignee_idx").on(table.assigneeUserId, table.status),
+    index("tasks_due_idx").on(table.dueOn),
+    check(
+      "tasks_target_chk",
+      sql`(${table.siteId} IS NOT NULL)::int + (${table.spotId} IS NOT NULL)::int + (${table.observationId} IS NOT NULL)::int + (${table.eventId} IS NOT NULL)::int = 1`,
+    ),
+  ],
+);
+
+export const taskComments = pgTable(
+  "task_comments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    taskId: uuid("task_id")
+      .notNull()
+      .references(() => tasks.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").references(() => users.userId, {
+      onDelete: "set null",
+    }),
+    body: text("body").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    editedAt: timestamp("edited_at", { withTimezone: true }),
+    // The Asana story this comment is the other half of -- set both for
+    // comments we pushed out and for ones pulled in, so neither is copied
+    // back again. `externalAuthor` is the Asana display name for a pulled
+    // comment whose author has no linked Placekeeping account (userId null).
+    externalId: text("external_id"),
+    externalAuthor: text("external_author"),
+  },
+  (table) => [
+    index("task_comments_task_idx").on(table.taskId, table.createdAt),
+    uniqueIndex("task_comments_external_idx")
+      .on(table.taskId, table.externalId)
+      .where(sql`${table.externalId} IS NOT NULL`),
+  ],
+);

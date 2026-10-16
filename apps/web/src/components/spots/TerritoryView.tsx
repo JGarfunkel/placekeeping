@@ -10,6 +10,7 @@ import type {
 import Link from "next/link";
 import { PlaySlideshowLink } from "@/components/slideshow/PlaySlideshowLink";
 import { MapView } from "@/components/map/MapView";
+import { TerritoryActivity } from "@/components/spots/TerritoryActivity";
 import { TerritorySidePanel } from "@/components/spots/TerritorySidePanel";
 import { getAuthContext } from "@/lib/session";
 
@@ -66,6 +67,15 @@ export async function TerritoryView({
           center={{ lat: resolution.centerLat, lng: resolution.centerLng }}
           canAddSpot={!!authContext}
           zoom={resolution.zoom}
+        />
+
+        <TerritoryActivity
+          area={{
+            lat: resolution.centerLat,
+            lng: resolution.centerLng,
+            radiusMi: radiusMiForZoom(resolution.zoom),
+          }}
+          authContext={authContext}
         />
       </div>
 

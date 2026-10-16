@@ -143,6 +143,33 @@ export function canManageSite(
   return authContext.isSystemAdmin || authContext.userId === site.createdBy;
 }
 
+// Who may create/edit/cancel an event and mark attendance. Reuses the
+// existing site/spot permissions rather than adding a parallel system: a spot
+// event needs canManageSpot; a site event needs canManageSite or
+// canManageSpot on any spot in the site (pass those spots' steward/creator
+// fields as `spots`). Routes and UI must both call this.
+export type CareEventTarget =
+  | {
+      type: "spot";
+      spot: { stewardId: string | null; createdByUserId: string | null };
+    }
+  | {
+      type: "site";
+      site: { createdBy: string | null };
+      spots: { stewardId: string | null; createdByUserId: string | null }[];
+    };
+
+export function canManageEvent(
+  authContext: AuthContext,
+  target: CareEventTarget,
+): boolean {
+  if (target.type === "spot") return canManageSpot(authContext, target.spot);
+  return (
+    canManageSite(authContext, target.site) ||
+    target.spots.some((spot) => canManageSpot(authContext, spot))
+  );
+}
+
 // Generates the oobCode link via Firebase Admin (only Firebase can mint one)
 // and sends it ourselves via email.ts, rather than relying on Firebase's own
 // hosted mailer -- see GO_LIVE_CHECKLIST.md's Resend section.
@@ -176,4 +203,12 @@ export async function requestPasswordResetEmail(
     throw error;
   }
   await sendPasswordResetEmail(email, link);
+}
+
+// Native tasks are visible to (and creatable by) verified members and the
+// people who manage the place -- never the public. Level 1+ is "verified
+// member" (see LEVEL_LABELS); suspended users are out, system admins in.
+export function isTaskMember(authContext: AuthContext): boolean {
+  if (authContext.isSystemAdmin) return true;
+  return !isSuspended(authContext) && authContext.level >= 1;
 }

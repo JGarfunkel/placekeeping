@@ -155,4 +155,7 @@ export const EVENT_ENTITY_TYPES = [
   "steward_member",
   "user",
   "app_settings",
+  "care_event",
+  "task",
+  "task_comment",
 ] as const;

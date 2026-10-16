@@ -15,6 +15,7 @@ import { renderPin } from "@/lib/pins/renderPin";
 import { observationPath, photoPath } from "@/lib/spotPath";
 import { AddObservationDialog } from "./AddObservationDialog";
 import { GsvAddPanel } from "./GsvAddPanel";
+import { requestCreateTask } from "@/lib/taskEvents";
 import { EditObservationDialog } from "./EditObservationDialog";
 
 // obs.photos (from listObservationsForSpot's join against the `photos`
@@ -384,6 +385,7 @@ export function ObservationsPanel({
   currentUserId,
   currentStewardId,
   isSystemAdmin = false,
+  canCreateTasks = false,
   highlightObservationId,
   highlightPhotoId,
   featuredPhoto,
@@ -405,6 +407,8 @@ export function ObservationsPanel({
   currentUserId: string | null;
   currentStewardId: string | null;
   isSystemAdmin?: boolean;
+  // Shows a "Create task" action on each observation (native tasks only).
+  canCreateTasks?: boolean;
   // Set when this panel is rendered from an observation or photo permalink
   // (see app/spots/[a]/[b]/[c]/[d]/[e]/page.tsx and .../[f]/page.tsx) -- the
   // matching card scrolls into view and highlights on mount, and a matching
@@ -496,6 +500,27 @@ export function ObservationsPanel({
                     path={observationPath(spotSlug, obs.observationId)}
                     label="Observation permalink"
                   />
+                  {canCreateTasks && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        requestCreateTask({
+                          title: `Follow up: ${spotName}`,
+                          description: [
+                            `From the ${obs.observedAt} observation.`,
+                            obs.notes ?? "",
+                            `Observation: ${observationPath(spotSlug, obs.observationId)}`,
+                          ]
+                            .filter(Boolean)
+                            .join("\n"),
+                          observationId: obs.observationId,
+                        })
+                      }
+                      className="text-xs text-neutral-500 underline hover:text-neutral-900"
+                    >
+                      Create task
+                    </button>
+                  )}
                   {canEditObservation(obs, currentUserId, isSystemAdmin) && (
                     <button
                       type="button"

@@ -1,6 +1,9 @@
 import {
   assertWritesEnabled,
+  CareEventError,
+  IntegrationError,
   PhotoModerationError,
+  RateLimitError,
   WritesPausedError,
   type PhotoModerationReason,
 } from "@placekeeping/core";
@@ -54,6 +57,21 @@ export function withApiErrorHandling<Args extends unknown[]>(
               "The database is temporarily unavailable. Please try again shortly.",
           },
           { status: 503 },
+        );
+      }
+      if (error instanceof RateLimitError) {
+        return NextResponse.json(
+          { error: error.message },
+          { status: 429, headers: { "Retry-After": String(error.retryAfterSeconds) } },
+        );
+      }
+      if (error instanceof CareEventError) {
+        return NextResponse.json({ error: error.message }, { status: error.status });
+      }
+      if (error instanceof IntegrationError) {
+        return NextResponse.json(
+          { error: error.message },
+          { status: error.status },
         );
       }
       if (error instanceof PhotoModerationError) {

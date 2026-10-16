@@ -1,5 +1,8 @@
 import {
   canManageSite,
+  getBinding,
+  listRecurringTasks,
+  listAsanaIdentitiesForUser,
   getSiteById,
   getSiteParcelGeometries,
   listSpotsBySite,
@@ -7,12 +10,16 @@ import {
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import { EventList } from "@/components/events/EventList";
+import { AsanaRecurringTasks } from "@/components/integrations/AsanaRecurringTasks";
+import { AsanaBindingEditor } from "@/components/integrations/AsanaBindingEditor";
 import { SiteMapAndParcels } from "@/components/sites/SiteMapAndParcels";
 import { multiPolygonToPolygonPaths } from "@/lib/geo/parcelGeometry";
 import type { ParcelPolygon } from "@/components/map/MapView";
 import { SpotColumns } from "@/components/spots/SpotColumns";
 import { sitePurposeLabels } from "@/lib/siteLabels";
 import { buildSiteMetadata } from "@/lib/siteMetadata";
+import { isAsanaEnabled } from "@/lib/asana";
 import { getAuthContext } from "@/lib/session";
 
 // Falls back to roughly the geographic center of the contiguous U.S. --
@@ -83,6 +90,11 @@ export default async function SiteDetailPage({
       : DEFAULT_CENTER;
 
   const canEdit = authContext ? canManageSite(authContext, site) : false;
+  const asanaIdentities =
+    canEdit && authContext && isAsanaEnabled() ? await listAsanaIdentitiesForUser(authContext.userId) : [];
+  const asanaBinding = asanaIdentities.length > 0 ? await getBinding({ siteId }) : null;
+  const asanaRecurring =
+    asanaIdentities.length > 0 ? await listRecurringTasks({ siteId }) : [];
 
   return (
     <SpotColumns
@@ -107,6 +119,35 @@ export default async function SiteDetailPage({
             <p className="mt-2 text-sm text-neutral-500">
               Added by {site.createdByUsername}
             </p>
+          )}
+          <div className="mt-4">
+            <EventList target={{ siteId }} authContext={authContext} />
+          </div>
+          {asanaIdentities.length > 0 && (
+            <div className="mt-4">
+              <AsanaBindingEditor
+                scope={{ siteId }}
+                identities={asanaIdentities}
+                binding={asanaBinding}
+              />
+              <div className="mt-3">
+                <AsanaRecurringTasks
+                  scope={{ siteId }}
+                  items={asanaRecurring.map((r) => ({
+                    id: r.id,
+                    title: r.title,
+                    unit: r.unit,
+                    interval: r.interval,
+                    nextDueOn: r.nextDueOn,
+                    leadDays: r.leadDays,
+                    status: r.status,
+                    pausedReason: r.pausedReason,
+                  }))}
+                  title="Recurring tasks for all spots at this site"
+                  fansOut
+                />
+              </div>
+            </div>
           )}
         </div>
       }
