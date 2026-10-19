@@ -225,6 +225,9 @@ function ClusteredMarkers({
             position={{ lat: spot.latitude, lng: spot.longitude }}
             ref={getMarkerRef(spot.spotId)}
             onClick={() => onSelect(spot)}
+            // Spots sharing coordinates stack; keep the movable one on top
+            // so it can be grabbed.
+            zIndex={isMovable ? 1000 : undefined}
             draggable={isMovable}
             onDragEnd={
               isMovable

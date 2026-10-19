@@ -64,6 +64,9 @@ function SpotMarkers({
         key={spot.spotId}
         position={[spot.latitude, spot.longitude]}
         icon={iconFor(spot)}
+        // Spots sharing coordinates stack; keep the movable one on top so it
+        // can be grabbed.
+        zIndexOffset={isMovable ? 1000 : 0}
         draggable={isMovable}
         eventHandlers={
           isMovable
