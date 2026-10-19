@@ -78,6 +78,9 @@ export function HeaderMenu({
         <Link href="/about/becoming" className={itemClass} onClick={onNavigate}>
           Become a Placekeeper
         </Link>
+        <Link href="/about/naming" className={itemClass} onClick={onNavigate}>
+          Naming a Spot
+        </Link>
         <Link href="/about/partnership" className={itemClass} onClick={onNavigate}>
           Become a Partner
         </Link>

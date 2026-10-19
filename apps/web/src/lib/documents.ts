@@ -18,6 +18,7 @@ export const aboutDocs = {
   guidelines: "Guidelines",
   origins: "Origins",
   becoming: "Become a Placekeeper",
+  naming: "Naming a Spot",
   partnership: "Become a Partner",
   philosophy: "Site Philosophy",
   theory: "Theory",
