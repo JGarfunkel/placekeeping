@@ -8,6 +8,8 @@ import {
 } from "@placekeeping/core";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { UserLevelSelect } from "@/components/forms/UserLevelSelect";
+import { getAuthContext } from "@/lib/session";
 
 // UUIDs (v1-v5) route to getUserByUserId; anything else is treated as a
 // username, so /user/<uuid> and /user/username can share one route.
@@ -24,6 +26,8 @@ export default async function UserProfilePage({
     ? await getUserByUserId(identifier)
     : await getUserByUsername(identifier);
   if (!user) notFound();
+
+  const authContext = await getAuthContext();
 
   // The individual steward this account owns, if any -- separate from the
   // account's real `name`, which stays private (see users.username comment
@@ -62,6 +66,18 @@ export default async function UserProfilePage({
           </p>
         </div>
       </div>
+
+      {authContext?.isSystemAdmin && (
+        <section className="flex items-center justify-between rounded-md border border-neutral-200 p-3">
+          <div className="flex flex-col">
+            <h2 className="text-sm font-medium">Admin: level</h2>
+            {user.email && (
+              <span className="text-xs text-neutral-500">{user.email}</span>
+            )}
+          </div>
+          <UserLevelSelect userId={user.userId} initialLevel={user.level} />
+        </section>
+      )}
 
       <div>
         {steward?.publicDisplay && (

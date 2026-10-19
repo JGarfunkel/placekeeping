@@ -113,6 +113,53 @@ export async function listRecentUsers(limit = 10) {
     .limit(limit);
 }
 
+// Backs the admin users page (apps/web /admin/users).
+export async function listUsersForAdmin(limit = 200) {
+  return db
+    .select({
+      userId: users.userId,
+      username: users.username,
+      name: users.name,
+      email: users.email,
+      level: users.level,
+      isSystemAdmin: users.isSystemAdmin,
+      createdAt: users.createdAt,
+    })
+    .from(users)
+    .orderBy(desc(users.createdAt))
+    .limit(limit);
+}
+
+// Admin-only (the route gates on isSystemAdmin): the one non-CLI path for
+// changing users.level, previously only db:set-level. Logged as a "user"
+// update event attributed to the acting admin.
+export async function setUserLevel(
+  targetUserId: string,
+  level: number,
+  actingUserId: string,
+) {
+  const [current] = await db
+    .select({ level: users.level })
+    .from(users)
+    .where(eq(users.userId, targetUserId))
+    .limit(1);
+  if (!current) return null;
+  if (current.level === level) return { userId: targetUserId, level };
+
+  await db
+    .update(users)
+    .set({ level, updatedAt: new Date() })
+    .where(eq(users.userId, targetUserId));
+  await logEvent({
+    entityType: "user",
+    entityId: targetUserId,
+    action: "update",
+    userId: actingUserId,
+    changes: { level: { from: current.level, to: level } },
+  });
+  return { userId: targetUserId, level };
+}
+
 // Backs the self-service PATCH /api/users/me: username and/or photoUrl,
 // each independently optional so a photo-only or username-only save doesn't
 // have to resend the other. Username format is validated by the caller
