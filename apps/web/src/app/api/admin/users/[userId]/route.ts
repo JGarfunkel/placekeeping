@@ -1,4 +1,4 @@
-import { setUserLevel } from "@placekeeping/core";
+import { deleteUser, setUserLevel } from "@placekeeping/core";
 import { knownLevelValues } from "@placekeeping/shared-types";
 import { NextRequest, NextResponse } from "next/server";
 import { withApiErrorHandling } from "@/lib/apiError";
@@ -37,5 +37,28 @@ export const PATCH = withApiErrorHandling(
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
     return NextResponse.json({ user: result });
+  },
+);
+
+export const DELETE = withApiErrorHandling(
+  async (_request: NextRequest, { params }: Params) => {
+    const authContext = await getAuthContext();
+    if (!authContext?.isSystemAdmin) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { userId } = await params;
+    if (!UUID_RE.test(userId)) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    const result = await deleteUser(userId, authContext.userId);
+    if (!result.ok) {
+      return NextResponse.json(
+        { error: result.error },
+        { status: result.status },
+      );
+    }
+    return NextResponse.json({ ok: true });
   },
 );

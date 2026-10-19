@@ -1,6 +1,8 @@
 import { db, users } from "@placekeeping/db";
 import type { UpdateUserProfileInput } from "@placekeeping/shared-types";
 import { desc, eq, sql } from "drizzle-orm";
+import { FirebaseAuthError } from "firebase-admin/auth";
+import { adminAuth } from "./firebase-admin";
 import { diffFields, logEvent, snapshotToChanges } from "./events";
 import { checkPhotoUrls } from "./photoModeration";
 import { isOwnStorageUrl } from "./photoStorage";
@@ -158,6 +160,61 @@ export async function setUserLevel(
     changes: { level: { from: current.level, to: level } },
   });
   return { userId: targetUserId, level };
+}
+
+// Admin-only (the route gates on isSystemAdmin): hard-deletes a user, mainly
+// for clearing out spam signups. Removes the Firebase account first so the
+// person can't just sign back in (getOrCreateUserByFirebaseUid would recreate
+// the row), then the DB row; every FK to users is cascade or set-null, so
+// their observations etc. stay with the attribution cleared. Refuses admins
+// and self-deletion.
+export async function deleteUser(targetUserId: string, actingUserId: string) {
+  if (targetUserId === actingUserId) {
+    return { ok: false as const, status: 400, error: "You can't delete yourself" };
+  }
+  const [target] = await db
+    .select({
+      firebaseUid: users.firebaseUid,
+      username: users.username,
+      email: users.email,
+      level: users.level,
+      isSystemAdmin: users.isSystemAdmin,
+    })
+    .from(users)
+    .where(eq(users.userId, targetUserId))
+    .limit(1);
+  if (!target) return { ok: false as const, status: 404, error: "Not found" };
+  if (target.isSystemAdmin) {
+    return {
+      ok: false as const,
+      status: 400,
+      error: "Remove admin status before deleting this user",
+    };
+  }
+
+  try {
+    await adminAuth().deleteUser(target.firebaseUid);
+  } catch (error) {
+    // Already gone from Firebase (e.g. removed in the console): still clean up.
+    if (
+      !(error instanceof FirebaseAuthError && error.code === "auth/user-not-found")
+    ) {
+      throw error;
+    }
+  }
+
+  await db.delete(users).where(eq(users.userId, targetUserId));
+  await logEvent({
+    entityType: "user",
+    entityId: targetUserId,
+    action: "delete",
+    userId: actingUserId,
+    changes: {
+      username: { from: target.username, to: null },
+      email: { from: target.email, to: null },
+    },
+  });
+  return { ok: true as const };
 }
 
 // Backs the self-service PATCH /api/users/me: username and/or photoUrl,

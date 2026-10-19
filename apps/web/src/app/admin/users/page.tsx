@@ -1,6 +1,7 @@
 import { listUsersForAdmin } from "@placekeeping/core";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { DeleteUserButton } from "@/components/forms/DeleteUserButton";
 import { UserLevelSelect } from "@/components/forms/UserLevelSelect";
 import { requireAuthContext } from "@/lib/session";
 
@@ -37,7 +38,12 @@ export default async function AdminUsersPage() {
                 {u.email ? ` · ${u.email}` : ""}
               </span>
             </div>
-            <UserLevelSelect userId={u.userId} initialLevel={u.level} />
+            <div className="flex items-start gap-2">
+              <UserLevelSelect userId={u.userId} initialLevel={u.level} />
+              {!u.isSystemAdmin && u.userId !== authContext.userId && (
+                <DeleteUserButton userId={u.userId} username={u.username} />
+              )}
+            </div>
           </li>
         ))}
       </ul>
