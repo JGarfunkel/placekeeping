@@ -115,12 +115,15 @@ export async function replacePhoto(
   photoId: string,
   input: Buffer,
   originalFilename: string | null,
+  // The acting admin's level (not the original uploader's) -- the new bytes
+  // are theirs, so the same PHOTO_MODERATION_USER_LEVEL_MAX exemption applies.
+  actorLevel?: number | null,
 ): Promise<AdminPhotoRow> {
   const [existing] = await db.select().from(photos).where(eq(photos.photoId, photoId)).limit(1);
   if (!existing) throw new AdminPhotoNotFoundError(photoId);
 
-  // No-op while PHOTO_MODERATION=none.
-  await checkPhotoBytes(input, originalFilename ?? photoId);
+  // No-op while PHOTO_MODERATION=none or for exempt user levels.
+  await checkPhotoBytes(input, originalFilename ?? photoId, actorLevel);
   const processed = await processPhoto(input);
 
   const oldKey = existing.storageKey;

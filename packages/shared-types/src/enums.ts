@@ -40,16 +40,17 @@ export type StewardMemberRole = z.infer<typeof stewardMemberRoleSchema>;
 // Verification/standing tier shared by users.level and stewards.level (see
 // schema.ts) -- kept as a plain integer rather than a pgEnum since further
 // tiers may be added later (e.g. more partner grades), same convention as
-// vegetation/weedLevel above. -1 and 2 aren't reachable through any
+// vegetation/weedLevel above. -1, 2 and 3 aren't reachable through any
 // self-service flow yet (only db:set-level), but the labels are canonical
 // for display wherever a level is shown.
-export const knownLevelValues = [-1, 0, 1, 2] as const;
+export const knownLevelValues = [-1, 0, 1, 2, 3] as const;
 export type KnownLevel = (typeof knownLevelValues)[number];
 export const LEVEL_LABELS: Record<KnownLevel, string> = {
   [-1]: "Suspended",
   0: "Unverified",
   1: "Verified member",
-  2: "Partner",
+  2: "Trusted",
+  3: "Partner",
 };
 
 // Falls back to the raw number for any level outside the known range above,

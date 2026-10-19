@@ -6,6 +6,20 @@ import { checkPhotoUrls } from "./photoModeration";
 import { isOwnStorageUrl } from "./photoStorage";
 import { generateUsername } from "./username";
 
+// Null when the user doesn't exist (or userId is null, e.g. an API caller
+// without a logged-in user) -- callers treat that as "no exemptions".
+export async function getUserLevel(
+  userId: string | null,
+): Promise<number | null> {
+  if (!userId) return null;
+  const [row] = await db
+    .select({ level: users.level })
+    .from(users)
+    .where(eq(users.userId, userId))
+    .limit(1);
+  return row?.level ?? null;
+}
+
 export async function getOrCreateUserByFirebaseUid(params: {
   firebaseUid: string;
   name: string;
@@ -121,7 +135,7 @@ export async function updateUserProfile(
   // time (see checkPhotoBytes in that route); only a pasted external URL
   // needs checking here -- same convention as createObservation's photoUrls.
   if (input.photoUrl && !isOwnStorageUrl(input.photoUrl)) {
-    await checkPhotoUrls([input.photoUrl]);
+    await checkPhotoUrls([input.photoUrl], await getUserLevel(userId));
   }
 
   const [current] = await db

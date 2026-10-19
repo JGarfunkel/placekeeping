@@ -114,7 +114,7 @@ export const users = pgTable(
     email: text("email"),
     isSystemAdmin: boolean("is_system_admin").notNull().default(false),
     // Verification/standing tier: -1 suspended, 0 unverified, 1 verified
-    // member, 2 partner -- see LEVEL_LABELS in @placekeeping/shared-types.
+    // member, 2 trusted, 3 partner -- see LEVEL_LABELS in @placekeeping/shared-types.
     // Plain integer, not an enum, since further tiers may be added later.
     // Set via `npm run db:set-level` (packages/db/src/set-level.ts), same
     // convention as isSystemAdmin/set-admin.ts -- not self-service.

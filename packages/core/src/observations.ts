@@ -10,9 +10,10 @@ import type {
 } from "@placekeeping/shared-types";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { diffFields, logEvent, snapshotToChanges } from "./events";
-import { checkPhotoUrls, getModerationMode } from "./photoModeration";
+import { checkPhotoUrls, moderationStatusFor } from "./photoModeration";
 import { isOwnStorageUrl } from "./photoStorage";
 import { listPhotosForObservations, photoStorageFields } from "./photos";
+import { getUserLevel } from "./users";
 
 // NULL source (rows predating the column) counts as a keeper observation.
 const isKeeper = sql`${observations.source} IS DISTINCT FROM 'gsv'`;
@@ -163,7 +164,8 @@ export async function createObservation(
   callerStewardId: string | null = null,
 ): Promise<Observation> {
   const urlsNeedingModeration = input.photoUrls.filter((url) => !isOwnStorageUrl(url));
-  await checkPhotoUrls(urlsNeedingModeration);
+  const userLevel = await getUserLevel(userId);
+  await checkPhotoUrls(urlsNeedingModeration, userLevel);
 
   // Snapshot the spot's current steward onto the observation -- who was
   // tending it "now" only means anything at the moment of the visit, and
@@ -202,8 +204,7 @@ export async function createObservation(
   // moderation above -- a failing check throws before this point, so
   // "rejected" never gets written at insert time. See photos.moderationStatus.
   if (input.photoUrls.length > 0) {
-    const moderationStatus: "skipped" | "approved" =
-      getModerationMode() === "none" ? "skipped" : "approved";
+    const moderationStatus = moderationStatusFor(userLevel);
     await db.insert(photos).values(
       await Promise.all(
         input.photoUrls.map(async (url) => ({
@@ -253,7 +254,8 @@ export async function updateObservation(
     (url) => !existing.photoUrls.includes(url),
   );
   const urlsNeedingModeration = addedUrls.filter((url) => !isOwnStorageUrl(url));
-  await checkPhotoUrls(urlsNeedingModeration);
+  const userLevel = await getUserLevel(userId);
+  await checkPhotoUrls(urlsNeedingModeration, userLevel);
 
   const [row] = await db
     .update(observations)
@@ -271,8 +273,7 @@ export async function updateObservation(
     .returning();
 
   if (addedUrls.length > 0) {
-    const moderationStatus: "skipped" | "approved" =
-      getModerationMode() === "none" ? "skipped" : "approved";
+    const moderationStatus = moderationStatusFor(userLevel);
     await db.insert(photos).values(
       await Promise.all(
         addedUrls.map(async (url) => ({

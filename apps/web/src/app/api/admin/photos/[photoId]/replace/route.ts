@@ -7,6 +7,7 @@ import {
 import { NextRequest, NextResponse } from "next/server";
 import { withApiErrorHandling } from "@/lib/apiError";
 import { requireSystemAdminApi } from "@/lib/adminAuth";
+import { getAuthContext } from "@/lib/session";
 
 type Params = { params: Promise<{ photoId: string }> };
 
@@ -36,6 +37,7 @@ export const POST = withApiErrorHandling(
         photoId,
         Buffer.from(await file.arrayBuffer()),
         file.name || null,
+        (await getAuthContext())?.level,
       );
       return NextResponse.json({ photo });
     } catch (err) {

@@ -11,6 +11,7 @@ import { diffFields, logEvent, snapshotToChanges } from "./events";
 import { checkPhotoUrls } from "./photoModeration";
 import { isOwnStorageUrl } from "./photoStorage";
 import { computeStewardSlug } from "./slug";
+import { getUserLevel } from "./users";
 import {
   consumeVerificationToken,
   createVerificationToken,
@@ -167,7 +168,7 @@ export async function updateSteward(
   // /api/photos is already moderated at upload time, only a pasted external
   // URL needs checking here.
   if (input.logoUrl && !isOwnStorageUrl(input.logoUrl)) {
-    await checkPhotoUrls([input.logoUrl]);
+    await checkPhotoUrls([input.logoUrl], await getUserLevel(actorUserId));
   }
 
   const current = await getStewardByStewardId(stewardId);

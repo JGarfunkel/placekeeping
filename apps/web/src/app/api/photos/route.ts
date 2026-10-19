@@ -43,7 +43,7 @@ export const POST = withApiErrorHandling(async (request: NextRequest) => {
 
   // Throws PhotoModerationError on rejection, caught by withApiErrorHandling
   // -> 422. Nothing is stored for content that fails moderation.
-  await checkPhotoBytes(bytes, file.name);
+  await checkPhotoBytes(bytes, file.name, authContext.level);
 
   let stored;
   try {

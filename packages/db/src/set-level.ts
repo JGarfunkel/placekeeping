@@ -14,7 +14,8 @@ const LEVEL_LABELS: Record<number, string> = {
   [-1]: "Suspended",
   0: "Unverified",
   1: "Verified member",
-  2: "Partner",
+  2: "Trusted",
+  3: "Partner",
 };
 function levelLabel(level: number): string {
   return LEVEL_LABELS[level] ?? `Level ${level}`;
