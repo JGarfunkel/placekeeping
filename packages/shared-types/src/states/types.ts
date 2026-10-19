@@ -42,6 +42,12 @@ export interface MunicipalityLayerConfig {
   url?: string;
   layerId: number;
   nameField: string;
+  // Extra ArcGIS SQL predicate ANDed onto every query against this layer.
+  // Needed for nationwide layers (e.g. Census TIGERweb places/counties)
+  // that must be scoped to one state (`STATE='53'`) and/or one kind of
+  // feature (`LSADC='44'`). Unset for a state-hosted layer, which only
+  // contains that state's features already.
+  where?: string;
   countyField?: string;
   // A stable government-assigned ID field on this layer (e.g. NY/NJ's
   // GNIS_ID, USGS's national place-name identifier), read into
@@ -66,7 +72,14 @@ export interface CivilBoundariesConfig {
   url: string;
   // Omit for a state with no county-boundary layer available at all --
   // county-level lookup just isn't available for that state yet.
-  county?: { url?: string; layerId: number; nameField: string; idField?: string };
+  county?: {
+    url?: string;
+    layerId: number;
+    nameField: string;
+    idField?: string;
+    // See MunicipalityLayerConfig.where.
+    where?: string;
+  };
   // NY: 3 entries (cities/towns/villages), each a fixed type. NJ/MA: 1
   // entry, a flat layer with a type field.
   municipalities: MunicipalityLayerConfig[];

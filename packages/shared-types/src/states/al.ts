@@ -1,0 +1,11 @@
+import type { StateConfig } from "./types";
+
+// Bounding-box-only stub -- no civilBoundaries or parcels service confirmed
+// yet. Add those once a real, verified statewide GIS service is found (see
+// ny.ts for the shape once one is, or census.ts for a Census TIGERweb-backed
+// civilBoundaries).
+export const AL_STATE_CONFIG: StateConfig = {
+  code: "al",
+  name: "Alabama",
+  boundingBox: { minLat: 30.1, maxLat: 35.1, minLng: -88.6, maxLng: -84.8 },
+};

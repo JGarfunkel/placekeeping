@@ -209,9 +209,38 @@ function boundsFromGeometry(geometry: { coordinates: unknown }): {
 
   const centerLat = (minLat + maxLat) / 2;
   const centerLng = (minLng + maxLng) / 2;
-  const latSpan = maxLat - minLat;
-  const lngSpan = (maxLng - minLng) * Math.cos((centerLat * Math.PI) / 180);
-  return { centerLat, centerLng, zoom: zoomForSpanDegrees(Math.max(latSpan, lngSpan)) };
+  return {
+    centerLat,
+    centerLng,
+    zoom: zoomToFitEnvelope(minLat, maxLat, maxLng - minLng),
+  };
+}
+
+// The territory page's desktop map size (px) -- the viewport the stored zoom
+// is fit to. A taller-than-wide territory (NJ, IL, White Plains) is limited by
+// height, a wider one (NY) by width, so both axes are checked.
+const FIT_VIEWPORT_WIDTH_PX = 796;
+const FIT_VIEWPORT_HEIGHT_PX = 600;
+
+// Web Mercator: the world is 256 * 2^zoom px square and spans 360 degrees of
+// longitude, but latitude is stretched by 1/cos(lat), so a degree of latitude
+// takes more pixels than a degree of longitude away from the equator.
+const mercatorY = (latDeg: number): number =>
+  Math.log(Math.tan(Math.PI / 4 + (latDeg * Math.PI) / 360));
+
+// Largest whole zoom at which the envelope fits entirely inside the
+// viewport, on whichever axis is tighter. Replaces the earlier
+// span-in-degrees heuristic, which ignored the viewport aspect ratio and
+// Mercator stretching and so cut off the top/bottom of tall territories.
+function zoomToFitEnvelope(minLat: number, maxLat: number, lngSpanDeg: number): number {
+  const widthZoom = Math.log2(
+    (360 * FIT_VIEWPORT_WIDTH_PX) / (256 * Math.max(lngSpanDeg, 1e-6)),
+  );
+  const heightZoom = Math.log2(
+    (2 * Math.PI * FIT_VIEWPORT_HEIGHT_PX) /
+      (256 * Math.max(mercatorY(maxLat) - mercatorY(minLat), 1e-8)),
+  );
+  return Math.min(16, Math.max(3, Math.floor(Math.min(widthZoom, heightZoom))));
 }
 
 // Approximate "fit a territory spanning this many degrees" zoom, shared by
@@ -436,6 +465,12 @@ function escapeForArcGis(value: string): string {
   return value.replace(/'/g, "''");
 }
 
+// ANDs a layer's configured scope filter (see MunicipalityLayerConfig.where)
+// onto a name predicate.
+function scopedWhere(layer: MunicipalityLayerConfig, predicate: string): string {
+  return layer.where ? `(${predicate}) AND (${layer.where})` : predicate;
+}
+
 async function findCandidates(
   name: string,
   civilBoundaries: CivilBoundariesConfig,
@@ -453,7 +488,10 @@ async function findCandidates(
         queryLayer<MuniFeatureProps>(
           layer.url ?? civilBoundaries.url,
           layer.layerId,
-          `UPPER(${layer.nameField})=UPPER('${escapeForArcGis(variant)}')`,
+          scopedWhere(
+            layer,
+            `UPPER(${layer.nameField})=UPPER('${escapeForArcGis(variant)}')`,
+          ),
         ),
       ),
     );
@@ -1287,13 +1325,17 @@ export async function searchSubdivisions(query: string): Promise<SubdivisionSear
 // stays hardcoded rather than looked up live.
 const CONFIGURED_STATE_FIPS: Record<string, string> = {
   ct: "09",
+  il: "17",
   ma: "25",
   me: "23",
+  mo: "29",
   nh: "33",
   nj: "34",
   ny: "36",
+  or: "41",
   ri: "44",
   vt: "50",
+  wa: "53",
 };
 
 // searchSubdivisions above only finds subdivisions this app has already
@@ -1333,7 +1375,7 @@ export async function searchSubdivisionsLive(
             queryLayer<MuniFeatureProps>(
               layer.url ?? config.civilBoundaries!.url,
               layer.layerId,
-              `UPPER(${layer.nameField}) LIKE '%${escaped}%'`,
+              scopedWhere(layer, `UPPER(${layer.nameField}) LIKE '%${escaped}%'`),
             ).catch(() => []),
           ),
         );
