@@ -326,7 +326,7 @@ export function SpeciesSheet({
           ) : (
             <>
               {photos.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto">
+                <div className="flex shrink-0 gap-2 overflow-x-auto">
                   {photos.map((p) => (
                     <button
                       key={p.photoId}
@@ -346,7 +346,7 @@ export function SpeciesSheet({
                 </div>
               )}
 
-              <div className="flex justify-center rounded bg-neutral-100">
+              <div className="flex shrink-0 justify-center rounded bg-neutral-100">
                 <div
                   ref={frameRef}
                   className={`relative inline-block max-w-full select-none ${
