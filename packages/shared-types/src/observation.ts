@@ -132,6 +132,11 @@ export const observationSchema = z.object({
   // Observation values built elsewhere (create/update responses etc.).
   photos: z.array(photoSchema).optional(),
   inaturalistObsUrl: z.string().url().nullable(),
+  // Populated only by listObservationsForSpot -- drives the card's species
+  // button (see local/species-id.md). Undefined elsewhere.
+  speciesCounts: z
+    .object({ verified: z.number().int(), suggested: z.number().int() })
+    .optional(),
   // 'keeper' for a person's own visit, 'gsv' for a Street View frame pointer
   // (gsvRef is non-null exactly when source is 'gsv').
   source: z.enum(["keeper", "gsv"]),

@@ -4,6 +4,7 @@ import {
   IntegrationError,
   PhotoModerationError,
   RateLimitError,
+  SpeciesError,
   WritesPausedError,
   type PhotoModerationReason,
 } from "@placekeeping/core";
@@ -64,6 +65,9 @@ export function withApiErrorHandling<Args extends unknown[]>(
           { error: error.message },
           { status: 429, headers: { "Retry-After": String(error.retryAfterSeconds) } },
         );
+      }
+      if (error instanceof SpeciesError) {
+        return NextResponse.json({ error: error.message }, { status: error.status });
       }
       if (error instanceof CareEventError) {
         return NextResponse.json({ error: error.message }, { status: error.status });

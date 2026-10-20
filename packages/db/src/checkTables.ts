@@ -6,6 +6,8 @@ import {
   careEvents,
   careEventParticipants,
   events,
+  identifications,
+  observationPlants,
   observations,
   parcels,
   rateLimits,
@@ -16,6 +18,7 @@ import {
   stewards,
   subdivisions,
   taskComments,
+  taxa,
   tasks,
   users,
 } from "./schema";
@@ -40,6 +43,9 @@ const ALL_TABLES: AnyPgTable[] = [
   rateLimits,
   tasks,
   taskComments,
+  taxa,
+  identifications,
+  observationPlants,
 ];
 
 export interface TableCheckResult {

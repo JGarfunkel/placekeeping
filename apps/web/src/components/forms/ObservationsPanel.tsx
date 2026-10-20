@@ -16,6 +16,7 @@ import { observationPath, photoPath } from "@/lib/spotPath";
 import { AddObservationDialog } from "./AddObservationDialog";
 import { GsvAddPanel } from "./GsvAddPanel";
 import { requestCreateTask } from "@/lib/taskEvents";
+import { SpeciesSheet } from "@/components/species/SpeciesSheet";
 import { EditObservationDialog } from "./EditObservationDialog";
 
 // obs.photos (from listObservationsForSpot's join against the `photos`
@@ -45,6 +46,28 @@ function canEditObservation(
   if (isSystemAdmin) return true;
   const ageMs = Date.now() - new Date(obs.createdAt).getTime();
   return ageMs >= 0 && ageMs < OBSERVATION_EDIT_WINDOW_MS;
+}
+
+// Mirrors species.canIdentifyObservation server-side (the author, or a
+// system admin) -- the server is the real gate, this only decides which
+// button to show.
+function canIdentifySpecies(
+  obs: Observation,
+  currentUserId: string | null,
+  isSystemAdmin: boolean,
+): boolean {
+  if (!currentUserId) return false;
+  return isSystemAdmin || obs.observerId === currentUserId;
+}
+
+// One of three buttons, by what plant rows the observation has (see
+// local/species-id.md). null when there is nothing for this viewer to do.
+function speciesButtonLabel(obs: Observation, canIdentify: boolean): string | null {
+  const counts = obs.speciesCounts ?? { verified: 0, suggested: 0 };
+  if (counts.verified > 0) return "Show Species List";
+  if (!canIdentify) return null;
+  if (counts.suggested > 0) return "Review Species";
+  return (obs.photos?.length ?? 0) > 0 ? "Find Species" : null;
 }
 
 function PhotoLightbox({ url, onClose }: { url: string; onClose: () => void }) {
@@ -424,6 +447,7 @@ export function ObservationsPanel({
   const [editingObservation, setEditingObservation] = useState<Observation | null>(
     null,
   );
+  const [speciesObservation, setSpeciesObservation] = useState<Observation | null>(null);
   // Highlight fades after a few seconds so it reads as "here's the thing you
   // linked to", not a permanent marker.
   const [highlightActive, setHighlightActive] = useState(!!highlightObservationId);
@@ -560,6 +584,20 @@ export function ObservationsPanel({
                   </div>
                 );
               })()}
+              {(() => {
+                const canIdentify = canIdentifySpecies(obs, currentUserId, isSystemAdmin);
+                const label = speciesButtonLabel(obs, canIdentify);
+                if (!label) return null;
+                return (
+                  <button
+                    type="button"
+                    onClick={() => setSpeciesObservation(obs)}
+                    className="mt-2 rounded-md border border-neutral-300 px-2.5 py-1 text-xs font-medium text-neutral-700 hover:border-neutral-400 hover:text-neutral-900"
+                  >
+                    🌱 {label}
+                  </button>
+                );
+              })()}
             </li>
           );
         })}
@@ -579,6 +617,14 @@ export function ObservationsPanel({
           observerName={observerName}
           currentStewardId={currentStewardId}
           onClose={() => setDialogOpen(false)}
+        />
+      )}
+
+      {speciesObservation && (
+        <SpeciesSheet
+          observation={speciesObservation}
+          canReview={canIdentifySpecies(speciesObservation, currentUserId, isSystemAdmin)}
+          onClose={() => setSpeciesObservation(null)}
         />
       )}
 

@@ -11,3 +11,4 @@ export * from "./territory";
 export * from "./user";
 export * from "./careEvent";
 export * from "./task";
+export * from "./species";

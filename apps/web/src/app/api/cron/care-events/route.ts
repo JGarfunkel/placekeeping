@@ -1,4 +1,4 @@
-import { runCareEventMaintenance } from "@placekeeping/core";
+import { refreshSpotTaxa, runCareEventMaintenance } from "@placekeeping/core";
 import { timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { withApiErrorHandling } from "@/lib/apiError";
@@ -21,5 +21,14 @@ export const POST = withApiErrorHandling(async (request: NextRequest) => {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const result = await runCareEventMaintenance();
-  return NextResponse.json(result);
+  // Piggybacks on the daily job rather than adding another scheduler entry.
+  // A failure here shouldn't fail the care-event maintenance above.
+  let spotTaxaRefreshed = true;
+  try {
+    await refreshSpotTaxa();
+  } catch (error) {
+    spotTaxaRefreshed = false;
+    console.error("[cron] spot_taxa refresh failed:", error);
+  }
+  return NextResponse.json({ ...result, spotTaxaRefreshed });
 });

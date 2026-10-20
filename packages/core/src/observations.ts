@@ -13,6 +13,7 @@ import { diffFields, logEvent, snapshotToChanges } from "./events";
 import { checkPhotoUrls, moderationStatusFor } from "./photoModeration";
 import { isOwnStorageUrl } from "./photoStorage";
 import { listPhotosForObservations, photoStorageFields } from "./photos";
+import { speciesCountsByObservation } from "./species";
 import { getUserLevel } from "./users";
 
 // NULL source (rows predating the column) counts as a keeper observation.
@@ -60,12 +61,15 @@ export async function listObservationsForSpot(
     .orderBy(desc(observations.observedAt));
   const dtos = rows.map(toObservationDto);
 
-  const photosByObservation = await listPhotosForObservations(
-    dtos.map((o) => o.observationId),
-  );
+  const ids = dtos.map((o) => o.observationId);
+  const [photosByObservation, speciesCounts] = await Promise.all([
+    listPhotosForObservations(ids),
+    speciesCountsByObservation(ids),
+  ]);
   return dtos.map((o) => ({
     ...o,
     photos: photosByObservation.get(o.observationId) ?? [],
+    speciesCounts: speciesCounts.get(o.observationId) ?? { verified: 0, suggested: 0 },
   }));
 }
 

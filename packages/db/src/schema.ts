@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  bigint,
   bigserial,
   boolean,
   check,
@@ -12,6 +13,7 @@ import {
   pgEnum,
   pgTable,
   primaryKey,
+  real,
   serial,
   smallint,
   text,
@@ -751,6 +753,127 @@ export type PhotoVariants = {
   medium?: { w: number; h: number; bytes: number };
   thumb?: { w: number; h: number; bytes: number };
 };
+
+// Species identification (local/species-id.md). `taxa` is the shared species
+// list: Pl@ntNet results are upserted by gbifKey, and keeper-typed names that
+// don't match anything become rows with a null gbifKey (matched later).
+// Scientific/common names change, so gbifKey is the stable identity.
+export const taxa = pgTable(
+  "taxa",
+  {
+    taxonId: uuid("taxon_id").primaryKey().defaultRandom(),
+    gbifKey: bigint("gbif_key", { mode: "number" }).unique(),
+    inatTaxonId: bigint("inat_taxon_id", { mode: "number" }),
+    scientificName: text("scientific_name").notNull(),
+    commonName: text("common_name"),
+    family: text("family"),
+    rank: text("rank"),
+  },
+  (table) => [
+    // Keeper-typed names have no gbifKey to dedupe on, so dedupe on the name.
+    uniqueIndex("taxa_name_no_gbif_uniq")
+      .on(sql`lower(${table.scientificName})`)
+      .where(sql`${table.gbifKey} IS NULL`),
+    index("taxa_scientific_name_idx").on(sql`lower(${table.scientificName})`),
+  ],
+);
+
+// One row per plant a keeper identifies: one rectangle on a photo, or the
+// whole photo when all four crop fields are null. Rectangles are fractions
+// (0..1) of the photo so they stay valid at any display size; the crop
+// itself is never stored. A keeper-typed name creates a row with no
+// Pl@ntNet call, hence a null plantnetStatus (0 = no response at all).
+export const identifications = pgTable(
+  "identifications",
+  {
+    identificationId: uuid("identification_id").primaryKey().defaultRandom(),
+    observationId: uuid("observation_id")
+      .notNull()
+      .references(() => observations.observationId, { onDelete: "cascade" }),
+    photoId: uuid("photo_id")
+      .notNull()
+      .references(() => photos.photoId, { onDelete: "cascade" }),
+    userId: uuid("user_id").references(() => users.userId, {
+      onDelete: "set null",
+    }),
+    cropX: real("crop_x"),
+    cropY: real("crop_y"),
+    cropW: real("crop_w"),
+    cropH: real("crop_h"),
+    plantnetStatus: integer("plantnet_status"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("identifications_observation_idx").on(table.observationId),
+    // Quota counting (rows where a Pl@ntNet call was attempted).
+    index("identifications_quota_idx")
+      .on(table.userId, table.createdAt)
+      .where(sql`${table.plantnetStatus} IS NOT NULL`),
+    check(
+      "identifications_crop_chk",
+      sql`(${table.cropX} IS NULL AND ${table.cropY} IS NULL AND ${table.cropW} IS NULL AND ${table.cropH} IS NULL)
+        OR (${table.cropX} >= 0 AND ${table.cropY} >= 0 AND ${table.cropW} > 0 AND ${table.cropH} > 0
+        AND ${table.cropX} + ${table.cropW} <= 1.0001 AND ${table.cropY} + ${table.cropH} <= 1.0001)`,
+    ),
+  ],
+);
+
+// One row per candidate or confirmed species for an identification. The
+// app's guess and the keeper's decision share this table, split by `status`
+// ('suggested' | 'verified' | 'rejected') and `source` ('plantnet' |
+// 'keeper'), both plain text validated in app code (see the pgEnum note on
+// spots.vegetation). At most one verified row per identification.
+export const observationPlants = pgTable(
+  "observation_plants",
+  {
+    observationPlantId: uuid("observation_plant_id").primaryKey().defaultRandom(),
+    identificationId: uuid("identification_id")
+      .notNull()
+      .references(() => identifications.identificationId, { onDelete: "cascade" }),
+    observationId: uuid("observation_id")
+      .notNull()
+      .references(() => observations.observationId, { onDelete: "cascade" }),
+    taxonId: uuid("taxon_id")
+      .notNull()
+      .references(() => taxa.taxonId),
+    source: text("source").notNull(),
+    score: real("score"),
+    status: text("status").notNull(),
+    verifiedBy: uuid("verified_by").references(() => users.userId, {
+      onDelete: "set null",
+    }),
+    verifiedAt: timestamp("verified_at", { withTimezone: true }),
+    // Full Pl@ntNet result for provenance/reprocessing. Nothing queries it.
+    rawResult: jsonb("raw_result"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("observation_plants_ident_taxon_source_uniq").on(
+      table.identificationId,
+      table.taxonId,
+      table.source,
+    ),
+    index("observation_plants_observation_idx").on(table.observationId),
+    index("observation_plants_verified_taxon_idx")
+      .on(table.taxonId)
+      .where(sql`${table.status} = 'verified'`),
+    uniqueIndex("observation_plants_one_verified_uniq")
+      .on(table.identificationId)
+      .where(sql`${table.status} = 'verified'`),
+    check(
+      "observation_plants_source_chk",
+      sql`${table.source} IN ('plantnet','keeper')`,
+    ),
+    check(
+      "observation_plants_status_chk",
+      sql`${table.status} IN ('suggested','verified','rejected')`,
+    ),
+  ],
+);
 
 // A Placekeeping user's linked account in an external work-management system
 // (Asana first -- see local/asana-integration.md). One user can link several

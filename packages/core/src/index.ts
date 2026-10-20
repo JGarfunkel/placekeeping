@@ -38,3 +38,4 @@ export * from "./rateLimit";
 export * from "./nativeTaskProvider";
 export * from "./territoryActivity";
 export * from "./taskSync";
+export * from "./species";
