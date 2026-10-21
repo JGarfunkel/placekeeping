@@ -25,13 +25,24 @@ import { EditObservationDialog } from "./EditObservationDialog";
 // Observation that wasn't loaded through that join. `url` is the original
 // (lightbox); `thumbUrl` is the small copy for the grid, which equals `url`
 // when a photo has no derived copies.
-function photosForObservation(
-  obs: Observation,
-): Array<{ photoId: string | null; url: string; thumbUrl: string }> {
+// `portrait` is only ever true for a photo with stored dimensions, so legacy
+// and external-URL photos (no dimensions, nothing of ours to rewrite) never
+// get the edit glyphs.
+function photosForObservation(obs: Observation): Array<{
+  photoId: string | null;
+  url: string;
+  thumbUrl: string;
+  portrait: boolean;
+}> {
   if (obs.photos && obs.photos.length > 0) {
-    return obs.photos.map((p) => ({ photoId: p.photoId, url: p.urls.original, thumbUrl: p.urls.thumb }));
+    return obs.photos.map((p) => ({
+      photoId: p.photoId,
+      url: p.urls.original,
+      thumbUrl: p.urls.thumb,
+      portrait: !!p.sizes.original && p.sizes.original.h > p.sizes.original.w,
+    }));
   }
-  return obs.photoUrls.map((url) => ({ photoId: null, url, thumbUrl: url }));
+  return obs.photoUrls.map((url) => ({ photoId: null, url, thumbUrl: url, portrait: false }));
 }
 
 // Mirrors auth.canEditObservation server-side -- the server is the real
@@ -149,13 +160,19 @@ function PhotoThumbnail({
   thumbUrl,
   linkPath,
   highlighted = false,
+  canEditPortrait = false,
 }: {
   photoId: string | null;
   url: string;
   thumbUrl: string;
   linkPath: string | null;
   highlighted?: boolean;
+  // Show the rotate / square-crop glyphs (portrait photos the viewer can edit).
+  canEditPortrait?: boolean;
 }) {
+  const router = useRouter();
+  const [editing, setEditing] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
   // If the thumb object is unreachable, fall back to the original before
   // giving up on the photo entirely.
@@ -168,6 +185,34 @@ function PhotoThumbnail({
         Photo
       </a>
     );
+  }
+
+  async function edit(op: "rotate" | "square") {
+    if (!photoId) return;
+    if (
+      op === "square" &&
+      !window.confirm("Crop this photo to a square? The cropped-off edges are removed permanently.")
+    ) {
+      return;
+    }
+    setEditError(null);
+    setEditing(true);
+    try {
+      const res = await fetch(`/api/photos/${photoId}/edit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ op }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(typeof body?.error === "string" ? body.error : "Failed to edit photo");
+      }
+      router.refresh();
+    } catch (err) {
+      setEditError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setEditing(false);
+    }
   }
 
   return (
@@ -192,6 +237,31 @@ function PhotoThumbnail({
             <PermalinkIcon path={linkPath} label="Photo permalink" />
           </div>
         )}
+        {canEditPortrait && photoId && (
+          <div className="absolute bottom-1 left-1 flex gap-1">
+            <button
+              type="button"
+              onClick={() => edit("rotate")}
+              disabled={editing}
+              aria-label="Rotate to landscape"
+              title="Rotate to landscape"
+              className="rounded-full bg-white/90 px-1.5 text-sm text-neutral-600 shadow hover:text-neutral-900 disabled:opacity-50"
+            >
+              ↻
+            </button>
+            <button
+              type="button"
+              onClick={() => edit("square")}
+              disabled={editing}
+              aria-label="Crop to square"
+              title="Crop to square"
+              className="rounded-full bg-white/90 px-1.5 text-sm text-neutral-600 shadow hover:text-neutral-900 disabled:opacity-50"
+            >
+              ▢
+            </button>
+          </div>
+        )}
+        {editError && <p className="mt-1 w-24 text-xs text-red-600">{editError}</p>}
       </div>
       {open && <PhotoLightbox url={url} onClose={() => setOpen(false)} />}
     </>
@@ -569,9 +639,10 @@ export function ObservationsPanel({
               {(() => {
                 const obsPhotos = photosForObservation(obs);
                 if (obsPhotos.length === 0) return null;
+                const canEditPhotos = canEditObservation(obs, currentUserId, isSystemAdmin);
                 return (
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {obsPhotos.map(({ photoId, url, thumbUrl }) => (
+                    {obsPhotos.map(({ photoId, url, thumbUrl, portrait }) => (
                       <PhotoThumbnail
                         key={photoId ?? url}
                         photoId={photoId}
@@ -579,6 +650,7 @@ export function ObservationsPanel({
                         thumbUrl={thumbUrl}
                         linkPath={photoId ? photoPath(spotSlug, obs.observationId, photoId) : null}
                         highlighted={!!photoId && photoId === highlightPhotoId}
+                        canEditPortrait={canEditPhotos && portrait}
                       />
                     ))}
                   </div>

@@ -9,6 +9,7 @@ export * from "./inboundEmail";
 export * from "./spots";
 export * from "./observations";
 export * from "./parcels";
+export * from "./photoEdit";
 export * from "./photoMetadata";
 export * from "./photoModeration";
 export * from "./photoResize";

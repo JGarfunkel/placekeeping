@@ -11,6 +11,11 @@ export const SEQUENCES = ["together", "staggered"] as const;
 export const POSITIONS = ["bottom", "left", "right"] as const;
 export const EXITS = ["with-photo", "before-photo"] as const;
 
+// Species highlight waits, in seconds.
+export const SPECIES_DELAYS = [0, 1, 2, 3] as const; // before each rectangle is drawn
+export const SPECIES_HOLDS = [1, 2, 3, 4] as const; // each rectangle on screen before the next species
+export const SPECIES_END_WAITS = [0, 1, 2, 3] as const; // after the rectangles fade, before the next slide
+
 export interface SlideshowOptions {
   dur: (typeof DURATIONS)[number];
   order: (typeof ORDERS)[number];
@@ -23,11 +28,17 @@ export interface SlideshowOptions {
   exit: (typeof EXITS)[number];
   // Not in the original option table: stop at the last slide instead of looping.
   loop: boolean;
+  // Outline and name each verified species, one at a time, before the
+  // slide's countdown starts.
+  highlight: boolean;
+  sdelay: (typeof SPECIES_DELAYS)[number];
+  shold: (typeof SPECIES_HOLDS)[number];
+  send: (typeof SPECIES_END_WAITS)[number];
 }
 
 export const DEFAULT_OPTIONS: SlideshowOptions = {
   dur: 8,
-  order: "newest",
+  order: "random",
   fit: "contain",
   captions: true,
   delay: 2,
@@ -36,6 +47,10 @@ export const DEFAULT_OPTIONS: SlideshowOptions = {
   pos: "bottom",
   exit: "before-photo",
   loop: true,
+  highlight: true,
+  sdelay: 1,
+  shold: 2,
+  send: 1,
 };
 
 type RawParams = Record<string, string | string[] | undefined>;
@@ -76,6 +91,11 @@ export function parseSlideshowOptions(params: RawParams): SlideshowOptions {
     pos: pickString(first(params.pos), POSITIONS, d.pos),
     exit: pickString(first(params.exit), EXITS, d.exit),
     loop: first(params.loop) === "off" ? false : first(params.loop) === "on" ? true : d.loop,
+    highlight:
+      first(params.highlight) === "off" ? false : first(params.highlight) === "on" ? true : d.highlight,
+    sdelay: pickNumber(first(params.sdelay), SPECIES_DELAYS, d.sdelay),
+    shold: pickNumber(first(params.shold), SPECIES_HOLDS, d.shold),
+    send: pickNumber(first(params.send), SPECIES_END_WAITS, d.send),
   };
 }
 
@@ -93,5 +113,9 @@ export function serializeSlideshowOptions(options: SlideshowOptions): URLSearchP
   if (options.pos !== d.pos) params.set("pos", options.pos);
   if (options.exit !== d.exit) params.set("exit", options.exit);
   if (options.loop !== d.loop) params.set("loop", options.loop ? "on" : "off");
+  if (options.highlight !== d.highlight) params.set("highlight", options.highlight ? "on" : "off");
+  if (options.sdelay !== d.sdelay) params.set("sdelay", String(options.sdelay));
+  if (options.shold !== d.shold) params.set("shold", String(options.shold));
+  if (options.send !== d.send) params.set("send", String(options.send));
   return params;
 }
