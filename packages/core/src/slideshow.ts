@@ -1,6 +1,16 @@
-import { db, observations, photos, spots, stewards, subdivisions } from "@placekeeping/db";
+import {
+  db,
+  identifications,
+  observationPlants,
+  observations,
+  photos,
+  spots,
+  stewards,
+  subdivisions,
+  taxa,
+} from "@placekeeping/db";
 import { STATE_CONFIGS } from "@placekeeping/shared-types";
-import { and, asc, desc, eq, ne, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, ne, or, sql, type SQL } from "drizzle-orm";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import type { SlideshowScope } from "./slideshowScope";
 import { photoSrc } from "./photos";
@@ -9,6 +19,14 @@ export const SLIDESHOW_ORDERS = ["newest", "oldest", "random", "spot"] as const;
 export type SlideshowOrder = (typeof SLIDESHOW_ORDERS)[number];
 
 export const SLIDESHOW_PAGE_SIZE = 200;
+
+// A keeper-verified species on a photo. `crop` is a fraction (0..1) of the
+// photo, or null when the identification covers the whole photo.
+export interface SlideSpecies {
+  commonName: string | null;
+  scientificName: string;
+  crop: { x: number; y: number; w: number; h: number } | null;
+}
 
 export interface Slide {
   observationId: string;
@@ -25,6 +43,8 @@ export interface Slide {
   // stewards.name, only when the steward has publicDisplay on. Never an
   // owner or any natural-person ownership data.
   stewardName: string | null;
+  // Verified species only, in the order they were identified.
+  species: SlideSpecies[];
 }
 
 export interface SlideshowPage {
@@ -141,6 +161,39 @@ export async function listSlides(
   ]);
 
   const total = countRow?.count ?? 0;
+
+  const speciesByPhoto = new Map<string, SlideSpecies[]>();
+  const photoIds = rows.map((row) => row.photos.photoId);
+  if (photoIds.length > 0) {
+    const found = await db
+      .select({
+        photoId: identifications.photoId,
+        cropX: identifications.cropX,
+        cropY: identifications.cropY,
+        cropW: identifications.cropW,
+        cropH: identifications.cropH,
+        commonName: taxa.commonName,
+        scientificName: taxa.scientificName,
+      })
+      .from(observationPlants)
+      .innerJoin(
+        identifications,
+        eq(observationPlants.identificationId, identifications.identificationId),
+      )
+      .innerJoin(taxa, eq(observationPlants.taxonId, taxa.taxonId))
+      .where(and(eq(observationPlants.status, "verified"), inArray(identifications.photoId, photoIds)))
+      .orderBy(asc(identifications.createdAt));
+    for (const f of found) {
+      const crop =
+        f.cropX !== null && f.cropY !== null && f.cropW !== null && f.cropH !== null
+          ? { x: f.cropX, y: f.cropY, w: f.cropW, h: f.cropH }
+          : null;
+      const list = speciesByPhoto.get(f.photoId) ?? [];
+      list.push({ commonName: f.commonName, scientificName: f.scientificName, crop });
+      speciesByPhoto.set(f.photoId, list);
+    }
+  }
+
   const slides: Slide[] = rows.map((row) => ({
     observationId: row.observations.observationId,
     photoId: row.photos.photoId,
@@ -154,6 +207,7 @@ export async function listSlides(
     description: row.observations.notes?.trim() || null,
     observedAt: row.observations.observedAt,
     stewardName: row.stewards?.publicDisplay ? row.stewards.name : null,
+    species: speciesByPhoto.get(row.photos.photoId) ?? [],
   }));
 
   return {

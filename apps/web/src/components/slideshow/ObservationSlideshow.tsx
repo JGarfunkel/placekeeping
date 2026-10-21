@@ -1,6 +1,6 @@
 "use client";
 
-import type { Slide, SlideshowPage } from "@placekeeping/core";
+import type { Slide, SlideshowPage, SlideSpecies } from "@placekeeping/core";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
@@ -14,6 +14,9 @@ import {
   ORDERS,
   POSITIONS,
   SEQUENCES,
+  SPECIES_DELAYS,
+  SPECIES_END_WAITS,
+  SPECIES_HOLDS,
   serializeSlideshowOptions,
   type SlideshowOptions,
 } from "@/lib/slideshow/options";
@@ -24,6 +27,9 @@ const CONTROLS_HIDE_MS = 3500;
 const PREFETCH_MARGIN = 20;
 const SWIPE_PX = 50;
 const LONG_DESCRIPTION_CHARS = 140;
+// Fade-in of one species' rectangle, and fade-out of all of them at the end.
+// The waits around them are options (sdelay, shold, send).
+const SPECIES_FADE_MS = 300;
 
 type CaptionPhase = "pre" | "in" | "out";
 
@@ -101,6 +107,10 @@ export function ObservationSlideshow({
   const [phase, setPhase] = useState<CaptionPhase>("pre");
   const [fullscreen, setFullscreen] = useState(false);
   const [retries, setRetries] = useState(0);
+  // Index of the species currently being identified; === count means all done.
+  const [speciesStep, setSpeciesStep] = useState(0);
+  // The slide's time is up: rectangles fade, then the next slide follows.
+  const [speciesExiting, setSpeciesExiting] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
   const canFullscreen = useCanFullscreen();
 
@@ -178,6 +188,9 @@ export function ObservationSlideshow({
       setIndex(target);
       setLoaded(false);
       setRetries(0);
+      setSpeciesStep(0);
+      setSpeciesExiting(false);
+      live.current.exiting = false;
       setPhase("pre");
       setMoreOpen(false);
     },
@@ -202,12 +215,55 @@ export function ObservationSlideshow({
 
   // ---- Timer loop ----------------------------------------------------------
 
-  const running = playing && !overlayOpen && loaded && slides.length > 0;
-  const live = useRef({ running, canAdvance, next, durMs, timeline, captions: options.captions, phase });
+  // The slide's countdown only starts once every species has been identified.
+  const highlightedSpecies = options.highlight && slide ? slide.species : [];
+  const hasSpecies = highlightedSpecies.length > 0;
+  const speciesDone = speciesStep >= highlightedSpecies.length;
+  // Captions go first: the species start once the captions are up (the clock
+  // runs through the caption delay), and the clock holds while they play.
+  const speciesStarted = !options.captions || phase !== "pre";
+  const speciesActive = hasSpecies && speciesStarted && !speciesDone;
+  const running = playing && !overlayOpen && loaded && slides.length > 0 && !speciesActive;
+
+  useEffect(() => {
+    if (!loaded || !playing || overlayOpen || !speciesActive) return;
+    const timer = setTimeout(() => setSpeciesStep((s) => s + 1), (options.sdelay + options.shold) * 1000);
+    return () => clearTimeout(timer);
+  }, [loaded, playing, overlayOpen, speciesActive, speciesStep, options.sdelay, options.shold]);
+
+  const live = useRef({
+    running,
+    canAdvance,
+    next,
+    durMs,
+    timeline,
+    captions: options.captions,
+    phase,
+    hasSpecies,
+    exiting: speciesExiting,
+  });
   useEffect(() => {
     // Keeps the rAF loop's view current without re-subscribing it.
-    live.current = { running, canAdvance, next, durMs, timeline, captions: options.captions, phase };
+    live.current = {
+      running,
+      canAdvance,
+      next,
+      durMs,
+      timeline,
+      captions: options.captions,
+      phase,
+      hasSpecies,
+      exiting: live.current.exiting || speciesExiting,
+    };
   });
+
+  // Time is up on a slide with species: its rectangles fade, then, after the
+  // end wait, the next slide follows.
+  useEffect(() => {
+    if (!speciesExiting || !playing || overlayOpen) return;
+    const timer = setTimeout(() => live.current.next(), SPECIES_FADE_MS + options.send * 1000);
+    return () => clearTimeout(timer);
+  }, [speciesExiting, playing, overlayOpen, options.send]);
 
   useEffect(() => {
     let raf = 0;
@@ -220,7 +276,13 @@ export function ObservationSlideshow({
         elapsedRef.current += dt;
         if (elapsedRef.current >= state.durMs) {
           elapsedRef.current = state.durMs;
-          if (state.canAdvance) state.next();
+          if (state.canAdvance) {
+            if (!state.hasSpecies) state.next();
+            else if (!state.exiting) {
+              live.current.exiting = true;
+              setSpeciesExiting(true);
+            }
+          }
         }
         if (state.captions) {
           const e = elapsedRef.current;
@@ -335,6 +397,9 @@ export function ObservationSlideshow({
             setIndex(0);
             setPrevIndex(null);
             setLoaded(false);
+            setSpeciesStep(0);
+            setSpeciesExiting(false);
+            live.current.exiting = false;
             setPhase("pre");
           })
           .catch((error) => console.warn("[slideshow]", error))
@@ -533,6 +598,18 @@ export function ObservationSlideshow({
           onError={onImageError}
           draggable={false}
         />
+        {loaded && hasSpecies && imgRef.current && (
+          <SpeciesHighlight
+            key={slide.photoId}
+            species={speciesStarted ? highlightedSpecies.slice(0, speciesStep + 1) : []}
+            delayMs={options.sdelay * 1000}
+            exiting={speciesExiting}
+            fit={options.fit}
+            naturalWidth={imgRef.current.naturalWidth}
+            naturalHeight={imgRef.current.naturalHeight}
+            reducedMotion={reducedMotion}
+          />
+        )}
       </div>
 
       {/* Captions: announced once per slide, since the region is keyed by slide. */}
@@ -564,6 +641,9 @@ export function ObservationSlideshow({
         <span className="min-w-0 flex-1 truncate text-sm font-medium">{title}</span>
         <button type="button" className={buttonClass} aria-pressed={options.captions} onClick={() => updateOptions({ captions: !options.captions })}>
           Captions
+        </button>
+        <button type="button" className={buttonClass} aria-pressed={options.highlight} onClick={() => updateOptions({ highlight: !options.highlight })}>
+          Species
         </button>
         {canFullscreen && (
           <button type="button" className={buttonClass} onClick={toggleFullscreen}>
@@ -598,6 +678,12 @@ export function ObservationSlideshow({
         </span>
       </div>
 
+      {/* Brand mark: always visible. The monogram is dark ink, so it sits on a light, mostly transparent chip. */}
+      <div className="pointer-events-none absolute bottom-3 right-3 rounded-md bg-white/50 px-2 py-1">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/brand/monogram.svg" alt="Placekeeping" className="h-6 w-auto" draggable={false} />
+      </div>
+
       {/* Progress */}
       <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white/5" aria-hidden="true">
         <div ref={progressRef} className="h-full origin-left bg-white/40"style={{ transform: "scaleX(0)" }} />
@@ -612,6 +698,130 @@ export function ObservationSlideshow({
 
 const buttonClass =
   "rounded-md bg-black/60 px-3 py-1.5 text-sm text-white hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white";
+
+// Outlines the species identified so far and names them; each mark appears
+// `delayMs` after it is added and they all stay up until `exiting` fades them
+// together. Rectangles are fractions of the photo, so the displayed image box
+// is derived from the stage size, the image's natural size and the fit mode.
+// A whole-photo identification has no rectangle: its label sits at the top of
+// the displayed image.
+function SpeciesHighlight({
+  species,
+  delayMs,
+  exiting,
+  fit,
+  naturalWidth,
+  naturalHeight,
+  reducedMotion,
+}: {
+  species: SlideSpecies[];
+  delayMs: number;
+  exiting: boolean;
+  fit: SlideshowOptions["fit"];
+  naturalWidth: number;
+  naturalHeight: number;
+  reducedMotion: boolean;
+}) {
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [stage, setStage] = useState<{ w: number; h: number } | null>(null);
+
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const measure = () => setStage({ w: el.clientWidth, h: el.clientHeight });
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  let marks: React.ReactNode = null;
+  if (stage && naturalWidth > 0 && naturalHeight > 0) {
+    const scale = (fit === "cover" ? Math.max : Math.min)(stage.w / naturalWidth, stage.h / naturalHeight);
+    const imgW = naturalWidth * scale;
+    const imgH = naturalHeight * scale;
+    const imgX = (stage.w - imgW) / 2;
+    const imgY = (stage.h - imgH) / 2;
+    marks = species.map((s, i) => (
+      <SpeciesMark
+        key={i}
+        species={s}
+        delayMs={delayMs}
+        reducedMotion={reducedMotion}
+        stageWidth={stage.w}
+        box={{
+          left: s.crop ? imgX + s.crop.x * imgW : imgX,
+          top: s.crop ? imgY + s.crop.y * imgH : imgY,
+          width: s.crop ? s.crop.w * imgW : imgW,
+          height: s.crop ? s.crop.h * imgH : imgH,
+        }}
+      />
+    ));
+  }
+
+  return (
+    <div
+      ref={stageRef}
+      aria-live="polite"
+      className="pointer-events-none absolute inset-0"
+      style={{
+        opacity: exiting ? 0 : 1,
+        transition: reducedMotion ? "none" : `opacity ${SPECIES_FADE_MS}ms ease-in-out`,
+      }}
+    >
+      {marks}
+    </div>
+  );
+}
+
+function SpeciesMark({
+  species,
+  delayMs,
+  reducedMotion,
+  stageWidth,
+  box,
+}: {
+  species: SlideSpecies;
+  delayMs: number;
+  reducedMotion: boolean;
+  stageWidth: number;
+  box: { left: number; top: number; width: number; height: number };
+}) {
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setShown(true), delayMs);
+    return () => clearTimeout(timer);
+    // The delay is read once, when the mark is added.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Above the rectangle when there is room, else just inside its top edge.
+  const labelAbove = box.top >= 44;
+  return (
+    <div
+      className="absolute inset-0"
+      style={{ opacity: shown ? 1 : 0, transition: reducedMotion ? "none" : "opacity 300ms ease-out" }}
+    >
+      {species.crop && (
+        <div
+          className="absolute rounded-sm border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.6)]"
+          style={box}
+        />
+      )}
+      <div
+        className="absolute max-w-[90%] rounded-md bg-black/80 px-3 py-1.5 text-sm"
+        style={{
+          left: Math.min(Math.max(box.left, 8), Math.max(stageWidth - 8, 8)),
+          top: labelAbove ? box.top - 6 : box.top + 6,
+          transform: labelAbove ? "translateY(-100%)" : "none",
+        }}
+      >
+        <p className="font-semibold">{species.commonName ?? species.scientificName}</p>
+        {species.commonName && <p className="text-xs italic text-neutral-300">{species.scientificName}</p>}
+      </div>
+    </div>
+  );
+}
 
 function SelectRow<T extends string | number>({
   label,
@@ -664,6 +874,10 @@ function SettingsPanel({
       <SelectRow label="Order" value={options.order} values={ORDERS} onChange={(order) => onChange({ order })} />
       <SelectRow label="Photo fit" value={options.fit} values={FITS} onChange={(fit) => onChange({ fit })} />
       <SelectRow label="Captions" value={options.captions ? "on" : "off"} values={["on", "off"] as const} onChange={(v) => onChange({ captions: v === "on" })} />
+      <SelectRow label="Highlight species" value={options.highlight ? "on" : "off"} values={["on", "off"] as const} onChange={(v) => onChange({ highlight: v === "on" })} />
+      <SelectRow label="Species delay" value={options.sdelay} values={SPECIES_DELAYS} format={seconds} onChange={(sdelay) => onChange({ sdelay })} />
+      <SelectRow label="Species hold" value={options.shold} values={SPECIES_HOLDS} format={seconds} onChange={(shold) => onChange({ shold })} />
+      <SelectRow label="Wait after species" value={options.send} values={SPECIES_END_WAITS} format={seconds} onChange={(send) => onChange({ send })} />
       <SelectRow label="Caption delay" value={options.delay} values={CAPTION_DELAYS} format={seconds} onChange={(delay) => onChange({ delay })} />
       <SelectRow label="Caption entrance" value={options.enter} values={ENTRANCES} onChange={(enter) => onChange({ enter })} />
       <SelectRow label="Caption sequence" value={options.seq} values={SEQUENCES} onChange={(seq) => onChange({ seq })} />
