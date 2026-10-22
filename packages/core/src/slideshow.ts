@@ -9,7 +9,8 @@ import {
   subdivisions,
   taxa,
 } from "@placekeeping/db";
-import { STATE_CONFIGS } from "@placekeeping/shared-types";
+import { STATE_CONFIGS, type InvasiveInfo } from "@placekeeping/shared-types";
+import { getInvasiveInfoFor } from "./invasives";
 import { and, asc, desc, eq, inArray, ne, or, sql, type SQL } from "drizzle-orm";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import type { SlideshowScope } from "./slideshowScope";
@@ -25,6 +26,7 @@ export const SLIDESHOW_PAGE_SIZE = 200;
 export interface SlideSpecies {
   commonName: string | null;
   scientificName: string;
+  invasive: InvasiveInfo | null;
   crop: { x: number; y: number; w: number; h: number } | null;
 }
 
@@ -183,13 +185,26 @@ export async function listSlides(
       .innerJoin(taxa, eq(observationPlants.taxonId, taxa.taxonId))
       .where(and(eq(observationPlants.status, "verified"), inArray(identifications.photoId, photoIds)))
       .orderBy(asc(identifications.createdAt));
-    for (const f of found) {
+    const stateByPhoto = new Map(rows.map((row) => [row.photos.photoId, row.spots.state]));
+    const invasive = await getInvasiveInfoFor(
+      found.map((f, i) => ({
+        key: String(i),
+        scientificName: f.scientificName,
+        state: stateByPhoto.get(f.photoId),
+      })),
+    );
+    for (const [i, f] of found.entries()) {
       const crop =
         f.cropX !== null && f.cropY !== null && f.cropW !== null && f.cropH !== null
           ? { x: f.cropX, y: f.cropY, w: f.cropW, h: f.cropH }
           : null;
       const list = speciesByPhoto.get(f.photoId) ?? [];
-      list.push({ commonName: f.commonName, scientificName: f.scientificName, crop });
+      list.push({
+        commonName: f.commonName,
+        scientificName: f.scientificName,
+        invasive: invasive.get(String(i)) ?? null,
+        crop,
+      });
       speciesByPhoto.set(f.photoId, list);
     }
   }

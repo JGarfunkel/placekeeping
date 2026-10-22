@@ -18,7 +18,9 @@ import {
   stewards,
   subdivisions,
   taskComments,
+  listingSources,
   taxa,
+  taxonListings,
   tasks,
   users,
 } from "./schema";
@@ -44,6 +46,8 @@ const ALL_TABLES: AnyPgTable[] = [
   tasks,
   taskComments,
   taxa,
+  listingSources,
+  taxonListings,
   identifications,
   observationPlants,
 ];

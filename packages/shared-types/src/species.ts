@@ -45,11 +45,26 @@ export type PlantDecisionRequest = z.infer<typeof plantDecisionRequestSchema>;
 export type PlantStatus = "suggested" | "verified" | "rejected";
 export type PlantSource = "plantnet" | "keeper";
 
+// How strongly a regulator flags a species as invasive, for the species glyph.
+// 'listed' = assessed and ranked but not legally restricted.
+export type InvasiveSeverity = "prohibited" | "regulated" | "listed";
+
+export type InvasiveInfo = {
+  severity: InvasiveSeverity;
+  // Listing authority, e.g. "US-NY".
+  jurisdiction: string;
+  // As printed by the source (NY: 1a-1c, 2, 3, 4, M), when it has one.
+  tier: string | null;
+};
+
 export type Taxon = {
   taxonId: string;
   scientificName: string;
   commonName: string | null;
   family: string | null;
+  // Set by the reads that look it up (identifications, a spot's species);
+  // undefined elsewhere, null when looked up and not listed.
+  invasive?: InvasiveInfo | null;
 };
 
 export type ObservationPlant = {

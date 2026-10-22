@@ -11,6 +11,7 @@ import {
   type Taxon,
 } from "@placekeeping/shared-types";
 import { useRouter } from "next/navigation";
+import { InvasiveBadge } from "./InvasiveBadge";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 // Species identification sheet (local/species-id.md): shows an observation's
@@ -153,12 +154,12 @@ export function SpeciesSheet({
     const q = manualName.trim();
     if (q.length < 2) return;
     const timer = setTimeout(() => {
-      api<{ taxa: Taxon[] }>(`/api/taxa/search?q=${encodeURIComponent(q)}`)
+      api<{ taxa: Taxon[] }>(`/api/taxa/search?q=${encodeURIComponent(q)}&observationId=${observation.observationId}`)
         .then((data) => setSuggestions(data.taxa))
         .catch(() => setSuggestions([]));
     }, 250);
     return () => clearTimeout(timer);
-  }, [manualName]);
+  }, [manualName, observation.observationId]);
 
   const close = useCallback(() => {
     if (changed) router.refresh();
@@ -478,6 +479,7 @@ export function SpeciesSheet({
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium">
                             {displayName(plant.taxon)}
+                            {plant.taxon.invasive && <> <InvasiveBadge invasive={plant.taxon.invasive} /></>}
                             {plant.status === "verified" && (
                               <span className="ml-2 text-xs font-normal text-green-700">
                                 ✓ confirmed

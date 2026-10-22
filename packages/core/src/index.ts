@@ -17,6 +17,7 @@ export * from "./photoStorage";
 export * from "./photos";
 export * from "./remoteLog";
 export * from "./sites";
+export * from "./invasives";
 export * from "./slideshow";
 export * from "./slideshowScope";
 export * from "./slug";

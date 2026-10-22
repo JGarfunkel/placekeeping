@@ -192,7 +192,7 @@ export async function SpotDetailView({
       // GSV_API_KEY unset
     }
   }
-  const species = await listVerifiedSpeciesForSpot(spot.spotId);
+  const species = await listVerifiedSpeciesForSpot(spot.spotId, spot.state);
   const canCreateTasks = !!authContext && isTaskMember(authContext);
   const canDeleteSpot =
     canManageParcel && (!hasObservations || authContext?.isSystemAdmin === true);

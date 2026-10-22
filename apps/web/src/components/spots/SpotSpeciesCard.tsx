@@ -1,4 +1,5 @@
 import type { Taxon } from "@placekeeping/shared-types";
+import { InvasiveBadge } from "@/components/species/InvasiveBadge";
 
 // Verified species across all of a spot's observations, de-duplicated
 // (listVerifiedSpeciesForSpot). Renders nothing until there is one.
@@ -12,6 +13,7 @@ export function SpotSpeciesCard({ species }: { species: Taxon[] }) {
           <li key={t.taxonId}>
             {t.commonName && <>{t.commonName} - </>}
             <i>{t.scientificName}</i>
+            {t.invasive && <> <InvasiveBadge invasive={t.invasive} /></>}
           </li>
         ))}
       </ul>

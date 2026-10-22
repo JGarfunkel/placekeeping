@@ -4,6 +4,7 @@ import {
   observationPlants,
   observations,
   photos,
+  spots,
   taxa,
 } from "@placekeeping/db";
 import type {
@@ -22,6 +23,7 @@ import { and, asc, count, eq, gt, inArray, isNotNull, ne, sql, type SQL } from "
 import sharp from "sharp";
 import { isSuspended, type AuthContext } from "./auth";
 import { debugLog } from "./debug";
+import { attachInvasive, getInvasiveInfoFor } from "./invasives";
 import { readObject } from "./photoStorage";
 import { logRemoteCall } from "./remoteLog";
 
@@ -183,8 +185,26 @@ async function upsertTaxon(tx: Tx, input: TaxonInput): Promise<TaxonRow> {
   return (await findByName())[0];
 }
 
-/** Autocomplete for manual entry: substring match on either name, prefix matches first. */
-export async function searchTaxa(query: string, limit = 10): Promise<Taxon[]> {
+/** The state of the spot an observation belongs to, or null when unknown. */
+export async function stateForObservation(observationId: string): Promise<string | null> {
+  const [row] = await db
+    .select({ state: spots.state })
+    .from(observations)
+    .innerJoin(spots, eq(observations.spotId, spots.spotId))
+    .where(eq(observations.observationId, observationId))
+    .limit(1);
+  return row?.state ?? null;
+}
+
+/**
+ * Autocomplete for manual entry: substring match on either name, prefix
+ * matches first. `state` (the observation's spot) controls the invasive glyph.
+ */
+export async function searchTaxa(
+  query: string,
+  state: string | null = null,
+  limit = 10,
+): Promise<Taxon[]> {
   const q = query.trim().replace(/[%_\\]/g, (c) => `\\${c}`);
   if (q.length < 2) return [];
   const rows = await db
@@ -198,7 +218,7 @@ export async function searchTaxa(query: string, limit = 10): Promise<Taxon[]> {
       asc(taxa.scientificName),
     )
     .limit(limit);
-  return rows.map(toTaxon);
+  return attachInvasive(rows.map(toTaxon), state);
 }
 
 // --- pl@ntnet -------------------------------------------------------------
@@ -599,12 +619,27 @@ async function loadIdentifications(where: SQL | undefined): Promise<Identificati
         idents.map((i) => i.identificationId),
       ),
     );
+  const stateRows = await db
+    .select({ observationId: observations.observationId, state: spots.state })
+    .from(observations)
+    .innerJoin(spots, eq(observations.spotId, spots.spotId))
+    .where(inArray(observations.observationId, [...new Set(idents.map((i) => i.observationId))]));
+  const stateByObservation = new Map(stateRows.map((r) => [r.observationId, r.state]));
+  const identById = new Map(idents.map((i) => [i.identificationId, i]));
+  const invasive = await getInvasiveInfoFor(
+    plantRows.map(({ plant, taxon }) => ({
+      key: plant.observationPlantId,
+      taxonId: taxon.taxonId,
+      scientificName: taxon.scientificName,
+      state: stateByObservation.get(identById.get(plant.identificationId)!.observationId),
+    })),
+  );
   const byIdent = new Map<string, ObservationPlant[]>();
   for (const { plant, taxon } of plantRows) {
     const list = byIdent.get(plant.identificationId) ?? [];
     list.push({
       observationPlantId: plant.observationPlantId,
-      taxon: toTaxon(taxon),
+      taxon: { ...toTaxon(taxon), invasive: invasive.get(plant.observationPlantId) ?? null },
       source: plant.source as PlantSource,
       score: plant.score,
       status: plant.status as PlantStatus,
@@ -718,7 +753,10 @@ export async function listTaxaForSpot(spotId: number): Promise<SpotTaxonRow[]> {
  * name. Live (unlike spot_taxa, which a cron refreshes), so a species a keeper
  * just confirmed shows up on the next page load.
  */
-export async function listVerifiedSpeciesForSpot(spotId: number): Promise<Taxon[]> {
+export async function listVerifiedSpeciesForSpot(
+  spotId: number,
+  state: string | null,
+): Promise<Taxon[]> {
   const rows = await db
     .selectDistinct({ taxon: taxa })
     .from(observationPlants)
@@ -726,7 +764,7 @@ export async function listVerifiedSpeciesForSpot(spotId: number): Promise<Taxon[
     .innerJoin(taxa, eq(observationPlants.taxonId, taxa.taxonId))
     .where(and(eq(observations.spotId, spotId), eq(observationPlants.status, "verified")))
     .orderBy(asc(taxa.scientificName));
-  return rows.map((r) => toTaxon(r.taxon));
+  return attachInvasive(rows.map((r) => toTaxon(r.taxon)), state);
 }
 
 export type TaxonSpotRow = {

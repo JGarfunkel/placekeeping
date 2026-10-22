@@ -1,0 +1,6060 @@
+{
+  "source": {
+    "id": "us-ny",
+    "jurisdiction": "US-NY",
+    "name": "New York State invasive plant list (terrestrial and aquatic)",
+    "regulation": "6 NYCRR Part 575",
+    "retrievedFrom": "local/ny-invasive-species-list.csv",
+    "generatedAt": "2026-10-22T13:49:43.354Z"
+  },
+  "listings": [
+    {
+      "commonNames": [
+        "Chamber bitters"
+      ],
+      "scientificNameRaw": "Phyllanthus urinaria ssp. urinaria",
+      "acceptedName": "Phyllanthus urinaria ssp. urinaria",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Phyllanthus urinaria",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "1a",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Common Oleander"
+      ],
+      "scientificNameRaw": "Nerium oleander",
+      "acceptedName": "Nerium oleander",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Nerium oleander",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "1a",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Giant Reed"
+      ],
+      "scientificNameRaw": "Arundo donax",
+      "acceptedName": "Arundo donax",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Arundo donax",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "1a",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Greater spearwort"
+      ],
+      "scientificNameRaw": "Ranunculus lingua",
+      "acceptedName": "Ranunculus lingua",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ranunculus lingua",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "1a",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Heavenly Bamboo",
+        "Sacred Bamboo"
+      ],
+      "scientificNameRaw": "Nandina domestica",
+      "acceptedName": "Nandina domestica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Nandina domestica",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "1a",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Large-flower Primrose-willow"
+      ],
+      "scientificNameRaw": "Ludwigia grandiflora (syn. Ludwigia hexapetala)",
+      "acceptedName": "Ludwigia grandiflora",
+      "synonyms": [
+        "Ludwigia hexapetala"
+      ],
+      "misappliedNames": [],
+      "speciesName": "Ludwigia grandiflora",
+      "plantType": "aquatic",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "1a",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Siberian Peashrub"
+      ],
+      "scientificNameRaw": "Caragana arborescens",
+      "acceptedName": "Caragana arborescens",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Caragana arborescens",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "1a",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Swamp morning glory",
+        "water spinach"
+      ],
+      "scientificNameRaw": "Ipomoea aquatica",
+      "acceptedName": "Ipomoea aquatica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ipomoea aquatica",
+      "plantType": "aquatic",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "1a",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Traveler's-joy"
+      ],
+      "scientificNameRaw": "Clematis vitalba",
+      "acceptedName": "Clematis vitalba",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Clematis vitalba",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "1a",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Wavyleaf Basketgrass"
+      ],
+      "scientificNameRaw": "Oplismenus undulatifolius",
+      "acceptedName": "Oplismenus undulatifolius",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Oplismenus undulatifolius",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "1a",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Alligator-weed"
+      ],
+      "scientificNameRaw": "Alternanthera philoxeroides",
+      "acceptedName": "Alternanthera philoxeroides",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Alternanthera philoxeroides",
+      "plantType": "aquatic",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Significant Negative",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Asthmaweed",
+        "flax-leaf horseweed",
+        "wavy-leaf fleabane"
+      ],
+      "scientificNameRaw": "Conyza bonariensis",
+      "acceptedName": "Conyza bonariensis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Conyza bonariensis",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Bushkiller"
+      ],
+      "scientificNameRaw": "Cayratia japonica",
+      "acceptedName": "Cayratia japonica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Cayratia japonica",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Chinese Tallowtree"
+      ],
+      "scientificNameRaw": "Triadica sebifera",
+      "acceptedName": "Triadica sebifera",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Triadica sebifera",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Day Jessamine"
+      ],
+      "scientificNameRaw": "Cestrum diurnum",
+      "acceptedName": "Cestrum diurnum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Cestrum diurnum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "European Wand Loosestrife"
+      ],
+      "scientificNameRaw": "Lythrum virgatum",
+      "acceptedName": "Lythrum virgatum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lythrum virgatum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Low Negative",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Floating water-primrose"
+      ],
+      "scientificNameRaw": "Ludwigia adscendens",
+      "acceptedName": "Ludwigia adscendens",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ludwigia adscendens",
+      "plantType": "aquatic",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Indian Swampweed"
+      ],
+      "scientificNameRaw": "Hygrophila polysperma",
+      "acceptedName": "Hygrophila polysperma",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Hygrophila polysperma",
+      "plantType": "aquatic",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Low Negative",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Marsh Dewflower"
+      ],
+      "scientificNameRaw": "Murdannia keisak",
+      "acceptedName": "Murdannia keisak",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Murdannia keisak",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Oxygen weed",
+        "African elodea"
+      ],
+      "scientificNameRaw": "Lagarosiphon major",
+      "acceptedName": "Lagarosiphon major",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lagarosiphon major",
+      "plantType": "aquatic",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Low Negative",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Roundleaf chastetree",
+        "beach vitex"
+      ],
+      "scientificNameRaw": "Vitex rotundifolia",
+      "acceptedName": "Vitex rotundifolia",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Vitex rotundifolia",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Sea Rosemallow"
+      ],
+      "scientificNameRaw": "Hibiscus tiliaceus",
+      "acceptedName": "Hibiscus tiliaceus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Hibiscus tiliaceus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Shoebutton"
+      ],
+      "scientificNameRaw": "Ardisia elliptica",
+      "acceptedName": "Ardisia elliptica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ardisia elliptica",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Showy Rattlebox"
+      ],
+      "scientificNameRaw": "Crotalaria spectabilis",
+      "acceptedName": "Crotalaria spectabilis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Crotalaria spectabilis",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Spatulaleaf Loosestrife"
+      ],
+      "scientificNameRaw": "Lythrum portula",
+      "acceptedName": "Lythrum portula",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lythrum portula",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Spiny Emex"
+      ],
+      "scientificNameRaw": "Emex spinosa",
+      "acceptedName": "Emex spinosa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Emex spinosa",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Star jasmine"
+      ],
+      "scientificNameRaw": "Jasminum multiflorum",
+      "acceptedName": "Jasminum multiflorum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Jasminum multiflorum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Swamp stonecrop"
+      ],
+      "scientificNameRaw": "Crassula helmsii",
+      "acceptedName": "Crassula helmsii",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Crassula helmsii",
+      "plantType": "aquatic",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Significant Negative",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Taro"
+      ],
+      "scientificNameRaw": "Colocasia esculenta",
+      "acceptedName": "Colocasia esculenta",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Colocasia esculenta",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Tropical milkweed",
+        "bloodflower",
+        "scarlet milkweed"
+      ],
+      "scientificNameRaw": "Asclepias curassavica",
+      "acceptedName": "Asclepias curassavica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Asclepias curassavica",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Two-horned Water Chestnut"
+      ],
+      "scientificNameRaw": "Trapa bispinosa",
+      "acceptedName": "Trapa bispinosa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Trapa bispinosa",
+      "plantType": "aquatic",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Uruguayan pampas grass"
+      ],
+      "scientificNameRaw": "Cortaderia selloana",
+      "acceptedName": "Cortaderia selloana",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Cortaderia selloana",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "White Bladder-flower"
+      ],
+      "scientificNameRaw": "Araujia sericifera",
+      "acceptedName": "Araujia sericifera",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Araujia sericifera",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Woolly Distaff-thistle"
+      ],
+      "scientificNameRaw": "Carthamus lanatus",
+      "acceptedName": "Carthamus lanatus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Carthamus lanatus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Low Negative",
+      "regulatoryStatus": null,
+      "tier": "1b",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Panic Veldtgrass"
+      ],
+      "scientificNameRaw": "Ehrharta erecta",
+      "acceptedName": "Ehrharta erecta",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ehrharta erecta",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "1c",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Purple False Brome"
+      ],
+      "scientificNameRaw": "Brachypodium distachyon",
+      "acceptedName": "Brachypodium distachyon",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Brachypodium distachyon",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "1c",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Senegal tea plant"
+      ],
+      "scientificNameRaw": "Gymnocoronis spilanthoides",
+      "acceptedName": "Gymnocoronis spilanthoides",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Gymnocoronis spilanthoides",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "1c",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Bog Bulrush"
+      ],
+      "scientificNameRaw": "Schoenoplectiella mucronata",
+      "acceptedName": "Schoenoplectiella mucronata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Schoenoplectiella mucronata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Castor-Aralia"
+      ],
+      "scientificNameRaw": "Kalopanax septemlobus",
+      "acceptedName": "Kalopanax septemlobus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Kalopanax septemlobus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Chinese Yam",
+        "Air Potato"
+      ],
+      "scientificNameRaw": "Dioscorea polystachya",
+      "acceptedName": "Dioscorea polystachya",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Dioscorea polystachya",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "European Bird Cherry"
+      ],
+      "scientificNameRaw": "Prunus padus",
+      "acceptedName": "Prunus padus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Prunus padus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "European Woodland Sedge"
+      ],
+      "scientificNameRaw": "Carex sylvatica",
+      "acceptedName": "Carex sylvatica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Carex sylvatica",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Floating Primrose Willow"
+      ],
+      "scientificNameRaw": "Ludwigia peploides ssp. glabrescens",
+      "acceptedName": "Ludwigia peploides ssp. glabrescens",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ludwigia peploides",
+      "plantType": "aquatic",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Foxtail Fountain Grass",
+        "Chinese Millet Grass"
+      ],
+      "scientificNameRaw": "Cenchrus purpurascens (syn. Pennisetum alopecuroides)",
+      "acceptedName": "Cenchrus purpurascens",
+      "synonyms": [
+        "Pennisetum alopecuroides"
+      ],
+      "misappliedNames": [],
+      "speciesName": "Cenchrus purpurascens",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Goats rue",
+        "Professor weed"
+      ],
+      "scientificNameRaw": "Galega officinalis",
+      "acceptedName": "Galega officinalis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Galega officinalis",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Heath Sedge"
+      ],
+      "scientificNameRaw": "Carex flacca",
+      "acceptedName": "Carex flacca",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Carex flacca",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Himalayan-berry"
+      ],
+      "scientificNameRaw": "Rubus bifrons",
+      "acceptedName": "Rubus bifrons",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Rubus bifrons",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Hydrilla"
+      ],
+      "scientificNameRaw": "Hydrilla verticillata",
+      "acceptedName": "Hydrilla verticillata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Hydrilla verticillata",
+      "plantType": "aquatic",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Incised Fumewort"
+      ],
+      "scientificNameRaw": "Corydalis incisa",
+      "acceptedName": "Corydalis incisa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Corydalis incisa",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Indian Lotus",
+        "Sacred Lotus"
+      ],
+      "scientificNameRaw": "Nelumbo nucifera",
+      "acceptedName": "Nelumbo nucifera",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Nelumbo nucifera",
+      "plantType": "aquatic",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "High Positive",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Chaff-flower"
+      ],
+      "scientificNameRaw": "Achyranthes japonica",
+      "acceptedName": "Achyranthes japonica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Achyranthes japonica",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Silver Grass"
+      ],
+      "scientificNameRaw": "Miscanthus sacchariflorus",
+      "acceptedName": "Miscanthus sacchariflorus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Miscanthus sacchariflorus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Java Waterdropwort"
+      ],
+      "scientificNameRaw": "Oenanthe javanica",
+      "acceptedName": "Oenanthe javanica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Oenanthe javanica",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Juliana's barberry"
+      ],
+      "scientificNameRaw": "Berberis julianae",
+      "acceptedName": "Berberis julianae",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Berberis julianae",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Nodding Star of Bethlehem"
+      ],
+      "scientificNameRaw": "Ornithogalum nutans",
+      "acceptedName": "Ornithogalum nutans",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ornithogalum nutans",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Onerow Yellowcress"
+      ],
+      "scientificNameRaw": "Nasturtium microphyllum",
+      "acceptedName": "Nasturtium microphyllum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Nasturtium microphyllum",
+      "plantType": "aquatic",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Oriental Redtip"
+      ],
+      "scientificNameRaw": "Pourthiaea villosa",
+      "acceptedName": "Pourthiaea villosa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Pourthiaea villosa",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Plume Poppy"
+      ],
+      "scientificNameRaw": "Macleaya cordata",
+      "acceptedName": "Macleaya cordata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Macleaya cordata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Ravenna Grass"
+      ],
+      "scientificNameRaw": "Tripidium ravennae",
+      "acceptedName": "Tripidium ravennae",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Tripidium ravennae",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Rock sea-lavender"
+      ],
+      "scientificNameRaw": "Limonium binervosum",
+      "acceptedName": "Limonium binervosum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Limonium binervosum",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Silver Vine"
+      ],
+      "scientificNameRaw": "Actinidia polygama",
+      "acceptedName": "Actinidia polygama",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Actinidia polygama",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": "Low Positive",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Small Carpetgrass; Joint-head Arthraxon"
+      ],
+      "scientificNameRaw": "Arthraxon hispidus var. hispidus",
+      "acceptedName": "Arthraxon hispidus var. hispidus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Arthraxon hispidus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Spanish-bluebell"
+      ],
+      "scientificNameRaw": "Hyacinthoides hispanica",
+      "acceptedName": "Hyacinthoides hispanica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Hyacinthoides hispanica",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Spring Fumewort"
+      ],
+      "scientificNameRaw": "Corydalis solida",
+      "acceptedName": "Corydalis solida",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Corydalis solida",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Sticky Sage"
+      ],
+      "scientificNameRaw": "Salvia glutinosa",
+      "acceptedName": "Salvia glutinosa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Salvia glutinosa",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Water Hyacinth"
+      ],
+      "scientificNameRaw": "Oshuna crassipes",
+      "acceptedName": "Oshuna crassipes",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Oshuna crassipes",
+      "plantType": "aquatic",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Water Lettuce"
+      ],
+      "scientificNameRaw": "Pistia stratiotes",
+      "acceptedName": "Pistia stratiotes",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Pistia stratiotes",
+      "plantType": "aquatic",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Water Soldiers"
+      ],
+      "scientificNameRaw": "Stratiotes aloides",
+      "acceptedName": "Stratiotes aloides",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Stratiotes aloides",
+      "plantType": "aquatic",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Water Spangles"
+      ],
+      "scientificNameRaw": "Salvinia minima",
+      "acceptedName": "Salvinia minima",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Salvinia minima",
+      "plantType": "aquatic",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Water violet",
+        "featherfoil"
+      ],
+      "scientificNameRaw": "Hottonia palustris",
+      "acceptedName": "Hottonia palustris",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Hottonia palustris",
+      "plantType": "aquatic",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Yellow Floating heart"
+      ],
+      "scientificNameRaw": "Nymphoides peltata",
+      "acceptedName": "Nymphoides peltata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Nymphoides peltata",
+      "plantType": "aquatic",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "2",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Asiatic Sand Sedge"
+      ],
+      "scientificNameRaw": "Carex kobomugi",
+      "acceptedName": "Carex kobomugi",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Carex kobomugi",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "High Negative",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Beale's Oregon-grape"
+      ],
+      "scientificNameRaw": "Mahonia bealei",
+      "acceptedName": "Mahonia bealei",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Mahonia bealei",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Bigleaf Lupine",
+        "Giant Lupine"
+      ],
+      "scientificNameRaw": "Lupinus polyphyllus var. polyphyllus",
+      "acceptedName": "Lupinus polyphyllus var. polyphyllus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lupinus polyphyllus",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Black Jetbead"
+      ],
+      "scientificNameRaw": "Rhodotypos scandens",
+      "acceptedName": "Rhodotypos scandens",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Rhodotypos scandens",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Brazilian elodea",
+        "Brazilian Waterweed"
+      ],
+      "scientificNameRaw": "Egeria densa",
+      "acceptedName": "Egeria densa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Egeria densa",
+      "plantType": "aquatic",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Chinese Silvergrass"
+      ],
+      "scientificNameRaw": "Miscanthus sinensis",
+      "acceptedName": "Miscanthus sinensis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Miscanthus sinensis",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "regulated",
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Chinese Wisteria"
+      ],
+      "scientificNameRaw": "Wisteria sinensis",
+      "acceptedName": "Wisteria sinensis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Wisteria sinensis",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Common Caraway"
+      ],
+      "scientificNameRaw": "Carum carvi",
+      "acceptedName": "Carum carvi",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Carum carvi",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Cup-plant",
+        "Cup plant"
+      ],
+      "scientificNameRaw": "Silphium perfoliatum var. perfoliatum",
+      "acceptedName": "Silphium perfoliatum var. perfoliatum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Silphium perfoliatum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Erect Hedge Parsley"
+      ],
+      "scientificNameRaw": "Torilis japonica",
+      "acceptedName": "Torilis japonica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Torilis japonica",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "European Dewberry"
+      ],
+      "scientificNameRaw": "Rubus caesius",
+      "acceptedName": "Rubus caesius",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Rubus caesius",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "European Stinging Nettle"
+      ],
+      "scientificNameRaw": "Urtica dioica ssp. dioica",
+      "acceptedName": "Urtica dioica ssp. dioica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Urtica dioica",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Fanwort"
+      ],
+      "scientificNameRaw": "Cabomba caroliniana",
+      "acceptedName": "Cabomba caroliniana",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Cabomba caroliniana",
+      "plantType": "aquatic",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Fuzzy Deutzia; Pride-of-Rochester"
+      ],
+      "scientificNameRaw": "Deutzia scabra",
+      "acceptedName": "Deutzia scabra",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Deutzia scabra",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Giant Hogweed"
+      ],
+      "scientificNameRaw": "Heracleum mantegazzianum",
+      "acceptedName": "Heracleum mantegazzianum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Heracleum mantegazzianum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Golden Bamboo"
+      ],
+      "scientificNameRaw": "Phyllostachys aurea",
+      "acceptedName": "Phyllostachys aurea",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Phyllostachys aurea",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Golden-rain Tree"
+      ],
+      "scientificNameRaw": "Koelreuteria paniculata",
+      "acceptedName": "Koelreuteria paniculata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Koelreuteria paniculata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Hairy Crabweed"
+      ],
+      "scientificNameRaw": "Fatoua villosa",
+      "acceptedName": "Fatoua villosa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Fatoua villosa",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": "Significant Negative",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Hardy Kiwi"
+      ],
+      "scientificNameRaw": "Actinidia arguta",
+      "acceptedName": "Actinidia arguta",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Actinidia arguta",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Holly Osmanthus"
+      ],
+      "scientificNameRaw": "Osmanthus heterophyllus",
+      "acceptedName": "Osmanthus heterophyllus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Osmanthus heterophyllus",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Italian Arum"
+      ],
+      "scientificNameRaw": "Arum italicum ssp. italicum",
+      "acceptedName": "Arum italicum ssp. italicum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Arum italicum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Holly"
+      ],
+      "scientificNameRaw": "Ilex crenata",
+      "acceptedName": "Ilex crenata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ilex crenata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese primrose"
+      ],
+      "scientificNameRaw": "Primula japonica",
+      "acceptedName": "Primula japonica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Primula japonica",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Spiraea",
+        "Japanese Meadowsweet"
+      ],
+      "scientificNameRaw": "Spiraea japonica",
+      "acceptedName": "Spiraea japonica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Spiraea japonica",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Low Positive",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Tree Lilac"
+      ],
+      "scientificNameRaw": "Syringa reticulata ssp. reticulata",
+      "acceptedName": "Syringa reticulata ssp. reticulata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Syringa reticulata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Wisteria"
+      ],
+      "scientificNameRaw": "Wisteria floribunda",
+      "acceptedName": "Wisteria floribunda",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Wisteria floribunda",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Kudzu"
+      ],
+      "scientificNameRaw": "Pueraria montana var. lobata",
+      "acceptedName": "Pueraria montana var. lobata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Pueraria montana",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Memorial Rose"
+      ],
+      "scientificNameRaw": "Rosa lucieae (syn. R. wichuraiana)",
+      "acceptedName": "Rosa lucieae",
+      "synonyms": [
+        "Rosa wichuraiana"
+      ],
+      "misappliedNames": [],
+      "speciesName": "Rosa lucieae",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Nude Sheath Bamboo"
+      ],
+      "scientificNameRaw": "Phyllostachys nuda",
+      "acceptedName": "Phyllostachys nuda",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Phyllostachys nuda",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Low Positive",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Parrot Feather Watermilfoil"
+      ],
+      "scientificNameRaw": "Myriophyllum aquaticum",
+      "acceptedName": "Myriophyllum aquaticum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Myriophyllum aquaticum",
+      "plantType": "aquatic",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Perennial Pepperweed; Broadleaf pepperweed"
+      ],
+      "scientificNameRaw": "Lepidium latifolium",
+      "acceptedName": "Lepidium latifolium",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lepidium latifolium",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Princess Tree",
+        "Royal Paulownia"
+      ],
+      "scientificNameRaw": "Paulownia tomentosa",
+      "acceptedName": "Paulownia tomentosa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Paulownia tomentosa",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Sapphireberry"
+      ],
+      "scientificNameRaw": "Symplocos paniculata",
+      "acceptedName": "Symplocos paniculata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Symplocos paniculata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Scotch Broom"
+      ],
+      "scientificNameRaw": "Cytisus scoparius",
+      "acceptedName": "Cytisus scoparius",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Cytisus scoparius",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Low Negative",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Silver Grass (species unknown)"
+      ],
+      "scientificNameRaw": "Miscanthus spp. (species unknown)",
+      "acceptedName": "Miscanthus spp. (species unknown)",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Miscanthus spp.",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Slender Falsebrome"
+      ],
+      "scientificNameRaw": "Brachypodium sylvaticum ssp. sylvaticum",
+      "acceptedName": "Brachypodium sylvaticum ssp. sylvaticum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Brachypodium sylvaticum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Sweetshoot Bamboo"
+      ],
+      "scientificNameRaw": "Phyllostachys dulcis",
+      "acceptedName": "Phyllostachys dulcis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Phyllostachys dulcis",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Low Positive",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Toringo Crabapple"
+      ],
+      "scientificNameRaw": "Malus toringo",
+      "acceptedName": "Malus toringo",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Malus toringo",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Watercress"
+      ],
+      "scientificNameRaw": "Nasturtium officinale",
+      "acceptedName": "Nasturtium officinale",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Nasturtium officinale",
+      "plantType": "aquatic",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Weeping Lovegrass"
+      ],
+      "scientificNameRaw": "Eragrostis curvula",
+      "acceptedName": "Eragrostis curvula",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Eragrostis curvula",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Wisteria (species unknown)"
+      ],
+      "scientificNameRaw": "Wisteria spp. (species unknown)",
+      "acceptedName": "Wisteria spp. (species unknown)",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Wisteria spp.",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Yellow Garden Loosestrife"
+      ],
+      "scientificNameRaw": "Lysimachia vulgaris",
+      "acceptedName": "Lysimachia vulgaris",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lysimachia vulgaris",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Yellow Groove Bamboo"
+      ],
+      "scientificNameRaw": "Phyllostachys aureosulcata",
+      "acceptedName": "Phyllostachys aureosulcata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Phyllostachys aureosulcata",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "3",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Amur Corktree"
+      ],
+      "scientificNameRaw": "Phellodendron amurense",
+      "acceptedName": "Phellodendron amurense",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Phellodendron amurense",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Amur Honeysuckle"
+      ],
+      "scientificNameRaw": "Lonicera maackii",
+      "acceptedName": "Lonicera maackii",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lonicera maackii",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Asian Bush Clover",
+        "Chinese Lespedeza"
+      ],
+      "scientificNameRaw": "Lespedeza cuneata",
+      "acceptedName": "Lespedeza cuneata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lespedeza cuneata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Autumn Olive"
+      ],
+      "scientificNameRaw": "Elaeagnus umbellata",
+      "acceptedName": "Elaeagnus umbellata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Elaeagnus umbellata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Bamboo (Species Unknown)"
+      ],
+      "scientificNameRaw": "Phyllostachys spp. (species unknown)",
+      "acceptedName": "Phyllostachys spp. (species unknown)",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Phyllostachys spp.",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Black Knapweed",
+        "Black Starthistle"
+      ],
+      "scientificNameRaw": "Centaurea nigra",
+      "acceptedName": "Centaurea nigra",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Centaurea nigra",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Black Locust"
+      ],
+      "scientificNameRaw": "Robinia pseudoacacia",
+      "acceptedName": "Robinia pseudoacacia",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Robinia pseudoacacia",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": "regulated",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Black Swallowwort"
+      ],
+      "scientificNameRaw": "Vincetoxicum nigrum",
+      "acceptedName": "Vincetoxicum nigrum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Vincetoxicum nigrum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "High Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Bohemian knotweed"
+      ],
+      "scientificNameRaw": "Reynoutria x bohemica : Fallopia x bohemica",
+      "acceptedName": "Reynoutria x bohemica",
+      "synonyms": [
+        "Fallopia x bohemica"
+      ],
+      "misappliedNames": [],
+      "speciesName": "Reynoutria x bohemica",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Border Privet"
+      ],
+      "scientificNameRaw": "Ligustrum obtusifolium var. obtusifolium",
+      "acceptedName": "Ligustrum obtusifolium var. obtusifolium",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ligustrum obtusifolium",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Brown knapweed"
+      ],
+      "scientificNameRaw": "Centaurea jacea",
+      "acceptedName": "Centaurea jacea",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Centaurea jacea",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Significant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Bull Thistle"
+      ],
+      "scientificNameRaw": "Cirsium vulgare",
+      "acceptedName": "Cirsium vulgare",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Cirsium vulgare",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Significant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Burning Bush",
+        "Winged Euonymus"
+      ],
+      "scientificNameRaw": "Euonymus alatus",
+      "acceptedName": "Euonymus alatus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Euonymus alatus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": "regulated",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Callery Pear",
+        "Bradford Pear"
+      ],
+      "scientificNameRaw": "Pyrus calleryana",
+      "acceptedName": "Pyrus calleryana",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Pyrus calleryana",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Canada Bluegrass"
+      ],
+      "scientificNameRaw": "Poa compressa",
+      "acceptedName": "Poa compressa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Poa compressa",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Canada Thistle",
+        "Creeping Thistle"
+      ],
+      "scientificNameRaw": "Cirsium arvense",
+      "acceptedName": "Cirsium arvense",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Cirsium arvense",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Chocolate Vine"
+      ],
+      "scientificNameRaw": "Akebia quinata",
+      "acceptedName": "Akebia quinata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Akebia quinata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Common Barberry",
+        "European Barberry"
+      ],
+      "scientificNameRaw": "Berberis vulgaris",
+      "acceptedName": "Berberis vulgaris",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Berberis vulgaris",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Common Buckthorn"
+      ],
+      "scientificNameRaw": "Rhamnus cathartica",
+      "acceptedName": "Rhamnus cathartica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Rhamnus cathartica",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Common Reed Grass",
+        "Phragmites"
+      ],
+      "scientificNameRaw": "Phragmites australis ssp. australis",
+      "acceptedName": "Phragmites australis ssp. australis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Phragmites australis",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Creeping Buttercup"
+      ],
+      "scientificNameRaw": "Ranunculus repens",
+      "acceptedName": "Ranunculus repens",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ranunculus repens",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Curly Pondweed"
+      ],
+      "scientificNameRaw": "Potamogeton crispus",
+      "acceptedName": "Potamogeton crispus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Potamogeton crispus",
+      "plantType": "aquatic",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Cutleaf teasel"
+      ],
+      "scientificNameRaw": "Dipsacus laciniatus",
+      "acceptedName": "Dipsacus laciniatus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Dipsacus laciniatus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Cypress Spurge"
+      ],
+      "scientificNameRaw": "Euphorbia cyparissias",
+      "acceptedName": "Euphorbia cyparissias",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Euphorbia cyparissias",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "English Ivy"
+      ],
+      "scientificNameRaw": "Hedera helix ssp. helix",
+      "acceptedName": "Hedera helix ssp. helix",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Hedera helix",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Eurasian Water-milfoil"
+      ],
+      "scientificNameRaw": "Myriophyllum spicatum",
+      "acceptedName": "Myriophyllum spicatum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Myriophyllum spicatum",
+      "plantType": "aquatic",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "European Alder",
+        "Black Alder"
+      ],
+      "scientificNameRaw": "Alnus glutinosa",
+      "acceptedName": "Alnus glutinosa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Alnus glutinosa",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "European Frogbit; Common Frogbit"
+      ],
+      "scientificNameRaw": "Hydrocharis morsus-ranae",
+      "acceptedName": "Hydrocharis morsus-ranae",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Hydrocharis morsus-ranae",
+      "plantType": "aquatic",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "European Privet; Common Privet"
+      ],
+      "scientificNameRaw": "Ligustrum vulgare",
+      "acceptedName": "Ligustrum vulgare",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ligustrum vulgare",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "False Spiraea"
+      ],
+      "scientificNameRaw": "Sorbaria sorbifolia",
+      "acceptedName": "Sorbaria sorbifolia",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Sorbaria sorbifolia",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Field Bindweed"
+      ],
+      "scientificNameRaw": "Convolvulus arvensis",
+      "acceptedName": "Convolvulus arvensis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Convolvulus arvensis",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Significant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Flowering rush"
+      ],
+      "scientificNameRaw": "Butomus umbellatus",
+      "acceptedName": "Butomus umbellatus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Butomus umbellatus",
+      "plantType": "aquatic",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Fly Honeysuckle",
+        "Bell's honeysuckle"
+      ],
+      "scientificNameRaw": "Lonicera x bella",
+      "acceptedName": "Lonicera x bella",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lonicera x bella",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Fullers Teasel"
+      ],
+      "scientificNameRaw": "Dipsacus fullonum",
+      "acceptedName": "Dipsacus fullonum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Dipsacus fullonum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Garlic Mustard"
+      ],
+      "scientificNameRaw": "Alliaria petiolata",
+      "acceptedName": "Alliaria petiolata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Alliaria petiolata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Giant Knotweed"
+      ],
+      "scientificNameRaw": "Reynoutria sachalinensis : Fallopia sachalinensis",
+      "acceptedName": "Reynoutria sachalinensis",
+      "synonyms": [
+        "Fallopia sachalinensis"
+      ],
+      "misappliedNames": [],
+      "speciesName": "Reynoutria sachalinensis",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Glossy Buckthorn",
+        "Smooth Buckthorn"
+      ],
+      "scientificNameRaw": "Frangula alnus",
+      "acceptedName": "Frangula alnus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Frangula alnus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Goutweed"
+      ],
+      "scientificNameRaw": "Aegopodium podagraria",
+      "acceptedName": "Aegopodium podagraria",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Aegopodium podagraria",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Hawthorn",
+        "English Hawthorn"
+      ],
+      "scientificNameRaw": "Crataegus monogyna ssp. monogyna",
+      "acceptedName": "Crataegus monogyna ssp. monogyna",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Crataegus monogyna",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Honeysuckle (species unknown)"
+      ],
+      "scientificNameRaw": "Lonicera spp. (species unknown)",
+      "acceptedName": "Lonicera spp. (species unknown)",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lonicera spp.",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Angelica Tree"
+      ],
+      "scientificNameRaw": "Aralia elata",
+      "acceptedName": "Aralia elata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Aralia elata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Barberry"
+      ],
+      "scientificNameRaw": "Berberis thunbergii",
+      "acceptedName": "Berberis thunbergii",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Berberis thunbergii",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Honeysuckle"
+      ],
+      "scientificNameRaw": "Lonicera japonica",
+      "acceptedName": "Lonicera japonica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lonicera japonica",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Hops"
+      ],
+      "scientificNameRaw": "Humulus japonicus",
+      "acceptedName": "Humulus japonicus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Humulus japonicus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Knotweed",
+        "Japanese Bamboo"
+      ],
+      "scientificNameRaw": "Reynoutria japonica var. japonica : Fallopia japonica var. japonica",
+      "acceptedName": "Reynoutria japonica var. japonica",
+      "synonyms": [
+        "Fallopia japonica var. japonica"
+      ],
+      "misappliedNames": [],
+      "speciesName": "Reynoutria japonica",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Stiltgrass"
+      ],
+      "scientificNameRaw": "Microstegium vimineum",
+      "acceptedName": "Microstegium vimineum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Microstegium vimineum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Virgin's-bower",
+        "Sweet Autumn Clematis"
+      ],
+      "scientificNameRaw": "Clematis terniflora",
+      "acceptedName": "Clematis terniflora",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Clematis terniflora",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "regulated",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Knapweed (species unknown)"
+      ],
+      "scientificNameRaw": "Centaurea spp. (species unknown)",
+      "acceptedName": "Centaurea spp. (species unknown)",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Centaurea spp.",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Knotweed (species unknown)"
+      ],
+      "scientificNameRaw": "Reynoutria spp.",
+      "acceptedName": "Reynoutria spp.",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Reynoutria spp.",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Leafy Spurge"
+      ],
+      "scientificNameRaw": "Euphorbia virgata (syn. Euphorbia esula misapplied)",
+      "acceptedName": "Euphorbia virgata",
+      "synonyms": [],
+      "misappliedNames": [
+        "Euphorbia esula"
+      ],
+      "speciesName": "Euphorbia virgata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Lesser Celandine",
+        "Fig Buttercup"
+      ],
+      "scientificNameRaw": "Ficaria verna",
+      "acceptedName": "Ficaria verna",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ficaria verna",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Mile-a-minute",
+        "Mile a minute weed"
+      ],
+      "scientificNameRaw": "Persicaria perfoliata",
+      "acceptedName": "Persicaria perfoliata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Persicaria perfoliata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Significant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Morrows honeysuckle"
+      ],
+      "scientificNameRaw": "Lonicera morrowii",
+      "acceptedName": "Lonicera morrowii",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lonicera morrowii",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Mugwort"
+      ],
+      "scientificNameRaw": "Artemisia vulgaris",
+      "acceptedName": "Artemisia vulgaris",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Artemisia vulgaris",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Multiflora Rose"
+      ],
+      "scientificNameRaw": "Rosa multiflora",
+      "acceptedName": "Rosa multiflora",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Rosa multiflora",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Musk Thistle; Nodding Thistle"
+      ],
+      "scientificNameRaw": "Carduus nutans",
+      "acceptedName": "Carduus nutans",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Carduus nutans",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Significant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Narrowleaf Bittercress"
+      ],
+      "scientificNameRaw": "Cardamine impatiens",
+      "acceptedName": "Cardamine impatiens",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Cardamine impatiens",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Norway Maple"
+      ],
+      "scientificNameRaw": "Acer platanoides",
+      "acceptedName": "Acer platanoides",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Acer platanoides",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": "regulated",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Oriental Bittersweet"
+      ],
+      "scientificNameRaw": "Celastrus orbiculatus",
+      "acceptedName": "Celastrus orbiculatus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Celastrus orbiculatus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Pale Swallowwort"
+      ],
+      "scientificNameRaw": "Vincetoxicum rossicum",
+      "acceptedName": "Vincetoxicum rossicum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Vincetoxicum rossicum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "High Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Poison-hemlock"
+      ],
+      "scientificNameRaw": "Conium maculatum",
+      "acceptedName": "Conium maculatum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Conium maculatum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Policemen's Helmet",
+        "Himalayan Balsam"
+      ],
+      "scientificNameRaw": "Impatiens glandulifera",
+      "acceptedName": "Impatiens glandulifera",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Impatiens glandulifera",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Porcelain Berry; Amur Peppervine"
+      ],
+      "scientificNameRaw": "Ampelopsis glandulosa",
+      "acceptedName": "Ampelopsis glandulosa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ampelopsis glandulosa",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Privet (species unknown)"
+      ],
+      "scientificNameRaw": "Ligustrum spp. (species unknown)",
+      "acceptedName": "Ligustrum spp. (species unknown)",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ligustrum spp.",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Purple Loosestrife"
+      ],
+      "scientificNameRaw": "Lythrum salicaria",
+      "acceptedName": "Lythrum salicaria",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lythrum salicaria",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Queen-of-the-meadow"
+      ],
+      "scientificNameRaw": "Filipendula ulmaria",
+      "acceptedName": "Filipendula ulmaria",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Filipendula ulmaria",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Ragged Robin"
+      ],
+      "scientificNameRaw": "Lychnis flos-cuculi ssp. flos-cuculi",
+      "acceptedName": "Lychnis flos-cuculi ssp. flos-cuculi",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lychnis flos-cuculi",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Reed Canarygrass"
+      ],
+      "scientificNameRaw": "Phalaris arundinacea",
+      "acceptedName": "Phalaris arundinacea",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Phalaris arundinacea",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Rugosa Rose"
+      ],
+      "scientificNameRaw": "Rosa rugosa",
+      "acceptedName": "Rosa rugosa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Rosa rugosa",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Sheep Sorrel"
+      ],
+      "scientificNameRaw": "Rumex acetosella",
+      "acceptedName": "Rumex acetosella",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Rumex acetosella",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Siberian Elm"
+      ],
+      "scientificNameRaw": "Ulmus pumila",
+      "acceptedName": "Ulmus pumila",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ulmus pumila",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Spotted Knapweed"
+      ],
+      "scientificNameRaw": "Centaurea stoebe ssp. micranthos",
+      "acceptedName": "Centaurea stoebe ssp. micranthos",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Centaurea stoebe",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Starry Stonewort"
+      ],
+      "scientificNameRaw": "Nitellopsis obtusa",
+      "acceptedName": "Nitellopsis obtusa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Nitellopsis obtusa",
+      "plantType": "aquatic",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "High Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Swallowwort (species unknown)"
+      ],
+      "scientificNameRaw": "Vincetoxicum spp. (species unknown)",
+      "acceptedName": "Vincetoxicum spp. (species unknown)",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Vincetoxicum spp.",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Sweet Bedstraw",
+        "Woodruff"
+      ],
+      "scientificNameRaw": "Galium odoratum",
+      "acceptedName": "Galium odoratum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Galium odoratum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Low",
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Sycamore Maple"
+      ],
+      "scientificNameRaw": "Acer pseudoplatanus",
+      "acceptedName": "Acer pseudoplatanus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Acer pseudoplatanus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Tartarian Honeysuckle"
+      ],
+      "scientificNameRaw": "Lonicera tatarica",
+      "acceptedName": "Lonicera tatarica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lonicera tatarica",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Tree-of-heaven",
+        "Ailanthus"
+      ],
+      "scientificNameRaw": "Ailanthus altissima",
+      "acceptedName": "Ailanthus altissima",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ailanthus altissima",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Tufted Vetch"
+      ],
+      "scientificNameRaw": "Vicia cracca",
+      "acceptedName": "Vicia cracca",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Vicia cracca",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Tyrol knapweed",
+        "Short-fringe Starthistle"
+      ],
+      "scientificNameRaw": "Centaurea nigrescens",
+      "acceptedName": "Centaurea nigrescens",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Centaurea nigrescens",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Wall Lettuce"
+      ],
+      "scientificNameRaw": "Mycelis muralis",
+      "acceptedName": "Mycelis muralis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Mycelis muralis",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Water Chestnut"
+      ],
+      "scientificNameRaw": "Trapa natans",
+      "acceptedName": "Trapa natans",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Trapa natans",
+      "plantType": "aquatic",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Significant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "White Poplar"
+      ],
+      "scientificNameRaw": "Populus alba",
+      "acceptedName": "Populus alba",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Populus alba",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Wild Chervil"
+      ],
+      "scientificNameRaw": "Anthriscus sylvestris",
+      "acceptedName": "Anthriscus sylvestris",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Anthriscus sylvestris",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Wild Parsnip"
+      ],
+      "scientificNameRaw": "Pastinaca sativa",
+      "acceptedName": "Pastinaca sativa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Pastinaca sativa",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Wineberry"
+      ],
+      "scientificNameRaw": "Rubus phoenicolasius",
+      "acceptedName": "Rubus phoenicolasius",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Rubus phoenicolasius",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Winter Creeper",
+        "Climbing Euonymus"
+      ],
+      "scientificNameRaw": "Euonymus fortunei",
+      "acceptedName": "Euonymus fortunei",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Euonymus fortunei",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "regulated",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Yellow Foxglove"
+      ],
+      "scientificNameRaw": "Digitalis grandiflora",
+      "acceptedName": "Digitalis grandiflora",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Digitalis grandiflora",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Yellow Iris"
+      ],
+      "scientificNameRaw": "Iris pseudacorus",
+      "acceptedName": "Iris pseudacorus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Iris pseudacorus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "4",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Asiatic Dayflower",
+        "Asian Dayflower"
+      ],
+      "scientificNameRaw": "Commelina communis",
+      "acceptedName": "Commelina communis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Commelina communis",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Beautybush"
+      ],
+      "scientificNameRaw": "Kolkwitzia amabilis",
+      "acceptedName": "Kolkwitzia amabilis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Kolkwitzia amabilis",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Beefsteak Plant"
+      ],
+      "scientificNameRaw": "Perilla frutescens",
+      "acceptedName": "Perilla frutescens",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Perilla frutescens",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Blessed Milkthistle"
+      ],
+      "scientificNameRaw": "Silybum marianum",
+      "acceptedName": "Silybum marianum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Silybum marianum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Blue dune grass",
+        "blue lyme grass"
+      ],
+      "scientificNameRaw": "Leymus arenarius",
+      "acceptedName": "Leymus arenarius",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Leymus arenarius",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Bristly Locust"
+      ],
+      "scientificNameRaw": "Robinia hispida",
+      "acceptedName": "Robinia hispida",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Robinia hispida",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Low",
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Brittle Naiad"
+      ],
+      "scientificNameRaw": "Najas minor",
+      "acceptedName": "Najas minor",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Najas minor",
+      "plantType": "aquatic",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Significant Negative",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Cambridge Milk-parsley",
+        "Little-leaf Angelica"
+      ],
+      "scientificNameRaw": "Selinum carvifolia",
+      "acceptedName": "Selinum carvifolia",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Selinum carvifolia",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Chameleon plant"
+      ],
+      "scientificNameRaw": "Houttuynia cordata",
+      "acceptedName": "Houttuynia cordata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Houttuynia cordata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Chinese Elm"
+      ],
+      "scientificNameRaw": "Ulmus parvifolia",
+      "acceptedName": "Ulmus parvifolia",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ulmus parvifolia",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Chinese Parasol-tree"
+      ],
+      "scientificNameRaw": "Firmiana simplex",
+      "acceptedName": "Firmiana simplex",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Firmiana simplex",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Chinese Privet"
+      ],
+      "scientificNameRaw": "Ligustrum sinense",
+      "acceptedName": "Ligustrum sinense",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ligustrum sinense",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Cogon grass"
+      ],
+      "scientificNameRaw": "Imperata cylindrica",
+      "acceptedName": "Imperata cylindrica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Imperata cylindrica",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Common Crabapple"
+      ],
+      "scientificNameRaw": "Malus sylvestris",
+      "acceptedName": "Malus sylvestris",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Malus sylvestris",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Common Daffodil"
+      ],
+      "scientificNameRaw": "Narcissus pseudonarcissus",
+      "acceptedName": "Narcissus pseudonarcissus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Narcissus pseudonarcissus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Common Pepperweed"
+      ],
+      "scientificNameRaw": "Lepidium densiflorum var. densiflorum",
+      "acceptedName": "Lepidium densiflorum var. densiflorum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lepidium densiflorum",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Common Star of Bethlehem"
+      ],
+      "scientificNameRaw": "Ornithogalum umbellatum",
+      "acceptedName": "Ornithogalum umbellatum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ornithogalum umbellatum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Common Yew"
+      ],
+      "scientificNameRaw": "Taxus baccata",
+      "acceptedName": "Taxus baccata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Taxus baccata",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Crack Willow",
+        "Brittle Willow"
+      ],
+      "scientificNameRaw": "Salix x fragilis",
+      "acceptedName": "Salix x fragilis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Salix x fragilis",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Crape myrtle"
+      ],
+      "scientificNameRaw": "Lagerstroemia indica",
+      "acceptedName": "Lagerstroemia indica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lagerstroemia indica",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Creeping Bentgrass"
+      ],
+      "scientificNameRaw": "Agrostis stolonifera",
+      "acceptedName": "Agrostis stolonifera",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Agrostis stolonifera",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Creeping Jenny",
+        "Moneywort"
+      ],
+      "scientificNameRaw": "Lysimachia nummularia",
+      "acceptedName": "Lysimachia nummularia",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lysimachia nummularia",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Crested Elsholtzia",
+        "Crested Late-summer Mint"
+      ],
+      "scientificNameRaw": "Elsholtzia ciliata",
+      "acceptedName": "Elsholtzia ciliata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Elsholtzia ciliata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Crowdipper Green Dragon"
+      ],
+      "scientificNameRaw": "Pinellia ternata",
+      "acceptedName": "Pinellia ternata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Pinellia ternata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Insignificant",
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Crown Vetch"
+      ],
+      "scientificNameRaw": "Securigera varia",
+      "acceptedName": "Securigera varia",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Securigera varia",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Cutleaf Blackberry"
+      ],
+      "scientificNameRaw": "Rubus laciniatus",
+      "acceptedName": "Rubus laciniatus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Rubus laciniatus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Daphne"
+      ],
+      "scientificNameRaw": "Daphne mezereum",
+      "acceptedName": "Daphne mezereum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Daphne mezereum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "European Spindletree"
+      ],
+      "scientificNameRaw": "Euonymus europaeus",
+      "acceptedName": "Euonymus europaeus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Euonymus europaeus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Feathertop"
+      ],
+      "scientificNameRaw": "Calamagrostis epigeios",
+      "acceptedName": "Calamagrostis epigeios",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Calamagrostis epigeios",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Fern-leaved corydalis"
+      ],
+      "scientificNameRaw": "Corydalis cheilanthifolia",
+      "acceptedName": "Corydalis cheilanthifolia",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Corydalis cheilanthifolia",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Five-leaf Aralia"
+      ],
+      "scientificNameRaw": "Eleutherococcus sieboldianus",
+      "acceptedName": "Eleutherococcus sieboldianus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Eleutherococcus sieboldianus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Fragrant Clematis"
+      ],
+      "scientificNameRaw": "Clematis flammula",
+      "acceptedName": "Clematis flammula",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Clematis flammula",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Gooseneck Yellow Loosestrife"
+      ],
+      "scientificNameRaw": "Lysimachia clethroides",
+      "acceptedName": "Lysimachia clethroides",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lysimachia clethroides",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Guelder Rose; European Cranberrybush"
+      ],
+      "scientificNameRaw": "Viburnum opulus var. opulus",
+      "acceptedName": "Viburnum opulus var. opulus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Viburnum opulus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Hamilton's spindletree"
+      ],
+      "scientificNameRaw": "Euonymus hamiltonianus",
+      "acceptedName": "Euonymus hamiltonianus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Euonymus hamiltonianus",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Hardy orange",
+        "trifoliate orange"
+      ],
+      "scientificNameRaw": "Poncirus trifoliata",
+      "acceptedName": "Poncirus trifoliata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Poncirus trifoliata",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Harlequin Glory-bower"
+      ],
+      "scientificNameRaw": "Clerodendrum trichotomum",
+      "acceptedName": "Clerodendrum trichotomum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Clerodendrum trichotomum",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Honey locust"
+      ],
+      "scientificNameRaw": "Gleditsia triacanthos",
+      "acceptedName": "Gleditsia triacanthos",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Gleditsia triacanthos",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Igiri tree"
+      ],
+      "scientificNameRaw": "Idesia polycarpa",
+      "acceptedName": "Idesia polycarpa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Idesia polycarpa",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Butter-bur"
+      ],
+      "scientificNameRaw": "Petasites japonicus",
+      "acceptedName": "Petasites japonicus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Petasites japonicus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese flatsedge"
+      ],
+      "scientificNameRaw": "Cyperus nipponicus",
+      "acceptedName": "Cyperus nipponicus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Cyperus nipponicus",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Pagoda-tree"
+      ],
+      "scientificNameRaw": "Styphnolobium japonicum",
+      "acceptedName": "Styphnolobium japonicum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Styphnolobium japonicum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese painted fern"
+      ],
+      "scientificNameRaw": "Athyrium niponicum",
+      "acceptedName": "Athyrium niponicum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Athyrium niponicum",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Snowball"
+      ],
+      "scientificNameRaw": "Viburnum plicatum",
+      "acceptedName": "Viburnum plicatum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Viburnum plicatum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese snowbell"
+      ],
+      "scientificNameRaw": "Styrax japonicus",
+      "acceptedName": "Styrax japonicus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Styrax japonicus",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese-spurge"
+      ],
+      "scientificNameRaw": "Pachysandra terminalis",
+      "acceptedName": "Pachysandra terminalis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Pachysandra terminalis",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Johnson Grass",
+        "Johnsongrass"
+      ],
+      "scientificNameRaw": "Sorghum halepense",
+      "acceptedName": "Sorghum halepense",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Sorghum halepense",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Significant Negative",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Kentucky Bluegrass"
+      ],
+      "scientificNameRaw": "Poa pratensis ssp. pratensis",
+      "acceptedName": "Poa pratensis ssp. pratensis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Poa pratensis",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Laceshrub"
+      ],
+      "scientificNameRaw": "Neillia incisa (Stephanandra incisa)",
+      "acceptedName": "Neillia incisa (Stephanandra incisa)",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Neillia incisa",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Lentil vetch",
+        "smooth tare"
+      ],
+      "scientificNameRaw": "Vicia tetrasperma",
+      "acceptedName": "Vicia tetrasperma",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Vicia tetrasperma",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Lilyturf",
+        "creeping liriope"
+      ],
+      "scientificNameRaw": "Liriope spicata",
+      "acceptedName": "Liriope spicata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Liriope spicata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Linden Arrow-wood"
+      ],
+      "scientificNameRaw": "Viburnum dilatatum",
+      "acceptedName": "Viburnum dilatatum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Viburnum dilatatum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Maricao"
+      ],
+      "scientificNameRaw": "Phyllanthus tenellus",
+      "acceptedName": "Phyllanthus tenellus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Phyllanthus tenellus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Marsh Thistle"
+      ],
+      "scientificNameRaw": "Cirsium palustre",
+      "acceptedName": "Cirsium palustre",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Cirsium palustre",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Low Negative",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Nepal Smartweed"
+      ],
+      "scientificNameRaw": "Persicaria nepalensis",
+      "acceptedName": "Persicaria nepalensis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Persicaria nepalensis",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": "Significant Negative",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Oak forest woodrush"
+      ],
+      "scientificNameRaw": "Luzula luzuloides",
+      "acceptedName": "Luzula luzuloides",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Luzula luzuloides",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Oldwoman",
+        "hoary mugwort",
+        "beach wormwood",
+        "dusty miller"
+      ],
+      "scientificNameRaw": "Artemisia stelleriana",
+      "acceptedName": "Artemisia stelleriana",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Artemisia stelleriana",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Oregon grape"
+      ],
+      "scientificNameRaw": "Berberis aquifolium",
+      "acceptedName": "Berberis aquifolium",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Berberis aquifolium",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Paper-mulberry"
+      ],
+      "scientificNameRaw": "Broussonetia papyrifera",
+      "acceptedName": "Broussonetia papyrifera",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Broussonetia papyrifera",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Periwinkle"
+      ],
+      "scientificNameRaw": "Vinca minor",
+      "acceptedName": "Vinca minor",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Vinca minor",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Poet's Narcissus"
+      ],
+      "scientificNameRaw": "Narcissus poeticus",
+      "acceptedName": "Narcissus poeticus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Narcissus poeticus",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Purple Foxglove"
+      ],
+      "scientificNameRaw": "Digitalis purpurea",
+      "acceptedName": "Digitalis purpurea",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Digitalis purpurea",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Very High Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Reed Mannagrass"
+      ],
+      "scientificNameRaw": "Glyceria maxima",
+      "acceptedName": "Glyceria maxima",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Glyceria maxima",
+      "plantType": "aquatic",
+      "ecologicalRank": "High",
+      "socioEconomicRank": null,
+      "regulatoryStatus": "prohibited",
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Rice Field Flat Sedge"
+      ],
+      "scientificNameRaw": "Cyperus iria",
+      "acceptedName": "Cyperus iria",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Cyperus iria",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Low",
+      "socioEconomicRank": "High Negative",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Rusty Willow"
+      ],
+      "scientificNameRaw": "Salix cinerea ssp. oleifolia",
+      "acceptedName": "Salix cinerea ssp. oleifolia",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Salix cinerea",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Salt-cedar"
+      ],
+      "scientificNameRaw": "Tamarix ramosissima",
+      "acceptedName": "Tamarix ramosissima",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Tamarix ramosissima",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Low Negative",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Sawtooth Oak"
+      ],
+      "scientificNameRaw": "Quercus acutissima",
+      "acceptedName": "Quercus acutissima",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Quercus acutissima",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Shasta Daisy"
+      ],
+      "scientificNameRaw": "Leucanthemum maximum",
+      "acceptedName": "Leucanthemum maximum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Leucanthemum maximum",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Shrubby Lespedeza; Shrubby Bush Clover"
+      ],
+      "scientificNameRaw": "Lespedeza bicolor",
+      "acceptedName": "Lespedeza bicolor",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lespedeza bicolor",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Siberian Crabapple"
+      ],
+      "scientificNameRaw": "Malus baccata",
+      "acceptedName": "Malus baccata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Malus baccata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Sichuan peppercorn"
+      ],
+      "scientificNameRaw": "Zanthoxylum simulans",
+      "acceptedName": "Zanthoxylum simulans",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Zanthoxylum simulans",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Siebold's Viburnum"
+      ],
+      "scientificNameRaw": "Viburnum sieboldii",
+      "acceptedName": "Viburnum sieboldii",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Viburnum sieboldii",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Spiny Plumeless-thistle"
+      ],
+      "scientificNameRaw": "Carduus acanthoides",
+      "acceptedName": "Carduus acanthoides",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Carduus acanthoides",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Significant Negative",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Tansy ragwort"
+      ],
+      "scientificNameRaw": "Senecio jacobaea",
+      "acceptedName": "Senecio jacobaea",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Senecio jacobaea",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Tea crab apple"
+      ],
+      "scientificNameRaw": "Malus hupehensis",
+      "acceptedName": "Malus hupehensis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Malus hupehensis",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Three-nerved sandwort"
+      ],
+      "scientificNameRaw": "Moehringia trinervia",
+      "acceptedName": "Moehringia trinervia",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Moehringia trinervia",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Waterwheel plant"
+      ],
+      "scientificNameRaw": "Aldrovanda vesiculosa",
+      "acceptedName": "Aldrovanda vesiculosa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Aldrovanda vesiculosa",
+      "plantType": "aquatic",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Winter Honeysuckle"
+      ],
+      "scientificNameRaw": "Lonicera fragrantissima",
+      "acceptedName": "Lonicera fragrantissima",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lonicera fragrantissima",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Yellow Arch-angel"
+      ],
+      "scientificNameRaw": "Lamium galeobdolon",
+      "acceptedName": "Lamium galeobdolon",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lamium galeobdolon",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": "M",
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Allegheny spurge"
+      ],
+      "scientificNameRaw": "Pachysandra procumbens",
+      "acceptedName": "Pachysandra procumbens",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Pachysandra procumbens",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Amur Maple"
+      ],
+      "scientificNameRaw": "Acer ginnala",
+      "acceptedName": "Acer ginnala",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Acer ginnala",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Balfour's Touch-me-not"
+      ],
+      "scientificNameRaw": "Impatiens balfourii",
+      "acceptedName": "Impatiens balfourii",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Impatiens balfourii",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Balloonvine Heartseed"
+      ],
+      "scientificNameRaw": "Cardiospermum halicacabum",
+      "acceptedName": "Cardiospermum halicacabum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Cardiospermum halicacabum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Bird's Foot Trefoil"
+      ],
+      "scientificNameRaw": "Lotus corniculatus",
+      "acceptedName": "Lotus corniculatus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lotus corniculatus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Low Positive",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Black Medic"
+      ],
+      "scientificNameRaw": "Medicago lupulina",
+      "acceptedName": "Medicago lupulina",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Medicago lupulina",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Blackberry Lily"
+      ],
+      "scientificNameRaw": "Iris domestica",
+      "acceptedName": "Iris domestica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Iris domestica",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Blue Cat-tail",
+        "Hybrid Cattail"
+      ],
+      "scientificNameRaw": "Typha x glauca",
+      "acceptedName": "Typha x glauca",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Typha x glauca",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Blue Lungwort"
+      ],
+      "scientificNameRaw": "Pulmonaria officinalis",
+      "acceptedName": "Pulmonaria officinalis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Pulmonaria officinalis",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Bristly Lady's-thumb"
+      ],
+      "scientificNameRaw": "Persicaria longiseta",
+      "acceptedName": "Persicaria longiseta",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Persicaria longiseta",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Butter-and-eggs"
+      ],
+      "scientificNameRaw": "Linaria vulgaris",
+      "acceptedName": "Linaria vulgaris",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Linaria vulgaris",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "California Privet"
+      ],
+      "scientificNameRaw": "Ligustrum ovalifolium",
+      "acceptedName": "Ligustrum ovalifolium",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ligustrum ovalifolium",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Low",
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Caper Spurge",
+        "Mole Plant"
+      ],
+      "scientificNameRaw": "Euphorbia lathyris",
+      "acceptedName": "Euphorbia lathyris",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Euphorbia lathyris",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Carline Thistle"
+      ],
+      "scientificNameRaw": "Carlina vulgaris ssp. vulgaris",
+      "acceptedName": "Carlina vulgaris ssp. vulgaris",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Carlina vulgaris",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "China Fleece Vine",
+        "Silver Lace"
+      ],
+      "scientificNameRaw": "Fallopia baldschuanica",
+      "acceptedName": "Fallopia baldschuanica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Fallopia baldschuanica",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Chinese Beauty-berry"
+      ],
+      "scientificNameRaw": "Callicarpa dichotoma",
+      "acceptedName": "Callicarpa dichotoma",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Callicarpa dichotoma",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Chinese Catalpa"
+      ],
+      "scientificNameRaw": "Catalpa ovata",
+      "acceptedName": "Catalpa ovata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Catalpa ovata",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Chinese wolf-berry",
+        "gogi berry"
+      ],
+      "scientificNameRaw": "Lycium chinense",
+      "acceptedName": "Lycium chinense",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lycium chinense",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Climbing Nightshade",
+        "Bittersweet Nightshade"
+      ],
+      "scientificNameRaw": "Solanum dulcamara",
+      "acceptedName": "Solanum dulcamara",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Solanum dulcamara",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Codlins And Cream",
+        "Hairy Willow-herb"
+      ],
+      "scientificNameRaw": "Epilobium hirsutum",
+      "acceptedName": "Epilobium hirsutum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Epilobium hirsutum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Common Bugloss"
+      ],
+      "scientificNameRaw": "Anchusa officinalis",
+      "acceptedName": "Anchusa officinalis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Anchusa officinalis",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Common mallow"
+      ],
+      "scientificNameRaw": "Malva sylvestris",
+      "acceptedName": "Malva sylvestris",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Malva sylvestris",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Common Matrimony Vine"
+      ],
+      "scientificNameRaw": "Lycium barbarum",
+      "acceptedName": "Lycium barbarum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lycium barbarum",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Common mullein"
+      ],
+      "scientificNameRaw": "Verbascum thapsus",
+      "acceptedName": "Verbascum thapsus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Verbascum thapsus",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Common Tansy"
+      ],
+      "scientificNameRaw": "Tanacetum vulgare",
+      "acceptedName": "Tanacetum vulgare",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Tanacetum vulgare",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Common Valerian"
+      ],
+      "scientificNameRaw": "Valeriana officinalis",
+      "acceptedName": "Valeriana officinalis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Valeriana officinalis",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Common vetch"
+      ],
+      "scientificNameRaw": "Vicia sativa",
+      "acceptedName": "Vicia sativa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Vicia sativa",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Crabapple (species unknown)"
+      ],
+      "scientificNameRaw": "Malus spp. (species unknown)",
+      "acceptedName": "Malus spp. (species unknown)",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Malus spp.",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Crested floating heart"
+      ],
+      "scientificNameRaw": "Nymphoides cristata",
+      "acceptedName": "Nymphoides cristata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Nymphoides cristata",
+      "plantType": "aquatic",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Dalmatian Toadflax"
+      ],
+      "scientificNameRaw": "Linaria dalmatica",
+      "acceptedName": "Linaria dalmatica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Linaria dalmatica",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Dame's Rocket"
+      ],
+      "scientificNameRaw": "Hesperis matronalis",
+      "acceptedName": "Hesperis matronalis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Hesperis matronalis",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "European Fly honeysuckle",
+        "Dwarf Honeysuckle"
+      ],
+      "scientificNameRaw": "Lonicera xylosteum",
+      "acceptedName": "Lonicera xylosteum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lonicera xylosteum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "European Gray Willow",
+        "Gray Florist's Willow"
+      ],
+      "scientificNameRaw": "Salix cinerea ssp. cinerea",
+      "acceptedName": "Salix cinerea ssp. cinerea",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Salix cinerea",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "European Speedwell; Brooklime"
+      ],
+      "scientificNameRaw": "Veronica beccabunga",
+      "acceptedName": "Veronica beccabunga",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Veronica beccabunga",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "European Water Fern; European Waterclover"
+      ],
+      "scientificNameRaw": "Marsilea quadrifolia",
+      "acceptedName": "Marsilea quadrifolia",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Marsilea quadrifolia",
+      "plantType": "aquatic",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "False Indigobush"
+      ],
+      "scientificNameRaw": "Amorpha fruticosa",
+      "acceptedName": "Amorpha fruticosa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Amorpha fruticosa",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Forget-me-not"
+      ],
+      "scientificNameRaw": "Myosotis scorpioides",
+      "acceptedName": "Myosotis scorpioides",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Myosotis scorpioides",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Garden Cornflower"
+      ],
+      "scientificNameRaw": "Centaurea cyanus",
+      "acceptedName": "Centaurea cyanus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Centaurea cyanus",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Giant Salvinia"
+      ],
+      "scientificNameRaw": "Salvinia molesta",
+      "acceptedName": "Salvinia molesta",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Salvinia molesta",
+      "plantType": "aquatic",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Golden Algae"
+      ],
+      "scientificNameRaw": "Prymnesium parvum",
+      "acceptedName": "Prymnesium parvum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Prymnesium parvum",
+      "plantType": "aquatic",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "High Negative",
+      "regulatoryStatus": "prohibited",
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Great Yellowcress",
+        "Water Yellowcress"
+      ],
+      "scientificNameRaw": "Rorippa amphibia",
+      "acceptedName": "Rorippa amphibia",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Rorippa amphibia",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Greater Burdock"
+      ],
+      "scientificNameRaw": "Arctium lappa",
+      "acceptedName": "Arctium lappa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Arctium lappa",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Ground Ivy; Gill-over-the-ground"
+      ],
+      "scientificNameRaw": "Glechoma hederacea",
+      "acceptedName": "Glechoma hederacea",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Glechoma hederacea",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Hairy vetch",
+        "winter vetch"
+      ],
+      "scientificNameRaw": "Vicia villosa",
+      "acceptedName": "Vicia villosa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Vicia villosa",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Ivy-leaved Morning Glory"
+      ],
+      "scientificNameRaw": "Ipomoea hederacea",
+      "acceptedName": "Ipomoea hederacea",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Ipomoea hederacea",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Dodder"
+      ],
+      "scientificNameRaw": "Cuscuta japonica",
+      "acceptedName": "Cuscuta japonica",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Cuscuta japonica",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Maple"
+      ],
+      "scientificNameRaw": "Acer palmatum",
+      "acceptedName": "Acer palmatum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Acer palmatum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Moderate Positive",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese spindletree"
+      ],
+      "scientificNameRaw": "Euonymus japonicus",
+      "acceptedName": "Euonymus japonicus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Euonymus japonicus",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Japanese Zelkova"
+      ],
+      "scientificNameRaw": "Zelkova serrata",
+      "acceptedName": "Zelkova serrata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Zelkova serrata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "High",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Katsura Tree"
+      ],
+      "scientificNameRaw": "Cercidiphyllum japonicum",
+      "acceptedName": "Cercidiphyllum japonicum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Cercidiphyllum japonicum",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Kousa dogwood"
+      ],
+      "scientificNameRaw": "Cornus kousa",
+      "acceptedName": "Cornus kousa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Cornus kousa",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Lance-leaved Sage"
+      ],
+      "scientificNameRaw": "Salvia reflexa",
+      "acceptedName": "Salvia reflexa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Salvia reflexa",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Largeleaf Periwinkle"
+      ],
+      "scientificNameRaw": "Vinca major",
+      "acceptedName": "Vinca major",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Vinca major",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Lesser Burdock"
+      ],
+      "scientificNameRaw": "Arctium minus",
+      "acceptedName": "Arctium minus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Arctium minus",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Meadow Timothy"
+      ],
+      "scientificNameRaw": "Phleum pratense ssp. pratense",
+      "acceptedName": "Phleum pratense ssp. pratense",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Phleum pratense",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Mudmat"
+      ],
+      "scientificNameRaw": "Glossostigma cleistanthum",
+      "acceptedName": "Glossostigma cleistanthum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Glossostigma cleistanthum",
+      "plantType": "aquatic",
+      "ecologicalRank": "Insignificant",
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Narrowleaf Cattail"
+      ],
+      "scientificNameRaw": "Typha angustifolia",
+      "acceptedName": "Typha angustifolia",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Typha angustifolia",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Northern Catalpa"
+      ],
+      "scientificNameRaw": "Catalpa speciosa",
+      "acceptedName": "Catalpa speciosa",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Catalpa speciosa",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Oleaster (species unknown)"
+      ],
+      "scientificNameRaw": "Elaeagnus spp. (species unknown)",
+      "acceptedName": "Elaeagnus spp. (species unknown)",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Elaeagnus spp.",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Orange Daylily"
+      ],
+      "scientificNameRaw": "Hemerocallis fulva",
+      "acceptedName": "Hemerocallis fulva",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Hemerocallis fulva",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Low",
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Orange-eye Butterfly-bush"
+      ],
+      "scientificNameRaw": "Buddleja davidii",
+      "acceptedName": "Buddleja davidii",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Buddleja davidii",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Low",
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Oxeye Daisy"
+      ],
+      "scientificNameRaw": "Leucanthemum vulgare",
+      "acceptedName": "Leucanthemum vulgare",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Leucanthemum vulgare",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Perennial cornflower",
+        "mountain star-thistle"
+      ],
+      "scientificNameRaw": "Centaurea montana",
+      "acceptedName": "Centaurea montana",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Centaurea montana",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Pestilence wort",
+        "Purple Butter-bur"
+      ],
+      "scientificNameRaw": "Petasites hybridus",
+      "acceptedName": "Petasites hybridus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Petasites hybridus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Red Hailstone"
+      ],
+      "scientificNameRaw": "Thladiantha dubia",
+      "acceptedName": "Thladiantha dubia",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Thladiantha dubia",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Red Valerian",
+        "Jupiter's Beard"
+      ],
+      "scientificNameRaw": "Centranthus ruber",
+      "acceptedName": "Centranthus ruber",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Centranthus ruber",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Russian Olive"
+      ],
+      "scientificNameRaw": "Elaeagnus angustifolia",
+      "acceptedName": "Elaeagnus angustifolia",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Elaeagnus angustifolia",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Showy Stonecrop"
+      ],
+      "scientificNameRaw": "Hylotelephium spectabile",
+      "acceptedName": "Hylotelephium spectabile",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Hylotelephium spectabile",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Siberian Motherwort"
+      ],
+      "scientificNameRaw": "Leonurus sibiricus",
+      "acceptedName": "Leonurus sibiricus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Leonurus sibiricus",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Silk Tree"
+      ],
+      "scientificNameRaw": "Albizia julibrissin",
+      "acceptedName": "Albizia julibrissin",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Albizia julibrissin",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Low",
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Slender Trefoil"
+      ],
+      "scientificNameRaw": "Lotus tenuis",
+      "acceptedName": "Lotus tenuis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lotus tenuis",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Smooth brome"
+      ],
+      "scientificNameRaw": "Bromus inermis",
+      "acceptedName": "Bromus inermis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Bromus inermis",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Spike Speedwell"
+      ],
+      "scientificNameRaw": "Veronica spicata",
+      "acceptedName": "Veronica spicata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Veronica spicata",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Spotted Loosestrife"
+      ],
+      "scientificNameRaw": "Lysimachia punctata",
+      "acceptedName": "Lysimachia punctata",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Lysimachia punctata",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Spring Vetch"
+      ],
+      "scientificNameRaw": "Vicia lathyroides",
+      "acceptedName": "Vicia lathyroides",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Vicia lathyroides",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Stinkwort"
+      ],
+      "scientificNameRaw": "Dittrichia graveolens",
+      "acceptedName": "Dittrichia graveolens",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Dittrichia graveolens",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Summer Snowflake"
+      ],
+      "scientificNameRaw": "Leucojum aestivum",
+      "acceptedName": "Leucojum aestivum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Leucojum aestivum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Unknown",
+      "socioEconomicRank": "Moderate Positive",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Sweet Cherry"
+      ],
+      "scientificNameRaw": "Prunus avium",
+      "acceptedName": "Prunus avium",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Prunus avium",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Moderate Positive",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Tall Fescue",
+        "tall rye grass"
+      ],
+      "scientificNameRaw": "Schedonorus arundinaceus",
+      "acceptedName": "Schedonorus arundinaceus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Schedonorus arundinaceus",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Tea Viburnum"
+      ],
+      "scientificNameRaw": "Viburnum setigerum",
+      "acceptedName": "Viburnum setigerum",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Viburnum setigerum",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Low",
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Trumpet creeper"
+      ],
+      "scientificNameRaw": "Campsis radicans",
+      "acceptedName": "Campsis radicans",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Campsis radicans",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Variable Flatsedge"
+      ],
+      "scientificNameRaw": "Cyperus difformis",
+      "acceptedName": "Cyperus difformis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Cyperus difformis",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Negative",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Variable Watermilfoil; Broadleaf Watermilfoil"
+      ],
+      "scientificNameRaw": "Myriophyllum heterophyllum (M. heterophyllum x M. laxum)",
+      "acceptedName": "Myriophyllum heterophyllum (M. heterophyllum x M. laxum)",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Myriophyllum heterophyllum",
+      "plantType": "aquatic",
+      "ecologicalRank": "Very High",
+      "socioEconomicRank": "Equal outcome",
+      "regulatoryStatus": "prohibited",
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Wayfaring-tree"
+      ],
+      "scientificNameRaw": "Viburnum lantana",
+      "acceptedName": "Viburnum lantana",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Viburnum lantana",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "White Mulberry"
+      ],
+      "scientificNameRaw": "Morus alba",
+      "acceptedName": "Morus alba",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Morus alba",
+      "plantType": "terrestrial",
+      "ecologicalRank": "Moderate",
+      "socioEconomicRank": "Insignificant Positive",
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "White Sweet-clover"
+      ],
+      "scientificNameRaw": "Melilotus albus",
+      "acceptedName": "Melilotus albus",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Melilotus albus",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Wild Garlic"
+      ],
+      "scientificNameRaw": "Allium vineale",
+      "acceptedName": "Allium vineale",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Allium vineale",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Winter-flowering Cherry"
+      ],
+      "scientificNameRaw": "Prunus subhirtella",
+      "acceptedName": "Prunus subhirtella",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Prunus subhirtella",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Wisconsin Weeping Willow"
+      ],
+      "scientificNameRaw": "Salix x pendulina",
+      "acceptedName": "Salix x pendulina",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Salix x pendulina",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Wormwood",
+        "Common Wormwood"
+      ],
+      "scientificNameRaw": "Artemisia absinthium",
+      "acceptedName": "Artemisia absinthium",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Artemisia absinthium",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    },
+    {
+      "commonNames": [
+        "Yellow Sweetclover"
+      ],
+      "scientificNameRaw": "Melilotus officinalis",
+      "acceptedName": "Melilotus officinalis",
+      "synonyms": [],
+      "misappliedNames": [],
+      "speciesName": "Melilotus officinalis",
+      "plantType": "terrestrial",
+      "ecologicalRank": null,
+      "socioEconomicRank": null,
+      "regulatoryStatus": null,
+      "tier": null,
+      "regionClassifiers": {}
+    }
+  ]
+}

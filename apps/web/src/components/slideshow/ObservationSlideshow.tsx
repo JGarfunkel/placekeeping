@@ -3,6 +3,7 @@
 import type { Slide, SlideshowPage, SlideSpecies } from "@placekeeping/core";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { InvasiveBadge } from "@/components/species/InvasiveBadge";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { computeCaptionTimeline, EXIT_FADE_MS, ENTER_MS, STAGGER_MS } from "@/lib/slideshow/captionTimeline";
 import {
@@ -816,7 +817,10 @@ function SpeciesMark({
           transform: labelAbove ? "translateY(-100%)" : "none",
         }}
       >
-        <p className="font-semibold">{species.commonName ?? species.scientificName}</p>
+        <p className="font-semibold">
+          {species.commonName ?? species.scientificName}
+          {species.invasive && <> <InvasiveBadge invasive={species.invasive} /></>}
+        </p>
         {species.commonName && <p className="text-xs italic text-neutral-300">{species.scientificName}</p>}
       </div>
     </div>

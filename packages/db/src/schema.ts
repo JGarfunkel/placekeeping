@@ -778,6 +778,70 @@ export const taxa = pgTable(
   ],
 );
 
+// Invasive-species listings. One source per authority (a state list, or a
+// regional body like a PRISM); one listing per (source, species). A species
+// listed by several states gets one row each -- the claims differ per
+// authority (tier, regulatory status) and are cheap, so they are not merged.
+// Mirrored from JSON files under data/listings/ (see loadInvasiveListings.ts).
+export const listingSources = pgTable("listing_sources", {
+  // Stable slug, e.g. 'us-ny'.
+  sourceId: text("source_id").primaryKey(),
+  jurisdiction: text("jurisdiction").notNull(),
+  name: text("name").notNull(),
+  regulation: text("regulation"),
+  generatedAt: timestamp("generated_at", { withTimezone: true }),
+  loadedAt: timestamp("loaded_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const taxonListings = pgTable(
+  "taxon_listings",
+  {
+    listingId: uuid("listing_id").primaryKey().defaultRandom(),
+    sourceId: text("source_id")
+      .notNull()
+      .references(() => listingSources.sourceId, { onDelete: "cascade" }),
+    // Null until the matcher finds the species in `taxa`.
+    taxonId: uuid("taxon_id").references(() => taxa.taxonId, {
+      onDelete: "set null",
+    }),
+    // 'exact' | 'synonym' | 'species' (infraspecific fell back to its
+    // species); null when unmatched. Text, validated in the app.
+    matchRank: text("match_rank"),
+    // Names as printed by the source.
+    scientificNameRaw: text("scientific_name_raw").notNull(),
+    acceptedName: text("accepted_name").notNull(),
+    speciesName: text("species_name").notNull(),
+    synonyms: text("synonyms").array().notNull().default(sql`'{}'`),
+    misappliedNames: text("misapplied_names")
+      .array()
+      .notNull()
+      .default(sql`'{}'`),
+    commonNames: text("common_names").array().notNull().default(sql`'{}'`),
+    // 'terrestrial' | 'aquatic'
+    plantType: text("plant_type"),
+    ecologicalRank: text("ecological_rank"),
+    socioEconomicRank: text("socio_economic_rank"),
+    // 'prohibited' | 'regulated' | null
+    regulatoryStatus: text("regulatory_status"),
+    // Source-specific, kept as printed (NY: 1a-1c, 2, 3, 4, M).
+    tier: text("tier"),
+    // Regional (e.g. PRISM) classifications keyed by region id; free-form
+    // placeholder until those lists are loaded.
+    regionClassifiers: jsonb("region_classifiers")
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+  },
+  (table) => [
+    uniqueIndex("taxon_listings_source_name_uniq").on(
+      table.sourceId,
+      sql`lower(${table.acceptedName})`,
+    ),
+    index("taxon_listings_taxon_idx").on(table.taxonId),
+  ],
+);
+
 // One row per plant a keeper identifies: one rectangle on a photo, or the
 // whole photo when all four crop fields are null. Rectangles are fractions
 // (0..1) of the photo so they stay valid at any display size; the crop
