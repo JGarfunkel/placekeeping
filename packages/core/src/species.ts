@@ -713,6 +713,22 @@ export async function listTaxaForSpot(spotId: number): Promise<SpotTaxonRow[]> {
   }));
 }
 
+/**
+ * Distinct verified species across all of a spot's observations, by scientific
+ * name. Live (unlike spot_taxa, which a cron refreshes), so a species a keeper
+ * just confirmed shows up on the next page load.
+ */
+export async function listVerifiedSpeciesForSpot(spotId: number): Promise<Taxon[]> {
+  const rows = await db
+    .selectDistinct({ taxon: taxa })
+    .from(observationPlants)
+    .innerJoin(observations, eq(observationPlants.observationId, observations.observationId))
+    .innerJoin(taxa, eq(observationPlants.taxonId, taxa.taxonId))
+    .where(and(eq(observations.spotId, spotId), eq(observationPlants.status, "verified")))
+    .orderBy(asc(taxa.scientificName));
+  return rows.map((r) => toTaxon(r.taxon));
+}
+
 export type TaxonSpotRow = {
   spotId: number;
   spotName: string;

@@ -5,6 +5,7 @@ import {
   getStewardByStewardId,
   getUserByUserId,
   isTaskMember,
+  listVerifiedSpeciesForSpot,
   slugify,
 } from "@placekeeping/core";
 import type { AuthContext } from "@placekeeping/core";
@@ -24,6 +25,7 @@ import { FillGeoDetailsButton } from "./FillGeoDetailsButton";
 import { SiteColumn } from "./SiteColumn";
 import { SpotColumns } from "./SpotColumns";
 import { SpotDetailsSection } from "./SpotDetailsSection";
+import { SpotSpeciesCard } from "./SpotSpeciesCard";
 import { SpotTitleEditor } from "./SpotTitleEditor";
 import { StewardshipSection } from "./StewardshipSection";
 
@@ -190,6 +192,7 @@ export async function SpotDetailView({
       // GSV_API_KEY unset
     }
   }
+  const species = await listVerifiedSpeciesForSpot(spot.spotId);
   const canCreateTasks = !!authContext && isTaskMember(authContext);
   const canDeleteSpot =
     canManageParcel && (!hasObservations || authContext?.isSystemAdmin === true);
@@ -363,6 +366,8 @@ export async function SpotDetailView({
         </>
       }
       observations={
+        <>
+        <SpotSpeciesCard species={species} />
         <ObservationsPanel
           spotId={spot.spotId}
           spotName={spot.name}
@@ -385,6 +390,7 @@ export async function SpotDetailView({
           highlightPhotoId={highlightPhotoId}
           featuredPhoto={featuredPhoto}
         />
+        </>
       }
     />
   );

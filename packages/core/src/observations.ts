@@ -1,4 +1,12 @@
-import { db, observations, photos, spots, users } from "@placekeeping/db";
+import {
+  db,
+  identifications,
+  observationPlants,
+  observations,
+  photos,
+  spots,
+  users,
+} from "@placekeeping/db";
 import type {
   CreateObservationInput,
   GsvRef,
@@ -8,7 +16,7 @@ import type {
   Vegetation,
   WeedLevel,
 } from "@placekeeping/shared-types";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { diffFields, logEvent, snapshotToChanges } from "./events";
 import { checkPhotoUrls, moderationStatusFor } from "./photoModeration";
 import { isOwnStorageUrl } from "./photoStorage";
@@ -308,6 +316,102 @@ export async function updateObservation(
   }
 
   return updated;
+}
+
+export class PhotoMoveError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "PhotoMoveError";
+  }
+}
+
+// Moves one photo out of `sourceObservationId` into a brand-new observation on
+// the same spot, dated `observedAt` -- for a photo attached to the wrong visit.
+// The new observation inherits who made the source one (observer, steward) but
+// none of its classification fields. The photo's identifications and their
+// plant rows follow it, since both are keyed by observationId as well as
+// photoId. Caller has already checked canEditObservation on the source.
+export async function movePhotoToNewObservation(
+  photoId: string,
+  observedAt: string,
+  userId: string | null,
+): Promise<Observation> {
+  return db.transaction(async (tx) => {
+    const [photo] = await tx.select().from(photos).where(eq(photos.photoId, photoId)).limit(1);
+    if (!photo) throw new PhotoMoveError("Photo not found");
+
+    const [source] = await tx
+      .select()
+      .from(observations)
+      .where(eq(observations.observationId, photo.observationId))
+      .limit(1);
+    if (!source) throw new PhotoMoveError("Observation not found");
+
+    const [created] = await tx
+      .insert(observations)
+      .values({
+        spotId: source.spotId,
+        observedAt,
+        observerName: source.observerName,
+        observerId: source.observerId,
+        stewardId: source.stewardId,
+        photoUrls: [photo.url],
+      })
+      .returning();
+
+    await tx
+      .update(photos)
+      .set({ observationId: created.observationId })
+      .where(eq(photos.photoId, photoId));
+    const movedIdentifications = await tx
+      .update(identifications)
+      .set({ observationId: created.observationId })
+      .where(eq(identifications.photoId, photoId))
+      .returning({ identificationId: identifications.identificationId });
+    if (movedIdentifications.length > 0) {
+      await tx
+        .update(observationPlants)
+        .set({ observationId: created.observationId })
+        .where(
+          inArray(
+            observationPlants.identificationId,
+            movedIdentifications.map((i) => i.identificationId),
+          ),
+        );
+    }
+
+    const remainingUrls = source.photoUrls.filter((url) => url !== photo.url);
+    await tx
+      .update(observations)
+      .set({ photoUrls: remainingUrls })
+      .where(eq(observations.observationId, source.observationId));
+
+    const dto = toObservationDto(created);
+    await logEvent(
+      {
+        entityType: "observation",
+        entityId: created.observationId,
+        action: "create",
+        userId,
+        changes: {
+          ...snapshotToChanges(dto as unknown as Record<string, unknown>, "create"),
+          movedFromObservationId: { from: null, to: source.observationId },
+        },
+      },
+      tx,
+    );
+    await logEvent(
+      {
+        entityType: "observation",
+        entityId: source.observationId,
+        action: "update",
+        userId,
+        changes: { photoUrls: { from: source.photoUrls, to: remainingUrls } },
+      },
+      tx,
+    );
+    return dto;
+  });
 }
 
 // Street View pointer observations -- deliberately not routed through

@@ -136,15 +136,15 @@ export function GsvAddPanel({ spotId }: { spotId: number }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="w-full rounded-md border border-dashed border-neutral-300 p-3 text-left text-sm font-medium text-neutral-600 hover:border-neutral-400 hover:text-neutral-900"
+        className="min-w-40 flex-1 rounded-md border border-dashed border-neutral-300 p-3 text-left text-sm font-medium text-neutral-600 hover:border-neutral-400 hover:text-neutral-900"
       >
-        + Add earlier Street View photos
+        + Add Street View
       </button>
     );
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-md border border-neutral-200 p-3">
+    <div className="flex w-full flex-col gap-3 rounded-md border border-neutral-200 p-3">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium">Add earlier Street View photos</h3>
         <button

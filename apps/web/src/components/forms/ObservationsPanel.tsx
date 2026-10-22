@@ -71,14 +71,14 @@ function canIdentifySpecies(
   return isSystemAdmin || obs.observerId === currentUserId;
 }
 
-// One of three buttons, by what plant rows the observation has (see
+// "Identify species", with a check once species have been verified (see
 // local/species-id.md). null when there is nothing for this viewer to do.
 function speciesButtonLabel(obs: Observation, canIdentify: boolean): string | null {
   const counts = obs.speciesCounts ?? { verified: 0, suggested: 0 };
-  if (counts.verified > 0) return "Show Species List";
+  if (counts.verified > 0) return "Identify species ✓";
   if (!canIdentify) return null;
-  if (counts.suggested > 0) return "Review Species";
-  return (obs.photos?.length ?? 0) > 0 ? "Find Species" : null;
+  if (counts.suggested > 0) return "Identify species";
+  return (obs.photos?.length ?? 0) > 0 ? "Identify species" : null;
 }
 
 function PhotoLightbox({ url, onClose }: { url: string; onClose: () => void }) {
@@ -161,6 +161,8 @@ function PhotoThumbnail({
   linkPath,
   highlighted = false,
   canEditPortrait = false,
+  canMove = false,
+  observedAt,
 }: {
   photoId: string | null;
   url: string;
@@ -169,6 +171,10 @@ function PhotoThumbnail({
   highlighted?: boolean;
   // Show the rotate / square-crop glyphs (portrait photos the viewer can edit).
   canEditPortrait?: boolean;
+  // Show the move-to-new-observation glyph (photos the viewer can edit);
+  // observedAt is the current observation's date, offered as the default.
+  canMove?: boolean;
+  observedAt?: string;
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
@@ -215,6 +221,37 @@ function PhotoThumbnail({
     }
   }
 
+  async function move() {
+    if (!photoId) return;
+    const date = window.prompt(
+      "Move this photo to a new observation dated (YYYY-MM-DD):",
+      observedAt,
+    );
+    if (date === null) return;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date.trim())) {
+      setEditError("Enter a date as YYYY-MM-DD");
+      return;
+    }
+    setEditError(null);
+    setEditing(true);
+    try {
+      const res = await fetch(`/api/photos/${photoId}/move`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ observedAt: date.trim() }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(typeof body?.error === "string" ? body.error : "Failed to move photo");
+      }
+      router.refresh();
+    } catch (err) {
+      setEditError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setEditing(false);
+    }
+  }
+
   return (
     <>
       <div className="relative" id={photoId ? `photo-${photoId}` : undefined}>
@@ -237,28 +274,44 @@ function PhotoThumbnail({
             <PermalinkIcon path={linkPath} label="Photo permalink" />
           </div>
         )}
-        {canEditPortrait && photoId && (
+        {(canEditPortrait || canMove) && photoId && (
           <div className="absolute bottom-1 left-1 flex gap-1">
-            <button
-              type="button"
-              onClick={() => edit("rotate")}
-              disabled={editing}
-              aria-label="Rotate to landscape"
-              title="Rotate to landscape"
-              className="rounded-full bg-white/90 px-1.5 text-sm text-neutral-600 shadow hover:text-neutral-900 disabled:opacity-50"
-            >
-              ↻
-            </button>
-            <button
-              type="button"
-              onClick={() => edit("square")}
-              disabled={editing}
-              aria-label="Crop to square"
-              title="Crop to square"
-              className="rounded-full bg-white/90 px-1.5 text-sm text-neutral-600 shadow hover:text-neutral-900 disabled:opacity-50"
-            >
-              ▢
-            </button>
+            {canEditPortrait && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => edit("rotate")}
+                  disabled={editing}
+                  aria-label="Rotate to landscape"
+                  title="Rotate to landscape"
+                  className="rounded-full bg-white/90 px-1.5 text-sm text-neutral-600 shadow hover:text-neutral-900 disabled:opacity-50"
+                >
+                  ↻
+                </button>
+                <button
+                  type="button"
+                  onClick={() => edit("square")}
+                  disabled={editing}
+                  aria-label="Crop to square"
+                  title="Crop to square"
+                  className="rounded-full bg-white/90 px-1.5 text-sm text-neutral-600 shadow hover:text-neutral-900 disabled:opacity-50"
+                >
+                  ▢
+                </button>
+              </>
+            )}
+            {canMove && (
+              <button
+                type="button"
+                onClick={move}
+                disabled={editing}
+                aria-label="Move to a new observation"
+                title="Move to a new observation (different date)"
+                className="rounded-full bg-white/90 px-1.5 text-sm text-neutral-600 shadow hover:text-neutral-900 disabled:opacity-50"
+              >
+                📅
+              </button>
+            )}
           </div>
         )}
         {editError && <p className="mt-1 w-24 text-xs text-red-600">{editError}</p>}
@@ -389,10 +442,12 @@ function StewardshipActions({
   spotId,
   obs,
   currentStewardId,
+  children,
 }: {
   spotId: number;
   obs: Observation;
   currentStewardId: string | null;
+  children?: React.ReactNode;
 }) {
   const router = useRouter();
   const [pending, setPending] = useState<"steward" | "claim" | null>(null);
@@ -461,6 +516,7 @@ function StewardshipActions({
             ? "Logging…"
             : "Log Stewardship Activity"}
       </button>
+      {children}
       {error && <p className="w-full text-xs text-red-600">{error}</p>}
     </div>
   );
@@ -539,18 +595,14 @@ export function ObservationsPanel({
 
       <ul className="flex flex-col gap-4">
         {observerName && (
-          <li>
+          <li className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => setDialogOpen(true)}
-              className="w-full rounded-md border border-dashed border-neutral-300 p-3 text-left text-sm font-medium text-neutral-600 hover:border-neutral-400 hover:text-neutral-900"
+              className="min-w-40 flex-1 rounded-md border border-dashed border-neutral-300 p-3 text-left text-sm font-medium text-neutral-600 hover:border-neutral-400 hover:text-neutral-900"
             >
               + Add observation
             </button>
-          </li>
-        )}
-        {observerName && (
-          <li>
             <GsvAddPanel spotId={spotId} />
           </li>
         )}
@@ -629,13 +681,31 @@ export function ObservationsPanel({
                 </div>
               </div>
               {obs.notes && <p className="mt-1 text-sm">{obs.notes}</p>}
-              {canEditObservation(obs, currentUserId, isSystemAdmin) && (
-                <StewardshipActions
-                  spotId={spotId}
-                  obs={obs}
-                  currentStewardId={currentStewardId}
-                />
-              )}
+              {(() => {
+                const canIdentify = canIdentifySpecies(obs, currentUserId, isSystemAdmin);
+                const label = speciesButtonLabel(obs, canIdentify);
+                const speciesButton = label && (
+                  <button
+                    type="button"
+                    onClick={() => setSpeciesObservation(obs)}
+                    className="rounded-md border border-neutral-300 px-2 py-1 text-xs font-medium text-neutral-700 hover:border-neutral-400"
+                  >
+                    🌱 {label}
+                  </button>
+                );
+                if (canEditObservation(obs, currentUserId, isSystemAdmin)) {
+                  return (
+                    <StewardshipActions
+                      spotId={spotId}
+                      obs={obs}
+                      currentStewardId={currentStewardId}
+                    >
+                      {speciesButton}
+                    </StewardshipActions>
+                  );
+                }
+                return speciesButton ? <div className="mt-2">{speciesButton}</div> : null;
+              })()}
               {(() => {
                 const obsPhotos = photosForObservation(obs);
                 if (obsPhotos.length === 0) return null;
@@ -651,23 +721,11 @@ export function ObservationsPanel({
                         linkPath={photoId ? photoPath(spotSlug, obs.observationId, photoId) : null}
                         highlighted={!!photoId && photoId === highlightPhotoId}
                         canEditPortrait={canEditPhotos && portrait}
+                        canMove={canEditPhotos}
+                        observedAt={obs.observedAt}
                       />
                     ))}
                   </div>
-                );
-              })()}
-              {(() => {
-                const canIdentify = canIdentifySpecies(obs, currentUserId, isSystemAdmin);
-                const label = speciesButtonLabel(obs, canIdentify);
-                if (!label) return null;
-                return (
-                  <button
-                    type="button"
-                    onClick={() => setSpeciesObservation(obs)}
-                    className="mt-2 rounded-md border border-neutral-300 px-2.5 py-1 text-xs font-medium text-neutral-700 hover:border-neutral-400 hover:text-neutral-900"
-                  >
-                    🌱 {label}
-                  </button>
                 );
               })()}
             </li>
