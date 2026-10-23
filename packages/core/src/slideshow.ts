@@ -65,6 +65,9 @@ function scopeCondition(scope: SlideshowScope): SQL {
   switch (scope.kind) {
     case "spot":
       return eq(spots.spotId, scope.spotId);
+    case "country":
+      // Only US spots exist today, so the country scope is every spot.
+      return sql`true`;
     case "state": {
       const fullName = STATE_CONFIGS[scope.state]?.name.toLowerCase();
       const stateMatch = fullName
@@ -243,6 +246,7 @@ export async function getSlideshowTitle(scope: SlideshowScope): Promise<string |
       .limit(1);
     return row?.name ?? null;
   }
+  if (scope.kind === "country") return "United States";
   const [row] = await db
     .select({ name: subdivisions.name })
     .from(subdivisions)

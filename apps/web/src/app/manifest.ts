@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Placekeeping — Community Stewardship Atlas",
+    name: "Placekeeping — A public atlas of places worth caring for",
     short_name: "Placekeeping",
     description:
       "Find and steward gardens, preserves, and other cared-for outdoor places near you.",

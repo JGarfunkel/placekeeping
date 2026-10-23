@@ -4,6 +4,7 @@ import { stripQualifier } from "./territory";
 // /spots/ territory-slug shape (us/ny, us/ny/westchester-county,
 // us/ny/new-castle-town); a single spot is spot/<id>.
 export type SlideshowScope =
+  | { kind: "country"; path: string }
   | { kind: "state"; state: string; path: string }
   | { kind: "county"; state: string; countySlug: string; path: string }
   | { kind: "municipality"; state: string; muniSlug: string; path: string }
@@ -17,6 +18,7 @@ export function parseSlideshowScope(segments: string[]): SlideshowScope | null {
     return Number.isSafeInteger(spotId) ? { kind: "spot", spotId } : null;
   }
 
+  if (parts.length === 1 && parts[0] === "us") return { kind: "country", path: "us" };
   if (parts[0] !== "us" || !/^[a-z]{2}$/.test(parts[1] ?? "")) return null;
   const state = parts[1];
   if (parts.length === 2) return { kind: "state", state, path: `us/${state}` };

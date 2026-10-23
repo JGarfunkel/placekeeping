@@ -1,4 +1,4 @@
-import { db, spots, users } from "@placekeeping/db";
+import { db, observations, spots, users } from "@placekeeping/db";
 import {
   DEFAULT_STATE_CODE,
   deriveAccessibility,
@@ -155,6 +155,14 @@ export async function findNearbySpots(
       slugLocality: spots.slugLocality,
       slug: spots.slug,
       distanceMeters: distanceExpr,
+      // Qualified by hand: an unqualified spot_id inside the subquery would
+      // resolve to observations.spot_id and match every row.
+      lastActivityAt: sql<string>`COALESCE(
+        (SELECT max(${observations.observedAt}) FROM ${observations}
+          WHERE ${observations.spotId} = "spots"."spot_id"
+            AND ${observations.source} IS DISTINCT FROM 'gsv'),
+        "spots"."date_added"::date
+      )::text`,
     })
     .from(spots)
     .where(and(...conditions))
@@ -179,6 +187,7 @@ export async function findNearbySpots(
     slugLocality: r.slugLocality,
     slug: r.slug,
     distanceMeters: Number(r.distanceMeters),
+    lastActivityAt: r.lastActivityAt,
   }));
 }
 
@@ -301,7 +310,7 @@ export async function listSpotsBySteward(stewardId: string): Promise<SpotSummary
 export async function listSpotsByCreator(
   createdByUserId: string,
   limit = 20,
-): Promise<SpotSummary[]> {
+): Promise<Array<SpotSummary & { dateAdded: string }>> {
   const rows = await db
     .select({
       spotId: spots.spotId,
@@ -322,6 +331,7 @@ export async function listSpotsByCreator(
       slugState: spots.slugState,
       slugLocality: spots.slugLocality,
       slug: spots.slug,
+      dateAdded: spots.dateAdded,
     })
     .from(spots)
     .where(eq(spots.createdByUserId, createdByUserId))
@@ -345,6 +355,7 @@ export async function listSpotsByCreator(
     slugState: r.slugState,
     slugLocality: r.slugLocality,
     slug: r.slug,
+    dateAdded: r.dateAdded.toISOString(),
   }));
 }
 

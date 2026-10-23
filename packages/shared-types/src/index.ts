@@ -12,3 +12,4 @@ export * from "./user";
 export * from "./careEvent";
 export * from "./task";
 export * from "./species";
+export * from "./note";

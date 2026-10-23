@@ -7,6 +7,7 @@ import {
   careEventParticipants,
   events,
   identifications,
+  notes,
   observationPlants,
   observations,
   parcels,
@@ -50,6 +51,7 @@ const ALL_TABLES: AnyPgTable[] = [
   taxonListings,
   identifications,
   observationPlants,
+  notes,
 ];
 
 export interface TableCheckResult {

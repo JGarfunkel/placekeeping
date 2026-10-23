@@ -1,14 +1,15 @@
-import { findNearbySpots } from "@placekeeping/core";
+import { findNearbySpots, listPromotedNotes } from "@placekeeping/core";
+import { noteSignedBy } from "@placekeeping/shared-types";
 import { isDatabaseConnectionError } from "@placekeeping/db";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { DatabaseWarningBanner } from "@/components/DatabaseWarningBanner";
 import { SpotFilters } from "@/components/SpotFilters";
+import { HomeMapAndUpdates } from "@/components/HomeMapAndUpdates";
 import { MapLegend } from "@/components/map/MapLegend";
-import { MapView } from "@/components/map/MapView";
+import { NoteHtml } from "@/components/notes/NoteHtml";
 import { MAP_VIEW_COOKIE_NAME, parseMapViewCookie } from "@/lib/mapView";
-import { DEFAULT_PIN_SVG, renderPin } from "@/lib/pins/renderPin";
-import { resolveSpotPin } from "@/lib/pins/resolveSpotPin";
+import { renderNotes } from "@/lib/renderNotes";
 import { getAuthContext } from "@/lib/session";
 
 // Falls back to roughly the geographic center of the contiguous U.S. — used
@@ -61,7 +62,7 @@ export default async function HomePage({
       ? 15
       : DEFAULT_RADIUS_MI;
 
-  const [spotsResult, authResult] = await Promise.allSettled([
+  const [spotsResult, authResult, notesResult] = await Promise.allSettled([
     findNearbySpots({
       lat,
       lng,
@@ -71,6 +72,7 @@ export default async function HomePage({
       focus: params.focus as never,
     }),
     getAuthContext(),
+    listPromotedNotes(),
   ]);
 
   let dbUnavailable = false;
@@ -85,6 +87,10 @@ export default async function HomePage({
     dbUnavailable = true;
   }
 
+  // A failed notes query must not take the map down with it -- the welcome
+  // content is optional, so it just disappears.
+  const promotedNotes =
+    notesResult.status === "fulfilled" ? renderNotes(notesResult.value) : [];
   const spots = spotsResult.status === "fulfilled" ? spotsResult.value : [];
   const authContext = authResult.status === "fulfilled" ? authResult.value : null;
 
@@ -92,64 +98,35 @@ export default async function HomePage({
     <main className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-8">
       {dbUnavailable && <DatabaseWarningBanner />}
 
-      <div className="flex flex-col gap-4 md:flex-row">
-        <div className="md:w-2/3">
-          <MapView
-            spots={spots}
-            center={{ lat, lng }}
-            zoom={zoom}
-            canAddSpot={!!authContext}
-            persistViewState
-          />
-
-          <MapLegend />
-        </div>
-
-        <ul className="divide-y divide-neutral-200 md:w-1/3">
-          {spots.map((spot) => {
-            const pin = resolveSpotPin(spot);
-            const pinSvg = pin ? renderPin(pin) : DEFAULT_PIN_SVG;
-            return (
-              <li key={spot.spotId} className="flex items-start gap-2 py-3">
-                <div
-                  className="h-[38px] w-7 shrink-0"
-                  dangerouslySetInnerHTML={{ __html: pinSvg }}
-                />
-                <div>
-                  <Link
-                    href={`/spots/${spot.spotId}`}
-                    className="font-medium underline"
-                  >
-                    {spot.name}
-                  </Link>
-                  <div className="text-sm text-neutral-500">
-                    {spot.stewardId ? (
-                      <Link
-                        href={`/stewards/${spot.stewardId}`}
-                        className="underline"
-                      >
-                        Stewarded
+      <HomeMapAndUpdates
+        spots={spots}
+        center={{ lat, lng }}
+        zoom={zoom}
+        canAddSpot={!!authContext}
+        dbUnavailable={dbUnavailable}
+        legend={<MapLegend />}
+        welcome={
+          promotedNotes.length > 0 ? (
+            <div className="flex flex-col gap-6">
+              {promotedNotes.map((note) => (
+                <article key={note.noteId}>
+                  {note.title && (
+                    <h2 className="mb-2 text-xl font-semibold">{note.title}</h2>
+                  )}
+                  <NoteHtml html={note.html} />
+                  {noteSignedBy(note) && (
+                    <p className="mt-1 text-sm text-neutral-500">
+                      <Link href={`/user/${note.authorUsername}`} className="underline">
+                        @{note.authorUsername}
                       </Link>
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                </div>
-              </li>
-            );
-          })}
-          {spots.length === 0 && !dbUnavailable && (
-            <li className="py-6 text-sm text-neutral-500">
-              No spots found in this area. Try widening the radius.
-            </li>
-          )}
-          {spots.length === 0 && dbUnavailable && (
-            <li className="py-6 text-sm text-neutral-500">
-              Spots couldn&apos;t be loaded right now.
-            </li>
-          )}
-        </ul>
-      </div>
+                    </p>
+                  )}
+                </article>
+              ))}
+            </div>
+          ) : null
+        }
+      />
     </main>
   );
 }

@@ -2,6 +2,8 @@ import {
   getStewardByUserId,
   getUserByUserId,
   getUserByUsername,
+  canWriteNotes,
+  listNotesByAuthor,
   listObservationsByObserver,
   listSpotsByCreator,
   listStewardsForUser,
@@ -9,6 +11,8 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { UserLevelSelect } from "@/components/forms/UserLevelSelect";
+import { NotesSection } from "@/components/notes/NotesSection";
+import { renderNotes } from "@/lib/renderNotes";
 import { getAuthContext } from "@/lib/session";
 
 // UUIDs (v1-v5) route to getUserByUserId; anything else is treated as a
@@ -43,13 +47,16 @@ export default async function UserProfilePage({
   // (observations.observerId, spots.createdByUserId) -- neither needs the
   // steward lookup above, which only exists for users who've also signed up
   // as an individual steward.
-  const [spots, observations] = await Promise.all([
+  const [spots, observations, notes] = await Promise.all([
     listSpotsByCreator(user.userId),
     listObservationsByObserver(user.userId),
+    listNotesByAuthor(user.userId),
   ]);
+  // Only the page owner gets the composer; everyone sees the notes.
+  const isOwnPage = authContext?.userId === user.userId;
 
   return (
-    <main className="mx-auto flex max-w-xl flex-col gap-6 px-6 py-8">
+    <main className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-8">
       <div className="flex items-start gap-4">
         {user.photoUrl && (
           // eslint-disable-next-line @next/next/no-img-element
@@ -90,56 +97,74 @@ export default async function UserProfilePage({
         )}
       </div>
 
-      {groups.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <h2 className="text-lg font-medium">Groups</h2>
-          <ul className="flex flex-col gap-1">
-            {groups.map((group) => (
-              <li key={group.stewardId}>
-                <Link href={`/stewards/${group.slug}`} className="underline">
-                  {group.name}
-                </Link>
-                {group.role === "admin" && (
-                  <span className="ml-1 text-xs text-neutral-500">(admin)</span>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <div className="grid gap-8 md:grid-cols-3">
+        <div className="flex flex-col gap-6">
+          {groups.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <h2 className="text-lg font-medium">Groups</h2>
+              <ul className="flex flex-col gap-1">
+                {groups.map((group) => (
+                  <li key={group.stewardId}>
+                    <Link href={`/stewards/${group.slug}`} className="underline">
+                      {group.name}
+                    </Link>
+                    {group.role === "admin" && (
+                      <span className="ml-1 text-xs text-neutral-500">(admin)</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-      {spots.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <h2 className="text-lg font-medium">Spots added</h2>
-          <ul className="flex flex-col gap-1">
-            {spots.map((spot) => (
-              <li key={spot.spotId}>
-                <Link href={`/spots/${spot.spotId}`} className="underline">
-                  {spot.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+          {spots.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <h2 className="text-lg font-medium">Spots added</h2>
+              <ul className="flex flex-col gap-1">
+                {spots.map((spot) => (
+                  <li key={spot.spotId} className="text-sm">
+                    <Link href={`/spots/${spot.spotId}`} className="underline">
+                      {spot.name}
+                    </Link>{" "}
+                    <span className="text-neutral-500">
+                      ({new Date(spot.dateAdded).toLocaleDateString()})
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-      {observations.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <h2 className="text-lg font-medium">Observations</h2>
-          <ul className="flex flex-col gap-1">
-            {observations.map((observation) => (
-              <li key={observation.observationId} className="text-sm">
-                <Link href={`/spots/${observation.spotId}`} className="underline">
-                  {observation.spotName}
-                </Link>{" "}
-                <span className="text-neutral-500">
-                  ({new Date(observation.observedAt).toLocaleDateString()})
-                </span>
-              </li>
-            ))}
-          </ul>
+          {observations.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <h2 className="text-lg font-medium">Observations</h2>
+              <ul className="flex flex-col gap-1">
+                {observations.map((observation) => (
+                  <li key={observation.observationId} className="text-sm">
+                    <Link href={`/spots/${observation.spotId}`} className="underline">
+                      {observation.spotName}
+                    </Link>{" "}
+                    <span className="text-neutral-500">
+                      ({new Date(observation.observedAt).toLocaleDateString()})
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
-      )}
+
+        <div className="md:col-span-2">
+          <NotesSection
+            heading="Notes"
+            notes={renderNotes(notes)}
+            currentUserId={authContext?.userId ?? null}
+            isSystemAdmin={authContext?.isSystemAdmin ?? false}
+            canWrite={isOwnPage && !!authContext && canWriteNotes(authContext)}
+            showAuthor={false}
+          />
+        </div>
+      </div>
     </main>
   );
 }

@@ -18,6 +18,7 @@ import { BASE_LAYERS, MAP_CLUSTER_RADIUS, type BaseLayerKey } from "@/components
 import type { ParcelPolygon } from "@/components/map/GoogleMapView";
 import { LayerSwitcher } from "@/components/map/LayerSwitcher";
 import { clampBoundsToMaxExtent } from "@/lib/geo/maxExtent";
+import type { MapBounds } from "@/lib/mapBounds";
 import { MAP_VIEW_COOKIE_NAME } from "@/lib/mapView";
 import { DEFAULT_PIN_SVG, PIN_ANCHOR, renderPin } from "@/lib/pins/renderPin";
 import { resolveSpotPin } from "@/lib/pins/resolveSpotPin";
@@ -125,6 +126,27 @@ function ViewStatePersister() {
     const value = JSON.stringify({ lat: c.lat, lng: c.lng, zoom: map.getZoom() });
     document.cookie = `${MAP_VIEW_COOKIE_NAME}=${encodeURIComponent(value)}; path=/; samesite=lax`;
   });
+  return null;
+}
+
+function BoundsReporter({ onChange }: { onChange: (bounds: MapBounds) => void }) {
+  const map = useMap();
+  useEffect(() => {
+    const report = () => {
+      const b = map.getBounds();
+      onChange({
+        north: b.getNorth(),
+        south: b.getSouth(),
+        east: b.getEast(),
+        west: b.getWest(),
+      });
+    };
+    report();
+    map.on("moveend", report);
+    return () => {
+      map.off("moveend", report);
+    };
+  }, [map, onChange]);
   return null;
 }
 
@@ -252,6 +274,7 @@ export function LeafletMapView({
   layer,
   onLayerChange,
   movableSpotId,
+  onBoundsChange,
 }: {
   spots: SpotSummary[];
   center: { lat: number; lng: number };
@@ -264,6 +287,8 @@ export function LeafletMapView({
   layer: Exclude<BaseLayerKey, "google">;
   onLayerChange: (layer: BaseLayerKey) => void;
   movableSpotId?: number;
+  // Fires on mount and after every pan/zoom with the visible area.
+  onBoundsChange?: (bounds: MapBounds) => void;
 }) {
   const [pendingLocation, setPendingLocation] = useState<{
     lat: number;
@@ -311,6 +336,7 @@ export function LeafletMapView({
 
           <RecenterOnChange center={center} zoom={zoom} />
           {persistViewState && <ViewStatePersister />}
+          {onBoundsChange && <BoundsReporter onChange={onBoundsChange} />}
           {canAddSpot && (
             <ContextMenuToAdd onAdd={setPendingLocation} />
           )}

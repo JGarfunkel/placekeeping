@@ -748,6 +748,53 @@ export const photos = pgTable(
   (table) => [index("photos_observation_id_idx").on(table.observationId)],
 );
 
+// Free-form write-ups by verified members, authored in markdown (primitive
+// HTML is tolerated but sanitized at render time -- see renderNoteHtml in
+// apps/web). A note always shows on its author's personal page; when
+// observationId is set it also shows on that observation, and so on the
+// observation's spot and site (rolled up by query, not stored). `promotedAt`
+// is the front-page flag: non-null means the note is featured on the home
+// page. Distinct from observations.notes, which is the short one-line
+// comment captured with the observation itself.
+export const notes = pgTable(
+  "notes",
+  {
+    noteId: uuid("note_id").primaryKey().defaultRandom(),
+    authorId: uuid("author_id").references(() => users.userId, {
+      onDelete: "set null",
+    }),
+    observationId: uuid("observation_id").references(
+      () => observations.observationId,
+      { onDelete: "cascade" },
+    ),
+    title: text("title"),
+    // Markdown source. Stored raw and sanitized on output, so tightening the
+    // allowlist later takes effect on existing notes too.
+    body: text("body").notNull(),
+    // Whether the author's @username is shown with the note. Only system
+    // admins can set it false (see the notes API), e.g. for site-voice front
+    // page content; authorId is kept regardless, so an unsigned note is still
+    // traceable.
+    signed: boolean("signed").notNull().default(true),
+    promotedAt: timestamp("promoted_at", { withTimezone: true }),
+    promotedByUserId: uuid("promoted_by_user_id").references(
+      () => users.userId,
+      { onDelete: "set null" },
+    ),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("notes_author_id_idx").on(table.authorId, table.createdAt),
+    index("notes_observation_id_idx").on(table.observationId),
+    index("notes_promoted_at_idx").on(table.promotedAt),
+  ],
+);
+
 export type PhotoVariants = {
   original: { w: number; h: number; bytes: number; mime: string };
   medium?: { w: number; h: number; bytes: number };

@@ -1,10 +1,13 @@
 import {
   canManageSite,
+  canAttachNote,
   canManageSpot,
   countyPathSegment,
   getStewardByStewardId,
+  canWriteNotes,
   getUserByUserId,
   isTaskMember,
+  listNotesForObservations,
   listVerifiedSpeciesForSpot,
   slugify,
 } from "@placekeeping/core";
@@ -19,6 +22,7 @@ import { AsanaSpotSection } from "@/components/integrations/AsanaSpotSection";
 import { ObservationsPanel } from "@/components/forms/ObservationsPanel";
 import { focusOptions } from "@/components/forms/spotOptions";
 import { imageUrl as gsvImageUrl } from "@/lib/gsv";
+import { renderNotes } from "@/lib/renderNotes";
 import { getSiteColumnData } from "@/lib/siteColumnData";
 import { DeleteSpotButton } from "./DeleteSpotButton";
 import { FillGeoDetailsButton } from "./FillGeoDetailsButton";
@@ -193,6 +197,11 @@ export async function SpotDetailView({
     }
   }
   const species = await listVerifiedSpeciesForSpot(spot.spotId, spot.state);
+  const notesByObservation = Object.fromEntries(
+    Object.entries(
+      await listNotesForObservations(observations.map((o) => o.observationId)),
+    ).map(([observationId, notes]) => [observationId, renderNotes(notes)]),
+  );
   const canCreateTasks = !!authContext && isTaskMember(authContext);
   const canDeleteSpot =
     canManageParcel && (!hasObservations || authContext?.isSystemAdmin === true);
@@ -389,6 +398,15 @@ export async function SpotDetailView({
           highlightObservationId={highlightObservationId}
           highlightPhotoId={highlightPhotoId}
           featuredPhoto={featuredPhoto}
+          notesByObservation={notesByObservation}
+          canWriteNotes={!!authContext && canWriteNotes(authContext)}
+          noteableObservationIds={
+            authContext
+              ? observations
+                  .filter((o) => canAttachNote(authContext, o))
+                  .map((o) => o.observationId)
+              : []
+          }
         />
         </>
       }

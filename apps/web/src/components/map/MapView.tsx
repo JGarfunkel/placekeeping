@@ -4,6 +4,7 @@ import type { SpotSummary } from "@placekeeping/shared-types";
 import dynamic from "next/dynamic";
 import { GoogleMapView, type ParcelPolygon } from "@/components/map/GoogleMapView";
 import { useBaseLayer } from "@/hooks/useBaseLayer";
+import type { MapBounds } from "@/lib/mapBounds";
 
 export type { ParcelPolygon };
 
@@ -31,6 +32,7 @@ export function MapView(props: {
   persistViewState?: boolean;
   parcelPolygons?: ParcelPolygon[];
   movableSpotId?: number;
+  onBoundsChange?: (bounds: MapBounds) => void;
 }) {
   const [layer, setLayer] = useBaseLayer();
 

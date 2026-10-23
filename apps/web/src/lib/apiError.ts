@@ -2,6 +2,7 @@ import {
   assertWritesEnabled,
   CareEventError,
   IntegrationError,
+  NoteError,
   PhotoModerationError,
   RateLimitError,
   SpeciesError,
@@ -67,6 +68,9 @@ export function withApiErrorHandling<Args extends unknown[]>(
         );
       }
       if (error instanceof SpeciesError) {
+        return NextResponse.json({ error: error.message }, { status: error.status });
+      }
+      if (error instanceof NoteError) {
         return NextResponse.json({ error: error.message }, { status: error.status });
       }
       if (error instanceof CareEventError) {

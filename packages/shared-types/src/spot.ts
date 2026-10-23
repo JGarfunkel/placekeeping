@@ -101,7 +101,12 @@ export const spotSummarySchema = spotSchema
     slugLocality: true,
     slug: true,
   })
-  .extend({ distanceMeters: z.number().optional() });
+  .extend({
+    distanceMeters: z.number().optional(),
+    // YYYY-MM-DD of the spot's latest keeper observation, falling back to the
+    // day it was added. Only set by findNearbySpots (the front-page Updates list).
+    lastActivityAt: z.string().optional(),
+  });
 export type SpotSummary = z.infer<typeof spotSummarySchema>;
 
 export const createSpotSchema = z.object({

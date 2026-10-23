@@ -8,6 +8,7 @@ export * from "./firebase-admin";
 export * from "./inboundEmail";
 export * from "./spots";
 export * from "./observations";
+export * from "./notes";
 export * from "./parcels";
 export * from "./photoEdit";
 export * from "./photoMetadata";

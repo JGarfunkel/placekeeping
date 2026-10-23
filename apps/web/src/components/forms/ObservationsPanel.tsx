@@ -18,6 +18,8 @@ import { GsvAddPanel } from "./GsvAddPanel";
 import { requestCreateTask } from "@/lib/taskEvents";
 import { SpeciesSheet } from "@/components/species/SpeciesSheet";
 import { EditObservationDialog } from "./EditObservationDialog";
+import { NotesSection } from "@/components/notes/NotesSection";
+import type { RenderedNote } from "@/lib/renderNotes";
 
 // obs.photos (from listObservationsForSpot's join against the `photos`
 // table) gives each photo a stable id for permalinks/highlighting. Falls
@@ -538,6 +540,9 @@ export function ObservationsPanel({
   highlightObservationId,
   highlightPhotoId,
   featuredPhoto,
+  notesByObservation = {},
+  canWriteNotes = false,
+  noteableObservationIds = [],
 }: {
   spotId: number;
   spotName: string;
@@ -568,6 +573,12 @@ export function ObservationsPanel({
   // big in-page image above the list (see FeaturedPhoto), instead of the
   // matching thumbnail's lightbox auto-opening as a floating overlay.
   featuredPhoto?: Photo | null;
+  // Notes attached to each observation (sanitized HTML pre-rendered on the
+  // server), and whether the caller may add one -- see canWriteNotes in core.
+  notesByObservation?: Record<string, RenderedNote[]>;
+  canWriteNotes?: boolean;
+  // Observations the caller may attach a note to (own, or any if Partner).
+  noteableObservationIds?: string[];
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingObservation, setEditingObservation] = useState<Observation | null>(
@@ -728,6 +739,18 @@ export function ObservationsPanel({
                   </div>
                 );
               })()}
+              <div className="mt-3">
+                <NotesSection
+                  notes={notesByObservation[obs.observationId] ?? []}
+                  currentUserId={currentUserId}
+                  isSystemAdmin={isSystemAdmin}
+                  canWrite={canWriteNotes}
+                  canCompose={noteableObservationIds.includes(obs.observationId)}
+                  observationId={obs.observationId}
+                  showSpot={false}
+                  addLabel="+ Add note"
+                />
+              </div>
             </li>
           );
         })}

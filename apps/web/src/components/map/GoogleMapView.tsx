@@ -16,6 +16,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { BaseLayerKey } from "@/components/map/baseLayers";
 import { LayerSwitcher } from "@/components/map/LayerSwitcher";
 import { clampBoundsToMaxExtent } from "@/lib/geo/maxExtent";
+import type { MapBounds } from "@/lib/mapBounds";
 import { MAP_VIEW_COOKIE_NAME } from "@/lib/mapView";
 import { renderPin } from "@/lib/pins/renderPin";
 import { resolveSpotPin } from "@/lib/pins/resolveSpotPin";
@@ -41,6 +42,19 @@ function ViewStatePersister() {
     return () => listener.remove();
   }, [map]);
 
+  return null;
+}
+
+function BoundsReporter({ onChange }: { onChange: (bounds: MapBounds) => void }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!map) return;
+    const listener = map.addListener("idle", () => {
+      const bounds = map.getBounds()?.toJSON();
+      if (bounds) onChange(bounds);
+    });
+    return () => listener.remove();
+  }, [map, onChange]);
   return null;
 }
 
@@ -296,6 +310,7 @@ export function GoogleMapView({
   layer,
   onLayerChange,
   movableSpotId,
+  onBoundsChange,
 }: {
   spots: SpotSummary[];
   center: { lat: number; lng: number };
@@ -308,6 +323,8 @@ export function GoogleMapView({
   layer: BaseLayerKey;
   onLayerChange: (layer: BaseLayerKey) => void;
   movableSpotId?: number;
+  // Fires after every pan/zoom (and once the map first settles).
+  onBoundsChange?: (bounds: MapBounds) => void;
 }) {
   const [selected, setSelected] = useState<SpotSummary | null>(null);
   const [pendingLocation, setPendingLocation] = useState<{
@@ -377,6 +394,7 @@ export function GoogleMapView({
           )}
           <RecenterOnChange center={center} zoom={zoom} />
           {persistViewState && <ViewStatePersister />}
+          {onBoundsChange && <BoundsReporter onChange={onBoundsChange} />}
           {selected && (
             <InfoWindow
               position={{ lat: selected.latitude, lng: selected.longitude }}

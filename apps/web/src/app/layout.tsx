@@ -33,7 +33,7 @@ const sourceSerif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  title: "Placekeeping — Community Stewardship Atlas",
+  title: "Placekeeping — A public atlas of places worth caring for",
   description:
     "Find and steward gardens, preserves, and other cared-for outdoor places near you.",
   appleWebApp: {
@@ -84,7 +84,7 @@ export default async function RootLayout({
         {!dbUnavailable && writesPaused && <PauseBanner />}
         <AnnouncementBanner />
         <header className="relative z-[1100] flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200 bg-white px-6 py-3 text-sm">
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex flex-col justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element -- static SVG, no optimization needed */}
             <img
               src="/brand/wordmark.svg"
@@ -92,6 +92,9 @@ export default async function RootLayout({
               width={182}
               height={33}
             />
+            <span className="mt-0.5 hidden text-xs text-neutral-500 md:block">
+              A public atlas of places worth caring for
+            </span>
           </Link>
 
           <div>

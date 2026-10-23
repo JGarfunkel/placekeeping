@@ -1,10 +1,12 @@
 import {
   canManageSite,
+  canWriteNotes,
   getBinding,
   listRecurringTasks,
   listAsanaIdentitiesForUser,
   getSiteById,
   getSiteParcelGeometries,
+  listNotesForSite,
   listSpotsBySite,
 } from "@placekeeping/core";
 import type { Metadata } from "next";
@@ -16,7 +18,9 @@ import { AsanaBindingEditor } from "@/components/integrations/AsanaBindingEditor
 import { SiteMapAndParcels } from "@/components/sites/SiteMapAndParcels";
 import { multiPolygonToPolygonPaths } from "@/lib/geo/parcelGeometry";
 import type { ParcelPolygon } from "@/components/map/MapView";
+import { NotesSection } from "@/components/notes/NotesSection";
 import { SpotColumns } from "@/components/spots/SpotColumns";
+import { renderNotes } from "@/lib/renderNotes";
 import { sitePurposeLabels } from "@/lib/siteLabels";
 import { buildSiteMetadata } from "@/lib/siteMetadata";
 import { isAsanaEnabled } from "@/lib/asana";
@@ -71,9 +75,10 @@ export default async function SiteDetailPage({
   if (!loaded) notFound();
   const { site, memberSpots } = loaded;
 
-  const [parcelGeometries, authContext] = await Promise.all([
+  const [parcelGeometries, authContext, siteNotes] = await Promise.all([
     getSiteParcelGeometries(siteId),
     getAuthContext(),
+    listNotesForSite(siteId),
   ]);
 
   const parcelPolygons: ParcelPolygon[] = parcelGeometries.flatMap((p) =>
@@ -123,6 +128,17 @@ export default async function SiteDetailPage({
           <div className="mt-4">
             <EventList target={{ siteId }} authContext={authContext} />
           </div>
+          {siteNotes.length > 0 && (
+            <div className="mt-6">
+              <NotesSection
+                heading="Notes"
+                notes={renderNotes(siteNotes)}
+                currentUserId={authContext?.userId ?? null}
+                isSystemAdmin={authContext?.isSystemAdmin ?? false}
+                canWrite={!!authContext && canWriteNotes(authContext)}
+              />
+            </div>
+          )}
           {asanaIdentities.length > 0 && (
             <div className="mt-4">
               <AsanaBindingEditor
