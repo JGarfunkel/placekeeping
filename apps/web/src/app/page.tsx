@@ -7,6 +7,7 @@ import { DatabaseWarningBanner } from "@/components/DatabaseWarningBanner";
 import { SpotFilters } from "@/components/SpotFilters";
 import { HomeMapAndUpdates } from "@/components/HomeMapAndUpdates";
 import { MapLegend } from "@/components/map/MapLegend";
+import { ClampedNote } from "@/components/notes/ClampedNote";
 import { NoteHtml } from "@/components/notes/NoteHtml";
 import { MAP_VIEW_COOKIE_NAME, parseMapViewCookie } from "@/lib/mapView";
 import { renderNotes } from "@/lib/renderNotes";
@@ -113,7 +114,9 @@ export default async function HomePage({
                   {note.title && (
                     <h2 className="mb-2 text-xl font-semibold">{note.title}</h2>
                   )}
-                  <NoteHtml html={note.html} />
+                  <ClampedNote href={`/notes/${note.noteId}`}>
+                    <NoteHtml html={note.html} />
+                  </ClampedNote>
                   {noteSignedBy(note) && (
                     <p className="mt-1 text-sm text-neutral-500">
                       <Link href={`/user/${note.authorUsername}`} className="underline">

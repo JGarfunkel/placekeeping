@@ -3,7 +3,7 @@
 import type { Subdivision } from "@placekeeping/core";
 import type { SpotSummary } from "@placekeeping/shared-types";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { resolvePin } from "@/lib/pins/resolvePin";
 import { toSpotFunction } from "@/lib/pins/resolveSpotPin";
 import { renderPin } from "@/lib/pins/renderPin";
@@ -52,16 +52,21 @@ export function TerritorySidePanel({
   subdivisions,
   scoreboard,
   spots,
+  activity,
 }: {
   territoryName: string;
   subdivisions: Subdivision[];
   scoreboard: { category: string; count: number }[];
   spots: SpotSummary[];
+  // Server-rendered events/tasks, shown above the scoreboard/list toggle.
+  activity?: ReactNode;
 }) {
   const [view, setView] = useState<View>("scoreboard");
 
   return (
     <div className="flex flex-col gap-4 lg:pl-6">
+      {activity}
+
       <div className="flex gap-2 text-sm">
         {(["scoreboard", "list"] as const).map((option) => (
           <button

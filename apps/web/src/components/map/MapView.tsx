@@ -15,7 +15,7 @@ export type { ParcelPolygon };
 // layout shift once the chunk loads; both point at the same module/chunk.
 const LeafletMapViewFull = dynamic(
   () => import("@/components/map/LeafletMapView").then((m) => m.LeafletMapView),
-  { ssr: false, loading: () => <div className="h-[600px] w-full rounded-md bg-neutral-100" /> },
+  { ssr: false, loading: () => <div className="h-[560px] w-full rounded-md bg-neutral-100" /> },
 );
 const LeafletMapViewCompact = dynamic(
   () => import("@/components/map/LeafletMapView").then((m) => m.LeafletMapView),

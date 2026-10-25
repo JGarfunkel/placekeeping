@@ -9,6 +9,7 @@ import type {
 } from "@placekeeping/core";
 import Link from "next/link";
 import { PlaySlideshowLink } from "@/components/slideshow/PlaySlideshowLink";
+import { MapLegend } from "@/components/map/MapLegend";
 import { MapView } from "@/components/map/MapView";
 import { TerritoryActivity } from "@/components/spots/TerritoryActivity";
 import { TerritorySidePanel } from "@/components/spots/TerritorySidePanel";
@@ -68,15 +69,7 @@ export async function TerritoryView({
           canAddSpot={!!authContext}
           zoom={resolution.zoom}
         />
-
-        <TerritoryActivity
-          area={{
-            lat: resolution.centerLat,
-            lng: resolution.centerLng,
-            radiusMi: radiusMiForZoom(resolution.zoom),
-          }}
-          authContext={authContext}
-        />
+        <MapLegend />
       </div>
 
       <TerritorySidePanel
@@ -84,6 +77,16 @@ export async function TerritoryView({
         subdivisions={subdivisions}
         scoreboard={scoreboard}
         spots={spots}
+        activity={
+          <TerritoryActivity
+            area={{
+              lat: resolution.centerLat,
+              lng: resolution.centerLng,
+              radiusMi: radiusMiForZoom(resolution.zoom),
+            }}
+            authContext={authContext}
+          />
+        }
       />
     </main>
   );

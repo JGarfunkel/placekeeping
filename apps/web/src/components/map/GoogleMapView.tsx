@@ -342,7 +342,7 @@ export function GoogleMapView({
     return (
       <div
         className={`relative flex w-full items-center justify-center rounded-md border border-dashed border-neutral-300 text-sm text-neutral-500 ${
-          compact ? "h-[300px]" : "h-[600px]"
+          compact ? "h-[300px]" : "h-[560px]"
         }`}
       >
         Set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to enable the map.
@@ -362,7 +362,7 @@ export function GoogleMapView({
     <APIProvider apiKey={apiKey}>
       <div
         className={`relative w-full overflow-hidden rounded-md ${
-          compact ? "h-[300px]" : "h-[600px]"
+          compact ? "h-[300px]" : "h-[560px]"
         }`}
       >
         <Map

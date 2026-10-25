@@ -304,7 +304,7 @@ export function LeafletMapView({
     <>
       <div
         className={`relative w-full overflow-hidden rounded-md ${
-          compact ? "h-[300px]" : "h-[600px]"
+          compact ? "h-[300px]" : "h-[560px]"
         }`}
       >
         <MapContainer

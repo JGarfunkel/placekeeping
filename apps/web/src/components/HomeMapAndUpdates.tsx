@@ -66,7 +66,7 @@ export function HomeMapAndUpdates({
   }, [spots, filterToMap, bounds]);
 
   return (
-    <div className="grid gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+    <div className="grid gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,1.1fr)]">
       <div className="min-w-0">
         <MapView
           spots={spots}
@@ -87,7 +87,7 @@ export function HomeMapAndUpdates({
       <div className="md:relative">
         <div className="flex min-h-0 flex-col gap-4 md:absolute md:inset-0">
         {welcome && (
-          <div className="shrink-0 overflow-y-auto md:max-h-[50%]">{welcome}</div>
+          <div className="shrink-0">{welcome}</div>
         )}
 
         <section className="flex min-h-0 flex-col md:flex-1">
@@ -115,11 +115,11 @@ export function HomeMapAndUpdates({
                   <div className="min-w-0 flex-1">
                     <Link
                       href={`/spots/${spot.spotId}`}
-                      className="font-medium underline"
+                      className="text-sm font-medium underline"
                     >
                       {spot.name}
                     </Link>
-                    <div className="text-sm text-neutral-500">
+                    <div className="text-xs text-neutral-500">
                       {spot.lastActivityAt && formatDay(spot.lastActivityAt)}
                       {spot.stewardId && (
                         <>

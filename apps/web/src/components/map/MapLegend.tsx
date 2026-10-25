@@ -65,12 +65,12 @@ const BLOOM_EXAMPLES = [
 
 export function MapLegend() {
   return (
-    <div className="rounded-md border border-neutral-300 p-3 text-[15px]">
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+    <div className="rounded-md border border-neutral-300 px-2 py-1.5 text-[15px]">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
         {FILL_EXAMPLES.map(({ svg, label }) => (
           <div key={label} className="flex items-center gap-2">
             <div
-              className="h-[38px] w-7"
+              className="h-[30px] w-[22px]"
               dangerouslySetInnerHTML={{ __html: svg }}
             />
             <span>{label}</span>
@@ -78,7 +78,7 @@ export function MapLegend() {
         ))}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1.5 border-t border-neutral-200 pt-3">
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-neutral-200 pt-1.5">
         {focusOptions
           .filter((option) => option.value !== "none")
           .map(({ value, label }) => (
@@ -93,12 +93,12 @@ export function MapLegend() {
           ))}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-neutral-200 pt-3">
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-neutral-200 pt-1.5">
         <span className="font-semibold">Flowering</span>
         {BLOOM_EXAMPLES.map(({ svg, label }) => (
           <div key={label} className="flex items-center gap-2">
             <div
-              className="h-[38px] w-7"
+              className="h-[30px] w-[22px]"
               dangerouslySetInnerHTML={{ __html: svg }}
             />
             <span>{label}</span>
@@ -106,12 +106,12 @@ export function MapLegend() {
         ))}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-neutral-200 pt-3">
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-neutral-200 pt-1.5">
         <span className="font-semibold">Overgrowth</span>
         {RING_EXAMPLES.map(({ svg, label, description }) => (
           <div key={label} title={description} className="flex items-center gap-2">
             <div
-              className="h-[38px] w-7"
+              className="h-[30px] w-[22px]"
               dangerouslySetInnerHTML={{ __html: svg }}
             />
             <span>{label}</span>
