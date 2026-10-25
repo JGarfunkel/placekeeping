@@ -254,3 +254,27 @@ export function canAttachNote(
     authContext.level >= PARTNER_LEVEL
   );
 }
+
+// Writing notes (standalone or attached to an observation) is for verified
+// members: level 1+ and not suspended, or a system admin. Same bar as
+// isTaskMember, kept as its own name so the two can diverge.
+export function canWriteNotes(authContext: AuthContext): boolean {
+  if (authContext.isSystemAdmin) return true;
+  return !isSuspended(authContext) && authContext.level >= 1;
+}
+
+// Authors edit/delete their own notes (while still verified); system admins
+// can edit/delete any, e.g. to take down a promoted note.
+export function canEditNote(
+  authContext: AuthContext,
+  note: { authorId: string | null },
+): boolean {
+  if (authContext.isSystemAdmin) return true;
+  return canWriteNotes(authContext) && authContext.userId === note.authorId;
+}
+
+// Promotion puts a note on the front page, so it is curated: system admins
+// only. Change here (and nowhere else) to open it to authors.
+export function canPromoteNote(authContext: AuthContext): boolean {
+  return authContext.isSystemAdmin;
+}
